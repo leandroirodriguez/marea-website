@@ -22,11 +22,12 @@ export default function AdminBlogEditor() {
   const adminVerified = useAdminGuard()
 
   useEffect(() => {
+    if (!adminVerified) return
     if (id) {
       supabase.from('blog_posts').select('*').eq('id', id).single()
         .then(({ data }) => { if (data) setForm(data) })
     }
-  }, [id, navigate])
+  }, [id, adminVerified])
 
   function updateField(key, value) {
     setForm(prev => ({ ...prev, [key]: value }))

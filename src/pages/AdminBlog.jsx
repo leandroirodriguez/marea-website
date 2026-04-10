@@ -12,8 +12,8 @@ export default function AdminBlog() {
   const adminVerified = useAdminGuard()
 
   useEffect(() => {
-    loadPosts()
-  }, [navigate])
+    if (adminVerified) loadPosts()
+  }, [adminVerified])
 
   async function loadPosts() {
     const { data } = await supabase

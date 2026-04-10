@@ -30,6 +30,7 @@ export default function AdminArticleEditor() {
   const adminVerified = useAdminGuard()
 
   useEffect(() => {
+    if (!adminVerified) return
     if (id) {
       supabase.from('content').select('*').eq('id', id).single()
         .then(({ data }) => {
@@ -39,7 +40,7 @@ export default function AdminArticleEditor() {
           })
         })
     }
-  }, [id, navigate])
+  }, [id, adminVerified])
 
   function updateField(key, value) {
     setForm(prev => ({ ...prev, [key]: value }))

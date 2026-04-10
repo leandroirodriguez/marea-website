@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../src/**/*.{jsx,js}";
 
 @theme {
   --color-white: #fff;

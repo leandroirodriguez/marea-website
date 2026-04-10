@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { articleImage } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 /* ─── Data constants ─── */
@@ -605,6 +607,18 @@ function SymptomTrackerDemo() {
 /* ─── Main Landing Page ─── */
 
 export default function LandingPage() {
+  const [recentArticles, setRecentArticles] = useState([])
+
+  useEffect(() => {
+    supabase
+      .from('content')
+      .select('id, title, slug, category, read_time, is_premium, author')
+      .eq('published', true)
+      .order('published_at', { ascending: false })
+      .limit(3)
+      .then(({ data }) => setRecentArticles(data || []))
+  }, [])
+
   return (
     <div className="bg-surface text-on-background font-body selection:bg-secondary-container/30 overflow-x-hidden">
       {/* Nav */}
@@ -939,20 +953,44 @@ export default function LandingPage() {
               </h2>
             </div>
             <Link
-              to="/blog"
+              to="/articles"
               className="text-xs font-label font-semibold text-primary hover:text-tertiary transition-colors uppercase tracking-widest whitespace-nowrap"
             >
-              View all posts →
+              View all articles →
             </Link>
           </div>
-          <div className="bg-surface-container-lowest rounded-2xl p-8 md:p-10 shadow-sm border border-outline-variant/10 text-center">
-            <span className="material-symbols-outlined text-outline-variant text-4xl mb-3 block">
-              article
-            </span>
-            <p className="text-on-surface-variant font-light text-sm">
-              Blog posts will appear here once published from the admin panel.
-            </p>
-          </div>
+          {recentArticles.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {recentArticles.map(article => (
+                <Link key={article.id} to={`/articles/${article.slug}`} className="no-underline group">
+                  <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-lg">
+                    <div
+                      className="h-[160px] bg-cover bg-center relative"
+                      style={{ backgroundImage: `url(${articleImage(article.slug, article.category)})` }}
+                    >
+                      {article.is_premium && (
+                        <span className="absolute top-3 right-3 bg-tertiary/90 text-on-tertiary font-label text-[0.65rem] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                          Member
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-label text-[0.7rem] font-semibold text-primary bg-primary/[0.08] px-2 py-0.5 rounded-full">{article.category}</span>
+                        <span className="font-label text-[0.72rem] text-outline">{article.read_time} min</span>
+                      </div>
+                      <h3 className="font-headline text-[1.1rem] font-normal text-on-background" style={{ lineHeight: 1.3 }}>{article.title}</h3>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-surface-container-lowest rounded-2xl p-8 md:p-10 shadow-sm border border-outline-variant/10 text-center">
+              <span className="material-symbols-outlined text-outline-variant text-4xl mb-3 block">article</span>
+              <p className="text-on-surface-variant font-light text-sm">Articles will appear here once published.</p>
+            </div>
+          )}
         </div>
       </section>
 

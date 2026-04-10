@@ -51,8 +51,8 @@ export default function AdminDashboard() {
   const adminVerified = useAdminGuard()
 
   useEffect(() => {
-    loadDashboard()
-  }, [navigate])
+    if (adminVerified) loadDashboard()
+  }, [adminVerified])
 
   async function loadDashboard() {
     const [users, paid, articles, posts, reads, community, logs, labs, assessed] = await Promise.all([
