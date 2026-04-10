@@ -1,12 +1,8 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
-import { articleImage } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 const NAV_LINKS = [
   { label: 'Features', href: '#features' },
-  { label: 'Articles', href: '/articles', isRoute: true },
   { label: 'Clinical', href: '#clinical' },
   { label: 'Blog', href: '/blog', isRoute: true },
 ]
@@ -49,18 +45,6 @@ const TEAM = [
 ]
 
 export default function LandingPage() {
-  const [recentArticles, setRecentArticles] = useState([])
-
-  useEffect(() => {
-    supabase
-      .from('content')
-      .select('id, title, slug, category, read_time, is_premium, author')
-      .eq('published', true)
-      .order('published_at', { ascending: false })
-      .limit(3)
-      .then(({ data }) => setRecentArticles(data || []))
-  }, [])
-
   return (
     <div style={{ overflow: 'hidden' }}>
       {/* Nav */}
@@ -219,47 +203,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Articles preview */}
+      {/* Blog preview */}
       <section style={{ padding: '6rem 2rem', maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <p style={{ fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#842b16', fontWeight: 600, marginBottom: '0.5rem' }}>Education library</p>
+            <p style={{ fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#842b16', fontWeight: 600, marginBottom: '0.5rem' }}>From the blog</p>
             <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.8rem', fontWeight: 400, color: '#1c1c19' }}>Clinical insights, made clear</h2>
           </div>
-          <Link to="/articles" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#005258' }}>
-            View all articles →
+          <Link to="/blog" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#005258' }}>
+            View all posts →
           </Link>
         </div>
-        {recentArticles.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-            {recentArticles.map(article => (
-              <Link key={article.id} to={`/articles/${article.slug}`} style={{ textDecoration: 'none' }}>
-                <div style={{ background: '#fff', borderRadius: '1rem', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', transition: 'transform 0.2s' }}
-                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                >
-                  <div style={{ height: '160px', background: `url(${articleImage(article.slug, article.category)}) center/cover`, position: 'relative' }}>
-                    {article.is_premium && (
-                      <span style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'rgba(132,43,22,0.9)', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '0.25rem 0.6rem', borderRadius: '9999px', textTransform: 'uppercase' }}>Member</span>
-                    )}
-                  </div>
-                  <div style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#005258', background: 'rgba(0,82,88,0.08)', padding: '0.15rem 0.5rem', borderRadius: '9999px' }}>{article.category}</span>
-                      <span style={{ fontSize: '0.72rem', color: '#888780' }}>{article.read_time} min</span>
-                    </div>
-                    <h3 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.1rem', fontWeight: 400, color: '#1c1c19', lineHeight: 1.3 }}>{article.title}</h3>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div style={{ background: '#fff', borderRadius: '1rem', padding: '2.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', textAlign: 'center', color: '#888780' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#d4d1cc', marginBottom: '1rem', display: 'block' }}>article</span>
-            <p style={{ fontSize: '0.95rem', fontWeight: 300 }}>Articles will appear here once published.</p>
-          </div>
-        )}
+        <div style={{ background: '#fff', borderRadius: '1rem', padding: '2.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', textAlign: 'center', color: '#888780' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#d4d1cc', marginBottom: '1rem', display: 'block' }}>article</span>
+          <p style={{ fontSize: '0.95rem', fontWeight: 300 }}>Blog posts will appear here once published from the admin panel.</p>
+        </div>
       </section>
 
       {/* Footer */}
