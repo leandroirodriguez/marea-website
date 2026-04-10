@@ -23,8 +23,8 @@ export default function AdminArticles() {
   async function loadArticles() {
     const { data, error } = await supabase
       .from('content')
-      .select('id, title, slug, category, read_time, is_premium, author, published, published_at, created_at')
-      .order('created_at', { ascending: false })
+      .select('id, title, slug, category, read_time, is_premium, author, published, published_at, updated_at')
+      .order('published_at', { ascending: false })
     console.log('AdminArticles loadArticles:', { data: data?.length, error })
     setArticles(data || [])
     setLoading(false)

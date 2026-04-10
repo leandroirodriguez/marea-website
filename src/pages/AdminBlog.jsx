@@ -18,8 +18,8 @@ export default function AdminBlog() {
   async function loadPosts() {
     const { data } = await supabase
       .from('blog_posts')
-      .select('id, title, slug, excerpt, cover_url, published, published_at, created_at')
-      .order('created_at', { ascending: false })
+      .select('id, title, slug, excerpt, cover_url, published, published_at, updated_at')
+      .order('published_at', { ascending: false })
     setPosts(data || [])
     setLoading(false)
   }
@@ -100,7 +100,7 @@ export default function AdminBlog() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-outline text-[0.82rem]">
-                        {p.published_at ? new Date(p.published_at).toLocaleDateString() : new Date(p.created_at).toLocaleDateString()}
+                        {p.published_at ? new Date(p.published_at).toLocaleDateString() : new Date(p.updated_at).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex gap-2 justify-end">
