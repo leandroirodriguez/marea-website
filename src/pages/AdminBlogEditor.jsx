@@ -86,7 +86,8 @@ export default function AdminBlogEditor() {
           <img src={mareaLogo} alt="Marea" style={{ height: '1.2rem', filter: 'brightness(0) invert(1)', opacity: 0.8 }} />
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <Link to="/admin/dashboard" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Dashboard</Link>
-            <Link to="/admin/blog" style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 600 }}>Blog</Link>
+            <Link to="/admin/blog" style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 600 }}>Blog CMS</Link>
+            <Link to="/admin/articles" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Articles CMS</Link>
           </div>
         </div>
       </nav>
@@ -96,7 +97,7 @@ export default function AdminBlogEditor() {
           <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#1c1c19' }}>
             {isNew ? 'New Post' : 'Edit Post'}
           </h1>
-          <Link to="/admin/blog" style={{ fontSize: '0.85rem', color: '#005258', fontWeight: 500 }}>← Back</Link>
+          <Link to="/admin/blog" style={{ fontSize: '0.85rem', color: '#005258', fontWeight: 500 }}>Back</Link>
         </div>
 
         <div style={{ background: '#fff', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
