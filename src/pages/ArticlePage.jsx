@@ -79,78 +79,82 @@ export default function ArticlePage() {
       .select()
   }
 
-  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888780' }}>Loading...</div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-outline">Loading...</div>
   if (!article) return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-      <p style={{ color: '#888780', fontSize: '1.1rem' }}>Article not found.</p>
-      <Link to="/articles" style={{ color: '#005258', fontWeight: 600 }}>Back to articles</Link>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <p className="text-outline text-lg">Article not found.</p>
+      <Link to="/articles" className="text-primary font-semibold">Back to articles</Link>
     </div>
   )
 
   const coverUrl = article.cover_url || articleImage(article.slug, article.category, 1200, 600)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fcf9f4' }}>
-      <nav style={{ background: 'rgba(252,249,244,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(0,0,0,0.04)', padding: '1rem 2rem' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link to="/"><img src={mareaLogo} alt="Marea Health" style={{ height: '1.4rem' }} /></Link>
-          <Link to="/articles" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#005258' }}>All articles</Link>
+    <div className="min-h-screen bg-surface">
+      <nav className="fixed top-0 w-full z-50 bg-surface/92 backdrop-blur-xl border-b border-outline-variant/10 px-6 md:px-8 py-4">
+        <div className="max-w-[1100px] mx-auto flex justify-between items-center">
+          <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
+          <div className="flex items-center gap-6">
+            <Link to="/blog" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
+            <Link to="/articles" className="font-label text-[0.85rem] font-medium text-primary hover:text-primary-container transition-colors">All articles</Link>
+          </div>
         </div>
       </nav>
 
-      <article style={{ maxWidth: '720px', margin: '0 auto', padding: '3rem 2rem' }}>
+      <article className="max-w-[720px] mx-auto px-6 md:px-8 pt-24 pb-12">
         {/* Meta */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#005258', background: 'rgba(0,82,88,0.08)', padding: '0.2rem 0.6rem', borderRadius: '9999px' }}>
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <span className="font-label text-[0.72rem] font-semibold text-primary bg-primary/[0.08] px-2.5 py-1 rounded-full">
             {article.category}
           </span>
-          <span style={{ fontSize: '0.75rem', color: '#888780' }}>{article.read_time} min read</span>
+          <span className="font-label text-xs text-outline">{article.read_time} min read</span>
           {article.is_premium && (
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#842b16', background: 'rgba(132,43,22,0.08)', padding: '0.2rem 0.6rem', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span className="font-label text-[0.65rem] font-bold text-tertiary bg-tertiary/[0.08] px-2.5 py-1 rounded-full uppercase tracking-wider">
               Member
             </span>
           )}
         </div>
 
-        <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: 'clamp(2rem, 5vw, 2.75rem)', fontWeight: 400, color: '#1c1c19', lineHeight: 1.2, marginBottom: '0.75rem' }}>
+        <h1 className="font-headline text-[clamp(2rem,5vw,2.75rem)] font-normal text-on-background mb-3" style={{ lineHeight: 1.2, letterSpacing: '-0.02em' }}>
           {article.title}
         </h1>
-        <p style={{ fontSize: '0.88rem', color: '#888780', marginBottom: '1.5rem' }}>
+        <p className="text-[0.88rem] text-outline mb-6">
           By {article.author} &middot; {new Date(article.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
 
-        <img src={coverUrl} alt="" style={{ width: '100%', borderRadius: '1rem', marginBottom: '2rem', maxHeight: '400px', objectFit: 'cover' }} />
+        <img src={coverUrl} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
 
         {locked ? (
           /* Paywall */
-          <div style={{ position: 'relative' }}>
+          <div className="relative">
             <div
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1rem', fontWeight: 300, color: '#3f484a', lineHeight: 1.85, maxHeight: '200px', overflow: 'hidden', maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' }}
+              className="font-body text-base font-light text-on-surface-variant max-h-[200px] overflow-hidden"
+              style={{ lineHeight: 1.85, maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' }}
               dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body?.substring(0, 500)) }}
             />
-            <div style={{ background: '#fff', borderRadius: '1rem', padding: '2.5rem', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,0.08)', marginTop: '1rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#005258', marginBottom: '1rem', display: 'block' }}>lock</span>
-              <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#1c1c19', marginBottom: '0.75rem' }}>
+            <div className="bg-primary-container rounded-2xl p-10 text-center shadow-lg mt-4">
+              <span className="material-symbols-outlined text-[48px] text-primary-fixed mb-4 block">lock</span>
+              <h2 className="font-headline text-2xl font-normal text-on-primary mb-3">
                 {!user ? 'Sign in to keep reading' : 'Upgrade to continue'}
               </h2>
-              <p style={{ fontSize: '0.9rem', color: '#6f797a', marginBottom: '1.5rem', maxWidth: '400px', margin: '0 auto 1.5rem' }}>
+              <p className="text-[0.9rem] text-on-primary/75 mb-6 max-w-[400px] mx-auto">
                 {!user
                   ? 'Create a free account to read up to 5 articles. Become a member for unlimited access.'
                   : 'You\'ve used all your free articles. Upgrade to a membership for unlimited access to all clinical content.'
                 }
               </p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <div className="flex justify-center gap-4 flex-wrap">
                 {!user ? (
                   <>
-                    <Link to="/login" style={{ background: '#005258', color: '#fff', padding: '0.75rem 2rem', borderRadius: '9999px', fontSize: '0.9rem', fontWeight: 600 }}>
+                    <Link to="/login" className="bg-white text-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold hover:bg-primary-fixed transition-colors">
                       Sign in free
                     </Link>
-                    <Link to="/signup" style={{ background: '#fff', color: '#005258', padding: '0.75rem 2rem', borderRadius: '9999px', fontSize: '0.9rem', fontWeight: 600, border: '1.5px solid #005258' }}>
+                    <Link to="/signup" className="bg-transparent text-on-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold border-[1.5px] border-on-primary/50 hover:border-on-primary transition-colors">
                       Create account
                     </Link>
                   </>
                 ) : (
-                  <Link to="/account" style={{ background: '#005258', color: '#fff', padding: '0.75rem 2rem', borderRadius: '9999px', fontSize: '0.9rem', fontWeight: 600 }}>
+                  <Link to="/account" className="bg-white text-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold hover:bg-primary-fixed transition-colors">
                     Upgrade membership
                   </Link>
                 )}
@@ -160,7 +164,8 @@ export default function ArticlePage() {
         ) : (
           /* Full article */
           <div
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1rem', fontWeight: 300, color: '#3f484a', lineHeight: 1.85 }}
+            className="font-body text-base font-light text-on-surface-variant"
+            style={{ lineHeight: 1.85 }}
             dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body) }}
           />
         )}

@@ -25,23 +25,36 @@ export default function AdminLogin() {
     else navigate('/admin/dashboard')
   }
 
-  const inputStyle = {
-    width: '100%', padding: '0.85rem 1rem', borderRadius: '0.75rem', border: '1.5px solid #d4d1cc',
-    fontFamily: 'inherit', fontSize: '0.9rem', background: '#fff', outline: 'none',
-  }
-
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fcf9f4', padding: '2rem' }}>
-      <div style={{ maxWidth: '380px', width: '100%' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <img src={mareaLogo} alt="Marea" style={{ height: '1.4rem', marginBottom: '1.5rem' }} />
-          <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#1c1c19' }}>Admin Access</h1>
+    <div className="min-h-screen flex items-center justify-center bg-surface p-8">
+      <div className="max-w-[380px] w-full">
+        <div className="text-center mb-8">
+          <img src={mareaLogo} alt="Marea" className="h-[1.4rem] mb-6 inline-block" />
+          <h1 className="font-headline text-2xl font-normal text-on-background">Admin Access</h1>
         </div>
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required style={inputStyle} />
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required style={inputStyle} />
-          {error && <p style={{ color: '#842b16', fontSize: '0.82rem' }}>{error}</p>}
-          <button type="submit" disabled={loading} style={{ background: '#005258', color: '#fff', border: 'none', padding: '0.85rem', borderRadius: '9999px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
+        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white"
+          />
+          {error && <p className="text-tertiary text-[0.82rem]">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`bg-primary text-on-primary border-none py-3 rounded-full text-sm font-semibold cursor-pointer ${loading ? 'opacity-60' : 'opacity-100'}`}
+          >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>

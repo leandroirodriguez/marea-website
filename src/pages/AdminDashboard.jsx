@@ -5,16 +5,16 @@ import mareaLogo from '../assets/marealogo.svg'
 
 function StatCard({ icon, label, value, change, color }) {
   return (
-    <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', flex: '1 1 200px', minWidth: '180px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `${color || '#005258'}14`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '20px', color: color || '#005258' }}>{icon}</span>
+    <div className="bg-white rounded-2xl p-6 shadow-sm flex-1 min-w-[180px]">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ background: `${color || '#005258'}14` }}>
+          <span className="material-symbols-outlined text-[20px]" style={{ color: color || '#005258' }}>{icon}</span>
         </div>
       </div>
-      <p style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2rem', fontWeight: 400, color: '#1c1c19', marginBottom: '0.25rem' }}>{value}</p>
-      <p style={{ fontSize: '0.72rem', letterSpacing: '0.05em', textTransform: 'uppercase', color: '#888780', fontWeight: 500 }}>{label}</p>
+      <p className="font-headline text-[2rem] font-normal text-on-background mb-1">{value}</p>
+      <p className="text-[0.72rem] tracking-wider uppercase text-outline font-medium">{label}</p>
       {change !== undefined && (
-        <p style={{ fontSize: '0.72rem', color: change >= 0 ? '#2A8A93' : '#842b16', marginTop: '0.35rem', fontWeight: 600 }}>
+        <p className={`text-[0.72rem] mt-1 font-semibold ${change >= 0 ? 'text-primary-container' : 'text-tertiary'}`}>
           {change >= 0 ? '+' : ''}{change}% this week
         </p>
       )}
@@ -29,7 +29,7 @@ function MiniChart({ data, color }) {
   const h = 50
   const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - (v / max) * h}`).join(' ')
   return (
-    <svg width={w} height={h} style={{ display: 'block' }}>
+    <svg width={w} height={h} className="block">
       <polyline points={points} fill="none" stroke={color || '#005258'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
@@ -132,37 +132,37 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f2ed' }}>
+    <div className="min-h-screen bg-surface-container-low">
       {/* Admin nav */}
-      <nav style={{ background: '#1c1c19', padding: '0.75rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <img src={mareaLogo} alt="Marea" style={{ height: '1.2rem', filter: 'brightness(0) invert(1)', opacity: 0.8 }} />
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <Link to="/admin/dashboard" style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 600 }}>Dashboard</Link>
-            <Link to="/admin/blog" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Blog CMS</Link>
-            <Link to="/admin/articles" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Articles CMS</Link>
+      <nav className="bg-on-background px-8 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-8">
+          <img src={mareaLogo} alt="Marea" className="h-[1.2rem] brightness-0 invert opacity-80" />
+          <div className="flex gap-6">
+            <Link to="/admin/dashboard" className="text-[0.82rem] text-white font-semibold">Dashboard</Link>
+            <Link to="/admin/blog" className="text-[0.82rem] text-white/60">Blog CMS</Link>
+            <Link to="/admin/articles" className="text-[0.82rem] text-white/60">Articles CMS</Link>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          <Link to="/" target="_blank" style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)' }}>View site</Link>
-          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', cursor: 'pointer' }}>Sign out</button>
+        <div className="flex items-center gap-6">
+          <Link to="/" target="_blank" className="text-[0.78rem] text-white/40">View site</Link>
+          <button onClick={handleLogout} className="bg-transparent border-none text-white/50 text-[0.8rem] cursor-pointer">Sign out</button>
         </div>
       </nav>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.75rem', fontWeight: 400, color: '#1c1c19' }}>Dashboard</h1>
-          <p style={{ fontSize: '0.78rem', color: '#888780' }}>
+      <div className="max-w-[1200px] mx-auto p-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="font-headline text-[1.75rem] font-normal text-on-background">Dashboard</h1>
+          <p className="text-[0.78rem] text-outline">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
         {loading ? (
-          <p style={{ color: '#888780' }}>Loading dashboard...</p>
+          <p className="text-outline">Loading dashboard...</p>
         ) : (
           <>
             {/* Primary stats */}
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+            <div className="flex gap-4 flex-wrap mb-6">
               <StatCard icon="group" label="Total Users" value={stats.totalUsers} color="#005258" />
               <StatCard icon="workspace_premium" label="Paid Members" value={stats.paidMembers} color="#842b16" />
               <StatCard icon="person" label="Free Users" value={stats.freeUsers} color="#715b33" />
@@ -170,7 +170,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Secondary stats */}
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+            <div className="flex gap-4 flex-wrap mb-8">
               <StatCard icon="library_books" label="Articles" value={stats.totalArticles} color="#005258" />
               <StatCard icon="article" label="Blog Posts" value={stats.blogPosts} color="#715b33" />
               <StatCard icon="quiz" label="Assessments" value={stats.assessments} color="#842b16" />
@@ -179,32 +179,32 @@ export default function AdminDashboard() {
               <StatCard icon="forum" label="Community Posts" value={stats.communityPosts} color="#715b33" />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6 mb-8">
               {/* Signup trend */}
-              <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-                <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.1rem', fontWeight: 400, color: '#1c1c19', marginBottom: '1rem' }}>Signups (Last 7 Days)</h2>
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h2 className="font-headline text-[1.1rem] font-normal text-on-background mb-4">Signups (Last 7 Days)</h2>
                 <MiniChart data={signupTrend} color="#005258" />
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+                <div className="flex justify-between mt-2">
                   {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].slice(0, signupTrend.length).map((d, i) => (
-                    <span key={i} style={{ fontSize: '0.65rem', color: '#aaa9a4' }}>{d}</span>
+                    <span key={i} className="text-[0.65rem] text-outline-variant">{d}</span>
                   ))}
                 </div>
               </div>
 
               {/* Top articles */}
-              <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-                <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.1rem', fontWeight: 400, color: '#1c1c19', marginBottom: '1rem' }}>Top Articles</h2>
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h2 className="font-headline text-[1.1rem] font-normal text-on-background mb-4">Top Articles</h2>
                 {topArticles.length === 0 ? (
-                  <p style={{ fontSize: '0.85rem', color: '#888780' }}>No article reads yet.</p>
+                  <p className="text-[0.85rem] text-outline">No article reads yet.</p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div className="flex flex-col gap-2">
                     {topArticles.map((a, i) => (
-                      <div key={a.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', borderBottom: i < topArticles.length - 1 ? '1px solid #f0ede9' : 'none' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#c4c1bc', width: '20px' }}>{i + 1}</span>
-                        <span style={{ fontSize: '0.82rem', color: '#1c1c19', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div key={a.slug} className={`flex items-center gap-3 py-2 ${i < topArticles.length - 1 ? 'border-b border-surface-container' : ''}`}>
+                        <span className="text-[0.75rem] font-bold text-outline-variant w-5">{i + 1}</span>
+                        <span className="text-[0.82rem] text-on-background flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                           {a.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#005258', background: 'rgba(0,82,88,0.08)', padding: '0.15rem 0.5rem', borderRadius: '9999px' }}>
+                        <span className="text-[0.75rem] font-semibold text-primary bg-primary/[0.08] px-2 py-0.5 rounded-full">
                           {a.count} reads
                         </span>
                       </div>
@@ -215,48 +215,48 @@ export default function AdminDashboard() {
             </div>
 
             {/* Membership breakdown */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-              <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-                <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.1rem', fontWeight: 400, color: '#1c1c19', marginBottom: '1rem' }}>Membership Breakdown</h2>
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <div style={{ flex: Math.max(stats.paidMembers, 1), height: '24px', borderRadius: '12px 0 0 12px', background: '#005258' }} />
-                  <div style={{ flex: Math.max(stats.freeUsers, 1), height: '24px', borderRadius: '0 12px 12px 0', background: 'rgba(0,82,88,0.15)' }} />
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6 mb-8">
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h2 className="font-headline text-[1.1rem] font-normal text-on-background mb-4">Membership Breakdown</h2>
+                <div className="flex gap-2 mb-4">
+                  <div className="h-6 rounded-l-xl bg-primary" style={{ flex: Math.max(stats.paidMembers, 1) }} />
+                  <div className="h-6 rounded-r-xl bg-primary/15" style={{ flex: Math.max(stats.freeUsers, 1) }} />
                 </div>
-                <div style={{ display: 'flex', gap: '2rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#005258' }} />
-                    <span style={{ fontSize: '0.78rem', color: '#6f797a' }}>Paid ({stats.paidMembers})</span>
+                <div className="flex gap-8">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                    <span className="text-[0.78rem] text-outline">Paid ({stats.paidMembers})</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'rgba(0,82,88,0.15)' }} />
-                    <span style={{ fontSize: '0.78rem', color: '#6f797a' }}>Free ({stats.freeUsers})</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary/15" />
+                    <span className="text-[0.78rem] text-outline">Free ({stats.freeUsers})</span>
                   </div>
                 </div>
                 {stats.totalUsers > 0 && (
-                  <p style={{ fontSize: '0.78rem', color: '#888780', marginTop: '0.75rem' }}>
+                  <p className="text-[0.78rem] text-outline mt-3">
                     Conversion rate: {((stats.paidMembers / stats.totalUsers) * 100).toFixed(1)}%
                   </p>
                 )}
               </div>
 
               {/* Quick actions */}
-              <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-                <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.1rem', fontWeight: 400, color: '#1c1c19', marginBottom: '1rem' }}>Quick Actions</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <Link to="/admin/blog/new" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '0.75rem', background: 'rgba(0,82,88,0.04)', color: '#005258', fontSize: '0.85rem', fontWeight: 500 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit_note</span>
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h2 className="font-headline text-[1.1rem] font-normal text-on-background mb-4">Quick Actions</h2>
+                <div className="flex flex-col gap-3">
+                  <Link to="/admin/blog/new" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
+                    <span className="material-symbols-outlined text-[20px]">edit_note</span>
                     Write a new blog post
                   </Link>
-                  <Link to="/admin/articles/new" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '0.75rem', background: 'rgba(0,82,88,0.04)', color: '#005258', fontSize: '0.85rem', fontWeight: 500 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>library_add</span>
+                  <Link to="/admin/articles/new" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
+                    <span className="material-symbols-outlined text-[20px]">library_add</span>
                     Add a new article
                   </Link>
-                  <Link to="/admin/blog" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '0.75rem', background: 'rgba(0,82,88,0.04)', color: '#005258', fontSize: '0.85rem', fontWeight: 500 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>dashboard</span>
+                  <Link to="/admin/blog" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
+                    <span className="material-symbols-outlined text-[20px]">dashboard</span>
                     Manage blog posts
                   </Link>
-                  <Link to="/admin/articles" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '0.75rem', background: 'rgba(0,82,88,0.04)', color: '#005258', fontSize: '0.85rem', fontWeight: 500 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>library_books</span>
+                  <Link to="/admin/articles" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
+                    <span className="material-symbols-outlined text-[20px]">library_books</span>
                     Manage articles
                   </Link>
                 </div>
@@ -264,45 +264,45 @@ export default function AdminDashboard() {
             </div>
 
             {/* Recent users */}
-            <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-              <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.2rem', fontWeight: 400, color: '#1c1c19', marginBottom: '1rem' }}>Recent Users</h2>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h2 className="font-headline text-[1.2rem] font-normal text-on-background mb-4">Recent Users</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[0.85rem]">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #e5e2dd' }}>
-                      <th style={{ textAlign: 'left', padding: '0.75rem 1rem', color: '#888780', fontWeight: 500, fontSize: '0.72rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>User</th>
-                      <th style={{ textAlign: 'left', padding: '0.75rem 1rem', color: '#888780', fontWeight: 500, fontSize: '0.72rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Tier</th>
-                      <th style={{ textAlign: 'left', padding: '0.75rem 1rem', color: '#888780', fontWeight: 500, fontSize: '0.72rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Stage</th>
-                      <th style={{ textAlign: 'left', padding: '0.75rem 1rem', color: '#888780', fontWeight: 500, fontSize: '0.72rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Joined</th>
+                    <tr className="border-b border-surface-variant">
+                      <th className="text-left px-4 py-3 text-outline font-medium text-[0.72rem] tracking-widest uppercase">User</th>
+                      <th className="text-left px-4 py-3 text-outline font-medium text-[0.72rem] tracking-widest uppercase">Tier</th>
+                      <th className="text-left px-4 py-3 text-outline font-medium text-[0.72rem] tracking-widest uppercase">Stage</th>
+                      <th className="text-left px-4 py-3 text-outline font-medium text-[0.72rem] tracking-widest uppercase">Joined</th>
                     </tr>
                   </thead>
                   <tbody>
                     {recentUsers.map(u => (
-                      <tr key={u.id} style={{ borderBottom: '1px solid #f0ede9' }}>
-                        <td style={{ padding: '0.75rem 1rem' }}>
+                      <tr key={u.id} className="border-b border-surface-container">
+                        <td className="px-4 py-3">
                           <div>
-                            <p style={{ color: '#1c1c19', fontWeight: 500 }}>{u.name || 'Unnamed'}</p>
-                            <p style={{ color: '#888780', fontSize: '0.78rem' }}>{u.email || '—'}</p>
+                            <p className="text-on-background font-medium">{u.name || 'Unnamed'}</p>
+                            <p className="text-outline text-[0.78rem]">{u.email || '\u2014'}</p>
                           </div>
                         </td>
-                        <td style={{ padding: '0.75rem 1rem' }}>
-                          <span style={{
-                            padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 600,
-                            background: u.subscription_tier === 'member' ? 'rgba(42,138,147,0.1)' : 'rgba(0,0,0,0.05)',
-                            color: u.subscription_tier === 'member' ? '#2A8A93' : '#888780',
-                          }}>
+                        <td className="px-4 py-3">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[0.72rem] font-semibold ${
+                            u.subscription_tier === 'member'
+                              ? 'bg-primary/10 text-primary-container'
+                              : 'bg-on-background/5 text-outline'
+                          }`}>
                             {u.subscription_tier === 'member' ? 'Member' : 'Free'}
                           </span>
                         </td>
-                        <td style={{ padding: '0.75rem 1rem' }}>
+                        <td className="px-4 py-3">
                           {u.assessment_stage ? (
-                            <span style={{ padding: '0.2rem 0.6rem', borderRadius: '999px', background: 'rgba(0,82,88,0.08)', fontSize: '0.75rem', fontWeight: 600, color: '#005258' }}>
+                            <span className="px-2.5 py-0.5 rounded-full bg-primary/[0.08] text-[0.75rem] font-semibold text-primary">
                               {u.assessment_stage}
                             </span>
-                          ) : <span style={{ color: '#c4c1bc' }}>—</span>}
+                          ) : <span className="text-outline-variant">&mdash;</span>}
                         </td>
-                        <td style={{ padding: '0.75rem 1rem', color: '#888780' }}>
-                          {u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}
+                        <td className="px-4 py-3 text-outline">
+                          {u.created_at ? new Date(u.created_at).toLocaleDateString() : '\u2014'}
                         </td>
                       </tr>
                     ))}

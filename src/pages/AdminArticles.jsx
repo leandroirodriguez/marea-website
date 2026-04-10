@@ -55,50 +55,51 @@ export default function AdminArticles() {
     .filter(a => !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.slug.includes(search.toLowerCase()))
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f2ed' }}>
-      <nav style={{ background: '#1c1c19', padding: '0.75rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <img src={mareaLogo} alt="Marea" style={{ height: '1.2rem', filter: 'brightness(0) invert(1)', opacity: 0.8 }} />
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <Link to="/admin/dashboard" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Dashboard</Link>
-            <Link to="/admin/blog" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Blog CMS</Link>
-            <Link to="/admin/articles" style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 600 }}>Articles CMS</Link>
+    <div className="min-h-screen bg-surface-container-low">
+      <nav className="bg-on-background px-8 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-8">
+          <img src={mareaLogo} alt="Marea" className="h-[1.2rem] brightness-0 invert opacity-80" />
+          <div className="flex gap-6">
+            <Link to="/admin/dashboard" className="text-[0.82rem] text-white/60">Dashboard</Link>
+            <Link to="/admin/blog" className="text-[0.82rem] text-white/60">Blog CMS</Link>
+            <Link to="/admin/articles" className="text-[0.82rem] text-white font-semibold">Articles CMS</Link>
           </div>
         </div>
-        <button onClick={() => supabase.auth.signOut().then(() => navigate('/admin'))} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', cursor: 'pointer' }}>Sign out</button>
+        <button onClick={() => supabase.auth.signOut().then(() => navigate('/admin'))} className="bg-transparent border-none text-white/50 text-[0.8rem] cursor-pointer">Sign out</button>
       </nav>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.75rem', fontWeight: 400, color: '#1c1c19' }}>
+      <div className="max-w-[1200px] mx-auto p-8">
+        <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+          <h1 className="font-headline text-[1.75rem] font-normal text-on-background">
             Articles CMS
-            <span style={{ fontSize: '0.85rem', fontWeight: 400, color: '#888780', marginLeft: '0.75rem' }}>
+            <span className="text-[0.85rem] font-normal text-outline ml-3">
               {filtered.length} article{filtered.length !== 1 ? 's' : ''}
             </span>
           </h1>
-          <Link to="/admin/articles/new" style={{ background: '#005258', color: '#fff', padding: '0.65rem 1.5rem', borderRadius: '9999px', fontSize: '0.85rem', fontWeight: 600 }}>
+          <Link to="/admin/articles/new" className="bg-primary text-on-primary px-6 py-2.5 rounded-full text-[0.85rem] font-semibold">
             + New Article
           </Link>
         </div>
 
         {/* Filters */}
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+        <div className="flex gap-4 items-center flex-wrap mb-6">
           <input
             type="text"
             placeholder="Search articles..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            style={{ padding: '0.6rem 1rem', borderRadius: '9999px', border: '1.5px solid #d4d1cc', fontSize: '0.82rem', width: '250px', outline: 'none', background: '#fff' }}
+            className="px-4 py-2.5 rounded-full border border-outline-variant text-[0.82rem] w-[250px] outline-none bg-white focus:border-primary"
           />
-          <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+          <div className="flex gap-1.5 flex-wrap">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                style={{
-                  padding: '0.4rem 0.9rem', borderRadius: '9999px', border: 'none', fontSize: '0.75rem', fontWeight: activeCategory === cat ? 600 : 400,
-                  background: activeCategory === cat ? '#005258' : '#fff', color: activeCategory === cat ? '#fff' : '#3f484a', cursor: 'pointer',
-                }}
+                className={`px-3.5 py-1.5 rounded-full border-none text-[0.75rem] cursor-pointer ${
+                  activeCategory === cat
+                    ? 'bg-primary text-on-primary font-semibold'
+                    : 'bg-white text-on-surface-variant font-normal'
+                }`}
               >
                 {cat}
               </button>
@@ -106,68 +107,66 @@ export default function AdminArticles() {
           </div>
         </div>
 
-        {loading ? <p style={{ color: '#888780' }}>Loading...</p> : (
-          <div style={{ background: '#fff', borderRadius: '1rem', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+        {loading ? <p className="text-outline">Loading...</p> : (
+          <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
             {filtered.length === 0 ? (
-              <div style={{ padding: '3rem', textAlign: 'center', color: '#888780' }}>
+              <div className="p-12 text-center text-outline">
                 <p>No articles found.</p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+              <table className="w-full border-collapse text-[0.82rem]">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #e5e2dd' }}>
-                    <th style={{ textAlign: 'left', padding: '0.75rem 1rem', color: '#888780', fontWeight: 500, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Article</th>
-                    <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', color: '#888780', fontWeight: 500, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Category</th>
-                    <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', color: '#888780', fontWeight: 500, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Access</th>
-                    <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', color: '#888780', fontWeight: 500, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Status</th>
-                    <th style={{ textAlign: 'right', padding: '0.75rem 1rem', color: '#888780', fontWeight: 500, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Actions</th>
+                  <tr className="border-b border-surface-variant">
+                    <th className="text-left px-4 py-3 text-outline font-medium text-[0.7rem] tracking-widest uppercase">Article</th>
+                    <th className="text-left px-2 py-3 text-outline font-medium text-[0.7rem] tracking-widest uppercase">Category</th>
+                    <th className="text-center px-2 py-3 text-outline font-medium text-[0.7rem] tracking-widest uppercase">Access</th>
+                    <th className="text-center px-2 py-3 text-outline font-medium text-[0.7rem] tracking-widest uppercase">Status</th>
+                    <th className="text-right px-4 py-3 text-outline font-medium text-[0.7rem] tracking-widest uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(a => (
-                    <tr key={a.id} style={{ borderBottom: '1px solid #f0ede9' }}>
-                      <td style={{ padding: '0.75rem 1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{ width: '48px', height: '36px', borderRadius: '6px', flexShrink: 0, background: `url(${articleImage(a.slug, a.category, 96, 72)}) center/cover` }} />
+                    <tr key={a.id} className="border-b border-surface-container">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-9 rounded-md shrink-0" style={{ background: `url(${articleImage(a.slug, a.category, 96, 72)}) center/cover` }} />
                           <div>
-                            <p style={{ color: '#1c1c19', fontWeight: 500, marginBottom: '0.15rem' }}>{a.title}</p>
-                            <p style={{ fontSize: '0.72rem', color: '#aaa9a4' }}>{a.author} &middot; {a.read_time} min</p>
+                            <p className="text-on-background font-medium mb-0.5">{a.title}</p>
+                            <p className="text-[0.72rem] text-outline-variant">{a.author} &middot; {a.read_time} min</p>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem 0.5rem' }}>
-                        <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#005258', background: 'rgba(0,82,88,0.08)', padding: '0.15rem 0.5rem', borderRadius: '9999px' }}>
+                      <td className="px-2 py-3">
+                        <span className="text-[0.72rem] font-semibold text-primary bg-primary/[0.08] px-2 py-0.5 rounded-full">
                           {a.category}
                         </span>
                       </td>
-                      <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center' }}>
+                      <td className="px-2 py-3 text-center">
                         <button
                           onClick={() => togglePremium(a)}
-                          style={{
-                            padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 600, border: 'none', cursor: 'pointer',
-                            background: a.is_premium ? 'rgba(132,43,22,0.1)' : 'rgba(42,138,147,0.1)',
-                            color: a.is_premium ? '#842b16' : '#2A8A93',
-                          }}
+                          className={`px-2.5 py-0.5 rounded-full text-[0.7rem] font-semibold border-none cursor-pointer ${
+                            a.is_premium
+                              ? 'bg-tertiary/10 text-tertiary'
+                              : 'bg-primary/10 text-primary-container'
+                          }`}
                         >
                           {a.is_premium ? 'Member' : 'Free'}
                         </button>
                       </td>
-                      <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center' }}>
-                        <span style={{
-                          padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 600,
-                          background: a.published ? 'rgba(42,138,147,0.1)' : 'rgba(0,0,0,0.05)',
-                          color: a.published ? '#2A8A93' : '#888780',
-                        }}>
+                      <td className="px-2 py-3 text-center">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[0.7rem] font-semibold ${
+                          a.published ? 'bg-primary/10 text-primary-container' : 'bg-on-background/5 text-outline'
+                        }`}>
                           {a.published ? 'Published' : 'Draft'}
                         </span>
                       </td>
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                          <Link to={`/admin/articles/edit/${a.id}`} style={{ fontSize: '0.78rem', color: '#005258', fontWeight: 500 }}>Edit</Link>
-                          <button onClick={() => togglePublish(a)} style={{ background: 'none', border: 'none', fontSize: '0.78rem', color: '#715b33', fontWeight: 500, cursor: 'pointer' }}>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Link to={`/admin/articles/edit/${a.id}`} className="text-[0.78rem] text-primary font-medium">Edit</Link>
+                          <button onClick={() => togglePublish(a)} className="bg-transparent border-none text-[0.78rem] text-secondary font-medium cursor-pointer">
                             {a.published ? 'Unpublish' : 'Publish'}
                           </button>
-                          <button onClick={() => deleteArticle(a.id)} style={{ background: 'none', border: 'none', fontSize: '0.78rem', color: '#842b16', fontWeight: 500, cursor: 'pointer' }}>Delete</button>
+                          <button onClick={() => deleteArticle(a.id)} className="bg-transparent border-none text-[0.78rem] text-tertiary font-medium cursor-pointer">Delete</button>
                         </div>
                       </td>
                     </tr>

@@ -114,74 +114,69 @@ export default function AdminArticleEditor() {
       .replace(/<p><\/p>/g, '')
   }
 
-  const inputStyle = {
-    width: '100%', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1.5px solid #d4d1cc',
-    fontFamily: 'inherit', fontSize: '0.9rem', background: '#fff', outline: 'none',
-  }
-
   const coverPreview = form.cover_url || articleImage(form.slug || 'preview', form.category)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f2ed' }}>
-      <nav style={{ background: '#1c1c19', padding: '0.75rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <img src={mareaLogo} alt="Marea" style={{ height: '1.2rem', filter: 'brightness(0) invert(1)', opacity: 0.8 }} />
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <Link to="/admin/dashboard" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Dashboard</Link>
-            <Link to="/admin/blog" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Blog CMS</Link>
-            <Link to="/admin/articles" style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 600 }}>Articles CMS</Link>
+    <div className="min-h-screen bg-surface-container-low">
+      <nav className="bg-on-background px-8 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-8">
+          <img src={mareaLogo} alt="Marea" className="h-[1.2rem] brightness-0 invert opacity-80" />
+          <div className="flex gap-6">
+            <Link to="/admin/dashboard" className="text-[0.82rem] text-white/60">Dashboard</Link>
+            <Link to="/admin/blog" className="text-[0.82rem] text-white/60">Blog CMS</Link>
+            <Link to="/admin/articles" className="text-[0.82rem] text-white font-semibold">Articles CMS</Link>
           </div>
         </div>
       </nav>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#1c1c19' }}>
+      <div className="max-w-[900px] mx-auto p-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="font-headline text-2xl font-normal text-on-background">
             {isNew ? 'New Article' : 'Edit Article'}
           </h1>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <button onClick={() => setPreview(!preview)} style={{ background: 'none', border: '1.5px solid #d4d1cc', color: '#3f484a', padding: '0.5rem 1rem', borderRadius: '9999px', fontSize: '0.82rem', fontWeight: 500, cursor: 'pointer' }}>
+          <div className="flex gap-3 items-center">
+            <button onClick={() => setPreview(!preview)} className="bg-transparent border border-outline-variant text-on-surface-variant px-4 py-2 rounded-full text-[0.82rem] font-medium cursor-pointer">
               {preview ? 'Edit' : 'Preview'}
             </button>
-            <Link to="/admin/articles" style={{ fontSize: '0.85rem', color: '#005258', fontWeight: 500 }}>Back</Link>
+            <Link to="/admin/articles" className="text-[0.85rem] text-primary font-medium">Back</Link>
           </div>
         </div>
 
         {preview ? (
           /* Preview mode */
-          <div style={{ background: '#fcf9f4', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-            <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#005258', background: 'rgba(0,82,88,0.08)', padding: '0.2rem 0.6rem', borderRadius: '9999px' }}>{form.category}</span>
-                <span style={{ fontSize: '0.75rem', color: '#888780' }}>{form.read_time} min read</span>
-                {form.is_premium && <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#842b16', background: 'rgba(132,43,22,0.08)', padding: '0.2rem 0.6rem', borderRadius: '9999px', textTransform: 'uppercase' }}>Member</span>}
+          <div className="bg-surface rounded-2xl p-8 shadow-sm">
+            <div className="max-w-[720px] mx-auto">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-[0.72rem] font-semibold text-primary bg-primary/[0.08] px-2.5 py-0.5 rounded-full">{form.category}</span>
+                <span className="text-[0.75rem] text-outline">{form.read_time} min read</span>
+                {form.is_premium && <span className="text-[0.65rem] font-bold text-tertiary bg-tertiary/[0.08] px-2.5 py-0.5 rounded-full uppercase">Member</span>}
               </div>
-              <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2rem', fontWeight: 400, color: '#1c1c19', lineHeight: 1.2, marginBottom: '0.75rem' }}>{form.title || 'Untitled'}</h1>
-              <p style={{ fontSize: '0.88rem', color: '#888780', marginBottom: '1.5rem' }}>By {form.author}</p>
-              <img src={coverPreview} alt="" style={{ width: '100%', borderRadius: '1rem', marginBottom: '2rem', maxHeight: '400px', objectFit: 'cover' }} />
+              <h1 className="font-headline text-[2rem] font-normal text-on-background leading-tight mb-3">{form.title || 'Untitled'}</h1>
+              <p className="text-[0.88rem] text-outline mb-6">By {form.author}</p>
+              <img src={coverPreview} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
               <div
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1rem', fontWeight: 300, color: '#3f484a', lineHeight: 1.85 }}
+                className="font-body text-base font-light text-on-surface-variant leading-[1.85]"
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(form.body) }}
               />
             </div>
           </div>
         ) : (
           /* Edit mode */
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '1.5rem', alignItems: 'start' }}>
+          <div className="grid grid-cols-[1fr_300px] gap-6 items-start">
             {/* Main editor */}
-            <div style={{ background: '#fff', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="bg-white rounded-2xl p-8 shadow-sm flex flex-col gap-5">
               <div>
-                <label style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '0.35rem', display: 'block' }}>Title</label>
-                <input value={form.title} onChange={e => updateField('title', e.target.value)} placeholder="Article title" style={inputStyle} />
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Title</label>
+                <input value={form.title} onChange={e => updateField('title', e.target.value)} placeholder="Article title" className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white" />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '0.35rem', display: 'block' }}>Slug</label>
-                <input value={form.slug} onChange={e => updateField('slug', e.target.value)} placeholder="article-url-slug" style={inputStyle} />
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Slug</label>
+                <input value={form.slug} onChange={e => updateField('slug', e.target.value)} placeholder="article-url-slug" className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white" />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '0.35rem', display: 'block' }}>
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">
                   Body (Markdown)
                 </label>
                 <textarea
@@ -189,71 +184,75 @@ export default function AdminArticleEditor() {
                   onChange={e => setForm({ ...form, body: e.target.value })}
                   placeholder="Write your article content using markdown..."
                   rows={24}
-                  style={{ ...inputStyle, resize: 'vertical', fontFamily: 'monospace', fontSize: '0.82rem', lineHeight: 1.6 }}
+                  className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y font-mono leading-relaxed"
                 />
-                <p style={{ fontSize: '0.72rem', color: '#aaa9a4', marginTop: '0.35rem' }}>
+                <p className="text-[0.72rem] text-outline-variant mt-1">
                   Use ## for headings, **bold**, *italic*, - for lists
                 </p>
               </div>
             </div>
 
             {/* Sidebar */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="flex flex-col gap-5">
               {/* Publish settings */}
-              <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-                <h3 style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '1rem' }}>Publish</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#3f484a', cursor: 'pointer' }}>
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h3 className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-4">Publish</h3>
+                <div className="flex flex-col gap-3">
+                  <label className="flex items-center gap-2 text-[0.85rem] text-on-surface-variant cursor-pointer">
                     <input type="checkbox" checked={form.published} onChange={e => setForm({ ...form, published: e.target.checked })} />
                     Published
                   </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#3f484a', cursor: 'pointer' }}>
+                  <label className="flex items-center gap-2 text-[0.85rem] text-on-surface-variant cursor-pointer">
                     <input type="checkbox" checked={form.is_premium} onChange={e => setForm({ ...form, is_premium: e.target.checked })} />
                     Members only
                   </label>
                 </div>
-                <button onClick={handleSave} disabled={saving || !form.title} style={{ background: '#005258', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '9999px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', width: '100%', marginTop: '1rem', opacity: saving || !form.title ? 0.5 : 1 }}>
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !form.title}
+                  className={`bg-primary text-on-primary border-none py-3 rounded-full text-[0.85rem] font-semibold cursor-pointer w-full mt-4 ${saving || !form.title ? 'opacity-50' : 'opacity-100'}`}
+                >
                   {saving ? 'Saving...' : isNew ? 'Create Article' : 'Update Article'}
                 </button>
               </div>
 
               {/* Category & meta */}
-              <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-                <h3 style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '1rem' }}>Details</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h3 className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-4">Details</h3>
+                <div className="flex flex-col gap-3">
                   <div>
-                    <label style={{ fontSize: '0.72rem', color: '#888780', display: 'block', marginBottom: '0.25rem' }}>Category</label>
-                    <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} style={{ ...inputStyle, padding: '0.6rem 0.75rem' }}>
+                    <label className="text-[0.72rem] text-outline block mb-1">Category</label>
+                    <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white">
                       {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.72rem', color: '#888780', display: 'block', marginBottom: '0.25rem' }}>Author</label>
-                    <input value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} style={{ ...inputStyle, padding: '0.6rem 0.75rem' }} />
+                    <label className="text-[0.72rem] text-outline block mb-1">Author</label>
+                    <input value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white" />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.72rem', color: '#888780', display: 'block', marginBottom: '0.25rem' }}>Read time (min)</label>
-                    <input type="number" value={form.read_time} onChange={e => setForm({ ...form, read_time: e.target.value })} min="1" style={{ ...inputStyle, padding: '0.6rem 0.75rem' }} />
+                    <label className="text-[0.72rem] text-outline block mb-1">Read time (min)</label>
+                    <input type="number" value={form.read_time} onChange={e => setForm({ ...form, read_time: e.target.value })} min="1" className="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white" />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.72rem', color: '#888780', display: 'block', marginBottom: '0.25rem' }}>Tags (comma separated)</label>
-                    <input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="sleep, hormones" style={{ ...inputStyle, padding: '0.6rem 0.75rem' }} />
+                    <label className="text-[0.72rem] text-outline block mb-1">Tags (comma separated)</label>
+                    <input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="sleep, hormones" className="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white" />
                   </div>
                 </div>
               </div>
 
               {/* Cover image */}
-              <div style={{ background: '#fff', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-                <h3 style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '1rem' }}>Cover Image</h3>
-                <img src={coverPreview} alt="" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '0.5rem', marginBottom: '0.75rem' }} />
-                <input type="file" accept="image/*" onChange={handleImageUpload} style={{ fontSize: '0.78rem', marginBottom: '0.5rem' }} />
-                {uploading && <p style={{ fontSize: '0.78rem', color: '#888780' }}>Uploading...</p>}
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h3 className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-4">Cover Image</h3>
+                <img src={coverPreview} alt="" className="w-full h-[120px] object-cover rounded-lg mb-3" />
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="text-[0.78rem] mb-2" />
+                {uploading && <p className="text-[0.78rem] text-outline">Uploading...</p>}
                 {form.cover_url && (
-                  <button onClick={removeCoverImage} style={{ background: 'none', border: 'none', fontSize: '0.75rem', color: '#842b16', cursor: 'pointer', marginTop: '0.25rem' }}>
+                  <button onClick={removeCoverImage} className="bg-transparent border-none text-[0.75rem] text-tertiary cursor-pointer mt-1">
                     Remove custom image
                   </button>
                 )}
-                <p style={{ fontSize: '0.68rem', color: '#aaa9a4', marginTop: '0.5rem' }}>
+                <p className="text-[0.68rem] text-outline-variant mt-2">
                   {form.cover_url ? 'Using custom image' : 'Using auto-generated image based on category'}
                 </p>
               </div>

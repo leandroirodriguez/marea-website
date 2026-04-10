@@ -40,48 +40,71 @@ export default function LoginPage() {
     }
   }
 
-  const inputStyle = {
-    width: '100%', padding: '0.85rem 1rem', borderRadius: '0.75rem', border: '1.5px solid #d4d1cc',
-    fontFamily: 'inherit', fontSize: '0.9rem', background: '#fff', outline: 'none',
-  }
-
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fcf9f4', padding: '2rem' }}>
-      <div style={{ maxWidth: '400px', width: '100%' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link to="/"><img src={mareaLogo} alt="Marea" style={{ height: '1.4rem', marginBottom: '1.5rem' }} /></Link>
-          <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.75rem', fontWeight: 400, color: '#1c1c19', marginBottom: '0.5rem' }}>
+    <div className="min-h-screen flex items-center justify-center bg-surface px-6 py-8">
+      <div className="max-w-[400px] w-full">
+        <div className="text-center mb-8">
+          <Link to="/"><img src={mareaLogo} alt="Marea" className="h-[1.4rem] mb-6 inline-block" /></Link>
+          <h1 className="font-headline text-[1.75rem] font-normal text-on-background mb-2" style={{ letterSpacing: '-0.02em' }}>
             {isSignUp ? 'Create your account' : 'Welcome back'}
           </h1>
-          <p style={{ fontSize: '0.88rem', color: '#6f797a' }}>
+          <p className="text-[0.88rem] text-outline">
             {isSignUp ? 'Sign up to access 5 free articles.' : 'Sign in to continue reading.'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {isSignUp && (
-            <input type="text" placeholder="Your name" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
+            <input
+              type="text"
+              placeholder="Your name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-outline-variant bg-surface-container-lowest font-body text-[0.9rem] outline-none focus:border-primary transition-colors"
+            />
           )}
-          <input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required style={inputStyle} />
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} style={inputStyle} />
+          <input
+            type="email"
+            placeholder="Email address"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-outline-variant bg-surface-container-lowest font-body text-[0.9rem] outline-none focus:border-primary transition-colors"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-outline-variant bg-surface-container-lowest font-body text-[0.9rem] outline-none focus:border-primary transition-colors"
+          />
 
-          {error && <p style={{ color: '#842b16', fontSize: '0.82rem', textAlign: 'center' }}>{error}</p>}
-          {success && <p style={{ color: '#005258', fontSize: '0.82rem', textAlign: 'center' }}>{success}</p>}
+          {error && <p className="text-tertiary text-[0.82rem] text-center">{error}</p>}
+          {success && <p className="text-primary text-[0.82rem] text-center">{success}</p>}
 
-          <button type="submit" disabled={loading} style={{ background: '#005258', color: '#fff', border: 'none', padding: '0.85rem', borderRadius: '9999px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-primary text-on-primary border-none rounded-full py-3.5 font-label text-[0.9rem] font-semibold cursor-pointer hover:bg-primary-container transition-colors disabled:opacity-60"
+          >
             {loading ? 'Please wait...' : isSignUp ? 'Create account' : 'Sign in'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: '#6f797a' }}>
+        <p className="text-center mt-6 text-[0.85rem] text-outline">
           {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <button onClick={() => { setIsSignUp(!isSignUp); setError(''); setSuccess('') }} style={{ background: 'none', border: 'none', color: '#005258', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}>
+          <button
+            onClick={() => { setIsSignUp(!isSignUp); setError(''); setSuccess('') }}
+            className="bg-transparent border-none text-primary font-semibold cursor-pointer text-[0.85rem] hover:text-primary-container transition-colors"
+          >
             {isSignUp ? 'Sign in' : 'Sign up free'}
           </button>
         </p>
 
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <Link to="/" style={{ fontSize: '0.82rem', color: '#888780' }}>Back to home</Link>
+        <div className="text-center mt-8">
+          <Link to="/" className="font-label text-[0.82rem] text-outline hover:text-on-surface-variant transition-colors">Back to home</Link>
         </div>
       </div>
     </div>

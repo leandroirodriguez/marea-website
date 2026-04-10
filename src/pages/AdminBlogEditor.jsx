@@ -74,69 +74,68 @@ export default function AdminBlogEditor() {
     navigate('/admin/blog')
   }
 
-  const inputStyle = {
-    width: '100%', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1.5px solid #d4d1cc',
-    fontFamily: 'inherit', fontSize: '0.9rem', background: '#fff', outline: 'none',
-  }
-
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f2ed' }}>
-      <nav style={{ background: '#1c1c19', padding: '0.75rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <img src={mareaLogo} alt="Marea" style={{ height: '1.2rem', filter: 'brightness(0) invert(1)', opacity: 0.8 }} />
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <Link to="/admin/dashboard" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Dashboard</Link>
-            <Link to="/admin/blog" style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 600 }}>Blog CMS</Link>
-            <Link to="/admin/articles" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>Articles CMS</Link>
+    <div className="min-h-screen bg-surface-container-low">
+      <nav className="bg-on-background px-8 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-8">
+          <img src={mareaLogo} alt="Marea" className="h-[1.2rem] brightness-0 invert opacity-80" />
+          <div className="flex gap-6">
+            <Link to="/admin/dashboard" className="text-[0.82rem] text-white/60">Dashboard</Link>
+            <Link to="/admin/blog" className="text-[0.82rem] text-white font-semibold">Blog CMS</Link>
+            <Link to="/admin/articles" className="text-[0.82rem] text-white/60">Articles CMS</Link>
           </div>
         </div>
       </nav>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#1c1c19' }}>
+      <div className="max-w-[800px] mx-auto p-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="font-headline text-2xl font-normal text-on-background">
             {isNew ? 'New Post' : 'Edit Post'}
           </h1>
-          <Link to="/admin/blog" style={{ fontSize: '0.85rem', color: '#005258', fontWeight: 500 }}>Back</Link>
+          <Link to="/admin/blog" className="text-[0.85rem] text-primary font-medium">Back</Link>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div className="bg-white rounded-2xl p-8 shadow-sm flex flex-col gap-5">
           <div>
-            <label style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '0.35rem', display: 'block' }}>Title</label>
-            <input value={form.title} onChange={e => updateField('title', e.target.value)} placeholder="Post title" style={inputStyle} />
+            <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Title</label>
+            <input value={form.title} onChange={e => updateField('title', e.target.value)} placeholder="Post title" className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white" />
           </div>
 
           <div>
-            <label style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '0.35rem', display: 'block' }}>Slug</label>
-            <input value={form.slug} onChange={e => updateField('slug', e.target.value)} placeholder="post-url-slug" style={inputStyle} />
+            <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Slug</label>
+            <input value={form.slug} onChange={e => updateField('slug', e.target.value)} placeholder="post-url-slug" className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white" />
           </div>
 
           <div>
-            <label style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '0.35rem', display: 'block' }}>Excerpt</label>
-            <textarea value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} placeholder="Brief summary for blog listing" rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
+            <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Excerpt</label>
+            <textarea value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} placeholder="Brief summary for blog listing" rows={2} className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white resize-y" />
           </div>
 
           <div>
-            <label style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '0.35rem', display: 'block' }}>Cover Image</label>
-            {form.cover_url && <img src={form.cover_url} alt="" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '0.75rem', marginBottom: '0.75rem' }} />}
-            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ fontSize: '0.85rem' }} />
-            {uploading && <p style={{ fontSize: '0.8rem', color: '#888780', marginTop: '0.35rem' }}>Uploading...</p>}
+            <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Cover Image</label>
+            {form.cover_url && <img src={form.cover_url} alt="" className="w-full max-h-[200px] object-cover rounded-xl mb-3" />}
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="text-[0.85rem]" />
+            {uploading && <p className="text-[0.8rem] text-outline mt-1">Uploading...</p>}
           </div>
 
           <div>
-            <label style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888780', marginBottom: '0.35rem', display: 'block' }}>Body (HTML)</label>
-            <textarea value={form.body_html} onChange={e => setForm({ ...form, body_html: e.target.value })} placeholder="<p>Write your post content in HTML...</p>" rows={16} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'monospace', fontSize: '0.82rem', lineHeight: 1.6 }} />
-            <p style={{ fontSize: '0.72rem', color: '#aaa9a4', marginTop: '0.35rem' }}>
+            <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Body (HTML)</label>
+            <textarea value={form.body_html} onChange={e => setForm({ ...form, body_html: e.target.value })} placeholder="<p>Write your post content in HTML...</p>" rows={16} className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y font-mono leading-relaxed" />
+            <p className="text-[0.72rem] text-outline-variant mt-1">
               Use HTML tags: &lt;p&gt;, &lt;h2&gt;, &lt;h3&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;blockquote&gt;, &lt;img src="..."&gt;
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className="flex items-center gap-2">
             <input type="checkbox" id="published" checked={form.published} onChange={e => setForm({ ...form, published: e.target.checked })} />
-            <label htmlFor="published" style={{ fontSize: '0.85rem', color: '#3f484a' }}>Publish immediately</label>
+            <label htmlFor="published" className="text-[0.85rem] text-on-surface-variant">Publish immediately</label>
           </div>
 
-          <button onClick={handleSave} disabled={saving || !form.title} style={{ background: '#005258', color: '#fff', border: 'none', padding: '0.85rem', borderRadius: '9999px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', opacity: saving || !form.title ? 0.5 : 1 }}>
+          <button
+            onClick={handleSave}
+            disabled={saving || !form.title}
+            className={`bg-primary text-on-primary border-none py-3 rounded-full text-sm font-semibold cursor-pointer ${saving || !form.title ? 'opacity-50' : 'opacity-100'}`}
+          >
             {saving ? 'Saving...' : isNew ? 'Create Post' : 'Update Post'}
           </button>
         </div>

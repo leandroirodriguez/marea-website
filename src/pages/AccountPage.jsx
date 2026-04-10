@@ -26,38 +26,45 @@ export default function AccountPage() {
   if (!user) return null
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fcf9f4' }}>
-      <nav style={{ background: 'rgba(252,249,244,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(0,0,0,0.04)', padding: '1rem 2rem' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link to="/"><img src={mareaLogo} alt="Marea Health" style={{ height: '1.4rem' }} /></Link>
-          <Link to="/articles" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#005258' }}>Articles</Link>
+    <div className="min-h-screen bg-surface">
+      <nav className="fixed top-0 w-full z-50 bg-surface/92 backdrop-blur-xl border-b border-outline-variant/10 px-6 md:px-8 py-4">
+        <div className="max-w-[1100px] mx-auto flex justify-between items-center">
+          <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
+          <div className="flex items-center gap-6">
+            <Link to="/blog" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
+            <Link to="/articles" className="font-label text-[0.85rem] font-medium text-primary hover:text-primary-container transition-colors">Articles</Link>
+          </div>
         </div>
       </nav>
 
-      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '3rem 2rem' }}>
-        <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2rem', fontWeight: 400, color: '#1c1c19', marginBottom: '2rem' }}>My Account</h1>
+      <div className="max-w-[600px] mx-auto px-6 md:px-8 pt-24 pb-12">
+        <h1 className="font-headline text-[2rem] font-normal text-on-background mb-8" style={{ letterSpacing: '-0.02em' }}>My Account</h1>
 
-        <div style={{ background: '#fff', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(0,82,88,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#005258' }}>person</span>
+        <div className="bg-surface-container-lowest rounded-2xl p-8 shadow-sm border border-outline-variant/10 mb-6">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-full bg-primary/[0.08] flex items-center justify-center">
+              <span className="material-symbols-outlined text-2xl text-primary">person</span>
             </div>
             <div>
-              <p style={{ fontWeight: 600, color: '#1c1c19' }}>{profile?.name || 'User'}</p>
-              <p style={{ fontSize: '0.82rem', color: '#888780' }}>{user.email}</p>
+              <p className="font-semibold text-on-background">{profile?.name || 'User'}</p>
+              <p className="font-label text-[0.82rem] text-outline">{user.email}</p>
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid #f0ede9', paddingTop: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '0.85rem', color: '#6f797a' }}>Membership</span>
-              <span style={{ padding: '0.2rem 0.75rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600, background: isPaid ? 'rgba(42,138,147,0.1)' : 'rgba(0,0,0,0.05)', color: isPaid ? '#2A8A93' : '#888780' }}>
+          <div className="border-t border-surface-container pt-5">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-[0.85rem] text-outline">Membership</span>
+              <span className={`px-3 py-1 rounded-full font-label text-xs font-semibold ${
+                isPaid
+                  ? 'bg-primary/10 text-primary'
+                  : 'bg-on-background/5 text-outline'
+              }`}>
                 {isPaid ? 'Active Member' : 'Free'}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.85rem', color: '#6f797a' }}>Articles read</span>
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1c1c19' }}>
+            <div className="flex justify-between items-center">
+              <span className="text-[0.85rem] text-outline">Articles read</span>
+              <span className="text-[0.85rem] font-semibold text-on-background">
                 {readCount}{!isPaid ? ' / 5' : ''}
               </span>
             </div>
@@ -65,20 +72,23 @@ export default function AccountPage() {
         </div>
 
         {!isPaid && (
-          <div style={{ background: 'linear-gradient(135deg, #005258, #0D3F44)', borderRadius: '1rem', padding: '2rem', color: '#fff', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.25rem', fontWeight: 400, marginBottom: '0.75rem' }}>
+          <div className="bg-gradient-to-br from-primary to-primary-container rounded-2xl p-8 text-on-primary mb-6">
+            <h2 className="font-headline text-[1.25rem] font-normal mb-3">
               Unlock unlimited articles
             </h2>
-            <p style={{ fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+            <p className="text-[0.88rem] font-light text-on-primary/75 leading-relaxed mb-5">
               Get full access to our entire education library with a Marea membership. Starting at $8/month.
             </p>
-            <a href="#" style={{ background: '#fff', color: '#005258', padding: '0.7rem 1.5rem', borderRadius: '9999px', fontSize: '0.85rem', fontWeight: 600, display: 'inline-block' }}>
+            <a href="#" className="bg-white text-primary rounded-full px-6 py-3 font-label text-[0.85rem] font-semibold inline-block hover:bg-primary-fixed transition-colors">
               View plans
             </a>
           </div>
         )}
 
-        <button onClick={handleLogout} style={{ background: 'none', border: '1.5px solid #d4d1cc', color: '#6f797a', padding: '0.75rem 2rem', borderRadius: '9999px', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', width: '100%' }}>
+        <button
+          onClick={handleLogout}
+          className="bg-transparent border-[1.5px] border-outline-variant text-outline rounded-full py-3 px-8 font-label text-[0.85rem] font-medium cursor-pointer w-full hover:border-outline hover:text-on-surface-variant transition-colors"
+        >
           Sign out
         </button>
       </div>

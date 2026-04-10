@@ -17,41 +17,44 @@ export default function BlogPage() {
   }, [])
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fcf9f4' }}>
+    <div className="min-h-screen bg-surface">
       {/* Nav */}
-      <nav style={{ background: 'rgba(252,249,244,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(0,0,0,0.04)', padding: '1rem 2rem' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link to="/"><img src={mareaLogo} alt="Marea Health" style={{ height: '1.4rem' }} /></Link>
-          <Link to="/" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#005258' }}>← Back to home</Link>
+      <nav className="fixed top-0 w-full z-50 bg-surface/92 backdrop-blur-xl border-b border-outline-variant/10 px-6 md:px-8 py-4">
+        <div className="max-w-[1100px] mx-auto flex justify-between items-center">
+          <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
+          <div className="flex items-center gap-6">
+            <Link to="/articles" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Articles</Link>
+            <Link to="/" className="font-label text-[0.85rem] font-medium text-primary hover:text-primary-container transition-colors">&larr; Back to home</Link>
+          </div>
         </div>
       </nav>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '4rem 2rem' }}>
-        <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2.5rem', fontWeight: 400, color: '#1c1c19', marginBottom: '0.5rem' }}>Blog</h1>
-        <p style={{ fontSize: '0.95rem', fontWeight: 300, color: '#6f797a', marginBottom: '3rem' }}>Clinical insights on perimenopause, hormones, and women's health.</p>
+      <div className="max-w-[800px] mx-auto px-6 md:px-8 pt-28 pb-16">
+        <h1 className="font-headline text-[2.5rem] font-normal text-on-background mb-2" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>Blog</h1>
+        <p className="text-on-surface-variant font-light text-[0.95rem] leading-relaxed mb-12">Clinical insights on perimenopause, hormones, and women's health.</p>
 
-        {loading && <p style={{ color: '#888780' }}>Loading posts...</p>}
+        {loading && <p className="text-outline">Loading posts...</p>}
 
         {!loading && posts.length === 0 && (
-          <div style={{ background: '#fff', borderRadius: '1rem', padding: '3rem', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#d4d1cc', marginBottom: '1rem', display: 'block' }}>article</span>
-            <p style={{ color: '#888780', fontWeight: 300 }}>No posts published yet. Check back soon.</p>
+          <div className="bg-surface-container-lowest rounded-2xl p-12 text-center shadow-sm border border-outline-variant/10">
+            <span className="material-symbols-outlined text-[48px] text-outline-variant mb-4 block">article</span>
+            <p className="text-outline font-light">No posts published yet. Check back soon.</p>
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="flex flex-col gap-6">
           {posts.map(post => (
-            <Link key={post.id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
-              <article style={{ background: '#fff', borderRadius: '1rem', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', display: 'flex', gap: '0' }}>
+            <Link key={post.id} to={`/blog/${post.slug}`} className="no-underline group">
+              <article className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 flex transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md">
                 {post.cover_url && (
-                  <div style={{ width: '200px', minHeight: '160px', flexShrink: 0, background: `url(${post.cover_url}) center/cover` }} />
+                  <div className="w-[200px] min-h-[160px] shrink-0 bg-cover bg-center" style={{ backgroundImage: `url(${post.cover_url})` }} />
                 )}
-                <div style={{ padding: '1.5rem', flex: 1 }}>
-                  <p style={{ fontSize: '0.72rem', color: '#888780', marginBottom: '0.5rem' }}>
+                <div className="p-6 flex-1">
+                  <p className="font-label text-[0.72rem] text-outline mb-2">
                     {new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </p>
-                  <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.25rem', fontWeight: 400, color: '#1c1c19', marginBottom: '0.5rem' }}>{post.title}</h2>
-                  {post.excerpt && <p style={{ fontSize: '0.85rem', fontWeight: 300, color: '#6f797a', lineHeight: 1.6 }}>{post.excerpt}</p>}
+                  <h2 className="font-headline text-[1.25rem] font-normal text-on-background mb-2">{post.title}</h2>
+                  {post.excerpt && <p className="text-on-surface-variant font-light text-sm leading-relaxed">{post.excerpt}</p>}
                 </div>
               </article>
             </Link>

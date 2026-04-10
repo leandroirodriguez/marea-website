@@ -44,55 +44,67 @@ export default function ArticlesPage() {
     : articles.filter(a => a.category === activeCategory)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fcf9f4' }}>
+    <div className="min-h-screen bg-surface">
       {/* Nav */}
-      <nav style={{ background: 'rgba(252,249,244,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(0,0,0,0.04)', padding: '1rem 2rem' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link to="/"><img src={mareaLogo} alt="Marea Health" style={{ height: '1.4rem' }} /></Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <Link to="/blog" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#3f484a' }}>Blog</Link>
+      <nav className="fixed top-0 w-full z-50 bg-surface/92 backdrop-blur-xl border-b border-outline-variant/10 px-6 md:px-8 py-4">
+        <div className="max-w-[1100px] mx-auto flex justify-between items-center">
+          <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
+          <div className="flex items-center gap-6">
+            <Link to="/blog" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
             {user ? (
-              <Link to="/account" style={{ fontSize: '0.85rem', fontWeight: 500, color: '#005258' }}>My Account</Link>
+              <Link to="/account" className="font-label text-[0.85rem] font-medium text-primary hover:text-primary-container transition-colors">My Account</Link>
             ) : (
-              <Link to="/login" style={{ background: '#005258', color: '#fff', padding: '0.5rem 1.25rem', borderRadius: '9999px', fontSize: '0.82rem', fontWeight: 600 }}>Sign in</Link>
+              <Link to="/login" className="bg-primary text-on-primary rounded-full px-5 py-2 font-label text-[0.82rem] font-semibold hover:bg-primary-container transition-colors">Sign in</Link>
             )}
           </div>
         </div>
       </nav>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '3rem 2rem' }}>
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-24 pb-12">
         {/* Header */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2.5rem', fontWeight: 400, color: '#1c1c19', marginBottom: '0.5rem' }}>
+        <div className="mb-8">
+          <h1 className="font-headline text-[2.5rem] font-normal text-on-background mb-2" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
             Education Library
           </h1>
-          <p style={{ fontSize: '0.95rem', fontWeight: 300, color: '#6f797a' }}>
+          <p className="text-on-surface-variant font-light text-[0.95rem] leading-relaxed">
             Clinical insights on perimenopause, written by practicing OB/GYNs.
           </p>
         </div>
 
         {/* Access banner */}
         {!isPaid && (
-          <div style={{ background: hasReachedLimit ? 'linear-gradient(135deg, #842b16, #005258)' : 'rgba(0,82,88,0.06)', borderRadius: '1rem', padding: '1.25rem 1.5rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div className={`rounded-2xl px-6 py-5 mb-8 flex justify-between items-center flex-wrap gap-4 ${
+            hasReachedLimit
+              ? 'bg-gradient-to-br from-tertiary to-primary'
+              : 'bg-primary/[0.06]'
+          }`}>
             <div>
-              <p style={{ fontSize: '0.9rem', fontWeight: 600, color: hasReachedLimit ? '#fff' : '#1c1c19', marginBottom: '0.25rem' }}>
+              <p className={`text-[0.9rem] font-semibold mb-1 ${hasReachedLimit ? 'text-on-primary' : 'text-on-background'}`}>
                 {hasReachedLimit
                   ? 'You\'ve reached your free article limit'
                   : `${readCount} of ${maxFreeArticles} free article${maxFreeArticles > 1 ? 's' : ''} used`
                 }
               </p>
-              <p style={{ fontSize: '0.82rem', color: hasReachedLimit ? 'rgba(255,255,255,0.75)' : '#6f797a' }}>
+              <p className={`text-[0.82rem] ${hasReachedLimit ? 'text-on-primary/75' : 'text-outline'}`}>
                 {!user
                   ? 'Sign in for 5 free articles, or become a member for unlimited access.'
                   : isPaid ? '' : 'Become a member for unlimited access to all articles.'}
               </p>
             </div>
             {!user ? (
-              <Link to="/login" style={{ background: hasReachedLimit ? '#fff' : '#005258', color: hasReachedLimit ? '#005258' : '#fff', padding: '0.6rem 1.5rem', borderRadius: '9999px', fontSize: '0.82rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              <Link to="/login" className={`rounded-full px-6 py-2.5 font-label text-[0.82rem] font-semibold whitespace-nowrap transition-colors ${
+                hasReachedLimit
+                  ? 'bg-white text-primary hover:bg-primary-fixed'
+                  : 'bg-primary text-on-primary hover:bg-primary-container'
+              }`}>
                 Sign in free
               </Link>
             ) : (
-              <Link to="/account" style={{ background: hasReachedLimit ? '#fff' : '#005258', color: hasReachedLimit ? '#005258' : '#fff', padding: '0.6rem 1.5rem', borderRadius: '9999px', fontSize: '0.82rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              <Link to="/account" className={`rounded-full px-6 py-2.5 font-label text-[0.82rem] font-semibold whitespace-nowrap transition-colors ${
+                hasReachedLimit
+                  ? 'bg-white text-primary hover:bg-primary-fixed'
+                  : 'bg-primary text-on-primary hover:bg-primary-container'
+              }`}>
                 Upgrade
               </Link>
             )}
@@ -100,67 +112,57 @@ export default function ArticlesPage() {
         )}
 
         {/* Category filter */}
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+        <div className="flex gap-2 flex-wrap mb-8">
           {CATEGORIES.map(cat => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              style={{
-                padding: '0.5rem 1.25rem',
-                borderRadius: '9999px',
-                border: 'none',
-                fontSize: '0.82rem',
-                fontWeight: activeCategory === cat ? 600 : 400,
-                background: activeCategory === cat ? '#005258' : '#fff',
-                color: activeCategory === cat ? '#fff' : '#3f484a',
-                cursor: 'pointer',
-                boxShadow: activeCategory === cat ? 'none' : '0 1px 4px rgba(0,0,0,0.06)',
-              }}
+              className={`px-5 py-2 rounded-full border-none font-label text-[0.82rem] cursor-pointer transition-all duration-200 ${
+                activeCategory === cat
+                  ? 'bg-primary text-on-primary font-semibold shadow-none'
+                  : 'bg-surface-container-lowest text-on-surface-variant font-normal shadow-sm hover:shadow-md'
+              }`}
             >
               {cat}
             </button>
           ))}
         </div>
 
-        {loading && <p style={{ color: '#888780' }}>Loading articles...</p>}
+        {loading && <p className="text-outline">Loading articles...</p>}
 
         {!loading && filtered.length === 0 && (
-          <div style={{ background: '#fff', borderRadius: '1rem', padding: '3rem', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#d4d1cc', marginBottom: '1rem', display: 'block' }}>article</span>
-            <p style={{ color: '#888780', fontWeight: 300 }}>No articles found in this category.</p>
+          <div className="bg-surface-container-lowest rounded-2xl p-12 text-center shadow-sm border border-outline-variant/10">
+            <span className="material-symbols-outlined text-[48px] text-outline-variant mb-4 block">article</span>
+            <p className="text-outline font-light">No articles found in this category.</p>
           </div>
         )}
 
         {/* Article grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">
           {filtered.map(article => (
-            <Link key={article.id} to={`/articles/${article.slug}`} style={{ textDecoration: 'none' }}>
-              <article style={{ background: '#fff', borderRadius: '1rem', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', transition: 'transform 0.2s, box-shadow 0.2s' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.08)' }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.04)' }}
-              >
-                <div style={{
-                  height: '180px',
-                  background: `url(${article.cover_url || articleImage(article.slug, article.category)}) center/cover`,
-                  position: 'relative',
-                }}>
+            <Link key={article.id} to={`/articles/${article.slug}`} className="no-underline group">
+              <article className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-lg">
+                <div
+                  className="h-[180px] bg-cover bg-center relative"
+                  style={{ backgroundImage: `url(${article.cover_url || articleImage(article.slug, article.category)})` }}
+                >
                   {article.is_premium && (
-                    <span style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'rgba(132,43,22,0.9)', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '0.25rem 0.6rem', borderRadius: '9999px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                    <span className="absolute top-3 right-3 bg-tertiary/90 text-on-tertiary font-label text-[0.65rem] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                       Member
                     </span>
                   )}
                 </div>
-                <div style={{ padding: '1.25rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#005258', background: 'rgba(0,82,88,0.08)', padding: '0.15rem 0.5rem', borderRadius: '9999px' }}>
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-label text-[0.7rem] font-semibold text-primary bg-primary/[0.08] px-2 py-0.5 rounded-full">
                       {article.category}
                     </span>
-                    <span style={{ fontSize: '0.72rem', color: '#888780' }}>{article.read_time} min read</span>
+                    <span className="font-label text-[0.72rem] text-outline">{article.read_time} min read</span>
                   </div>
-                  <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.15rem', fontWeight: 400, color: '#1c1c19', lineHeight: 1.3, marginBottom: '0.5rem' }}>
+                  <h2 className="font-headline text-[1.15rem] font-normal text-on-background mb-2" style={{ lineHeight: 1.3 }}>
                     {article.title}
                   </h2>
-                  <p style={{ fontSize: '0.78rem', color: '#888780' }}>
+                  <p className="font-label text-[0.78rem] text-outline">
                     {article.author}
                   </p>
                 </div>
