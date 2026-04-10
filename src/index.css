@@ -1,3 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --color-white: #fff;
+  --color-outline-variant: #bec8c9;
+  --color-surface-container-high: #ebe8e3;
+  --color-primary: #005258;
+  --color-primary-container: #1b6b72;
+  --color-primary-fixed-dim: #8bd2da;
+  --color-tertiary: #842b16;
+  --color-primary-fixed: #a7eef6;
+  --color-surface-container-lowest: #fff;
+  --color-tertiary-container: #a4422b;
+  --color-on-surface-variant: #3f484a;
+  --color-secondary-container: #fddfac;
+  --color-on-background: #1c1c19;
+  --color-surface: #fcf9f4;
+  --color-on-tertiary: #fff;
+  --color-on-primary: #fff;
+  --color-surface-container: #f0ede9;
+  --color-secondary: #715b33;
+  --color-surface-container-low: #f6f3ee;
+  --color-surface-variant: #e5e2dd;
+  --color-outline: #6f797a;
+  --color-on-primary-container: #a1e9f1;
+  --font-headline: "Newsreader", serif;
+  --font-body: "Plus Jakarta Sans", sans-serif;
+  --font-label: "Plus Jakarta Sans", sans-serif;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }

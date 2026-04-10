@@ -1,240 +1,1089 @@
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import mareaLogo from '../assets/marealogo.svg'
 
-const NAV_LINKS = [
-  { label: 'Features', href: '#features' },
-  { label: 'Clinical', href: '#clinical' },
-  { label: 'Blog', href: '/blog', isRoute: true },
+/* ─── Data constants ─── */
+
+const QUESTION_DATA = {
+  domain: 'Menstrual cycles',
+  number: 2,
+  total: 15,
+  text: 'How would you describe your menstrual cycle pattern in the last 12 months?',
+  options: [
+    'Regular and predictable — consistent cycle length',
+    'Mostly regular but cycle length varies by 7+ days from my normal',
+    'Irregular — I\'ve skipped one or more periods (gaps of 60+ days)',
+    'I haven\'t had a period in 3–11 months',
+    'I haven\'t had a period in 12+ months',
+  ],
+  selectedIndex: 2,
+}
+
+const STAGE_RESULT = { label: 'Late Menopausal Transition', straw: '-1', color: '#715b33' }
+
+const SYMPTOM_SCORES = [
+  { key: 'sleep', label: 'Sleep', pct: 71, color: '#842b16' },
+  { key: 'mood', label: 'Mood', pct: 57, color: '#715b33' },
+  { key: 'cog', label: 'Brain fog', pct: 50, color: '#005258' },
+  { key: 'vaso', label: 'Hot flashes', pct: 40, color: '#a4422b' },
+  { key: 'cyc', label: 'Cycles', pct: 64, color: '#1b6b72' },
 ]
 
-const FEATURES = [
-  {
-    icon: 'quiz',
-    title: 'Perimenopause Assessment',
-    desc: 'A 4-minute clinically-grounded assessment based on the STRAW+10 framework. Know your stage, understand your symptoms, and get a personalized action plan.',
-  },
-  {
-    icon: 'biotech',
-    title: 'Lab Interpreter',
-    desc: 'Enter your hormone levels — AMH, FSH, Estradiol, Testosterone, Progesterone — and get a plain-language interpretation personalized to your stage.',
-  },
-  {
-    icon: 'trending_up',
-    title: 'Symptom Tracker',
-    desc: 'Daily check-ins for hot flashes, sleep, mood, energy, and focus. Track patterns over time and see what\'s actually changing.',
-  },
-  {
-    icon: 'chat_bubble',
-    title: 'AI Health Assistant',
-    desc: 'Ask questions about your symptoms, hormones, or treatment options. Get answers grounded in clinical evidence, not internet noise.',
-  },
-  {
-    icon: 'forum',
-    title: 'Community',
-    desc: 'Connect with other women navigating perimenopause. Anonymous posting available. Monthly live Q&A with our medical team.',
-  },
-  {
-    icon: 'assignment',
-    title: 'Appointment Prep',
-    desc: 'Generate a visit summary to bring to your doctor — your stage, symptoms, labs, and questions, formatted for a productive conversation.',
-  },
+const DAILY_INSIGHT_TEXT =
+  'Estrogen and serotonin are deeply linked. When estrogen drops sharply, serotonin drops with it. The emotional volatility is neurochemistry, not weakness.'
+
+const SYMPTOM_DOMAINS = [
+  { icon: 'thermostat', label: 'Hot flashes', target: 3, desc: 'Noticeable flash' },
+  { icon: 'bedtime', label: 'Sleep', target: 2, desc: 'Mostly ok' },
+  { icon: 'sentiment_calm', label: 'Mood', target: 3, desc: 'Irritable/low' },
+  { icon: 'bolt', label: 'Energy', target: 3, desc: 'Moderate' },
+  { icon: 'neurology', label: 'Focus', target: 3, desc: 'Some fog' },
 ]
 
-const TEAM = [
-  { name: 'Dr. Leandro Rodriguez, MD, FACOG', role: 'Co-Founder & Medical Director' },
+const SYMPTOM_SAVED_INDEX = 5
+
+const INSIGHT_CATEGORIES = ['All', 'Sleep', 'Mood', 'Brain fog', 'Hot flashes', 'HRT']
+
+const INSIGHT_ARTICLES = [
+  { title: 'Why Sleep Falls Apart in Perimenopause', category: 'Sleep', time: '6 min', icon: 'bedtime' },
+  { title: 'The Estrogen-Serotonin Connection', category: 'Mood', time: '5 min', icon: 'sentiment_calm' },
+  { title: 'Brain Fog Is Not Early Dementia', category: 'Brain fog', time: '4 min', icon: 'neurology' },
+  { title: 'HRT: What the Evidence Actually Says', category: 'HRT', time: '8 min', icon: 'medication' },
 ]
+
+const SLEEP_PARAGRAPHS = [
+  'Progesterone is a natural sedative — it binds the same brain receptors as sleep medication. When it declines, the sedative effect disappears.',
+  'Estrogen fluctuation then narrows your thermoneutral zone, triggering night sweats. Two separate mechanisms, one broken night\'s sleep.',
+  'The 2–4am waking pattern is particularly common. Cortisol, which normally stays low until morning, begins spiking earlier as estrogen loses its regulatory hold on the HPA axis.',
+  'Deep sleep (stages 3 and 4) decreases measurably during perimenopause. You may sleep the same number of hours but wake feeling unrestored — this is not imagined.',
+  'Melatonin production also shifts. Estrogen supports melatonin synthesis in the pineal gland. As estrogen fluctuates, your circadian rhythm becomes less precise.',
+  'What helps: Evidence supports magnesium glycinate (300–400mg before bed), keeping the bedroom below 65°F, and discussing progesterone with your provider if sleep remains disrupted.',
+]
+
+const SLEEP_STAT = {
+  value: '80%',
+  text: 'of women in perimenopause report sleep disruption as their most impactful symptom.',
+}
+
+/* ─── Sub-components ─── */
+
+function AssessmentDemo() {
+  const [step, setStep] = useState(0)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    const sequence = [
+      [1, 1400], [2, 700], [3, 1100], [4, 700],
+      [5, 350], [6, 350], [7, 350], [8, 350],
+      [9, 600], [10, 5000], [0, 100],
+    ]
+
+    function run() {
+      setStep(0)
+      let acc = 0
+      sequence.forEach(([s, delay]) => {
+        acc += delay
+        setTimeout(() => setStep(s), acc)
+      })
+    }
+
+    run()
+    const total = sequence.reduce((a, [, d]) => a + d, 0)
+    timerRef.current = setInterval(run, total)
+    return () => clearInterval(timerRef.current)
+  }, [])
+
+  const showResults = step >= 3
+  const barIndex = step >= 4 ? step - 4 : -1
+  const showInsight = step >= 9
+
+  return (
+    <div
+      className="w-full max-w-sm mx-auto rounded-2xl shadow-lg border border-outline-variant/10 overflow-hidden relative"
+      style={{ background: '#fcf9f4', height: '560px' }}
+    >
+      {/* Question view */}
+      <div
+        className="absolute inset-0 flex flex-col"
+        style={{
+          opacity: +!showResults,
+          transform: showResults ? 'scale(0.97) translateY(-12px)' : 'scale(1) translateY(0)',
+          transition: 'opacity 0.5s ease, transform 0.5s ease',
+          pointerEvents: showResults ? 'none' : 'auto',
+          zIndex: +!showResults,
+        }}
+      >
+        <div className="px-5 pt-5 pb-1">
+          <div className="h-[3px] w-full bg-surface-variant rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full"
+              style={{ width: '13%', background: '#005258', transition: 'width 0.5s ease' }}
+            />
+          </div>
+          <p className="text-[10px] font-label uppercase tracking-wider text-outline mt-1">
+            Question {QUESTION_DATA.number} of {QUESTION_DATA.total}
+          </p>
+        </div>
+        <div className="px-5 pt-2 pb-2 flex-1 flex flex-col min-h-0">
+          <p className="text-[9px] font-label uppercase tracking-[0.12em] text-primary-container mb-1">
+            {QUESTION_DATA.domain}
+          </p>
+          <h3
+            className="font-headline text-[1.05rem] text-on-background mb-3"
+            style={{ lineHeight: 1.3, fontWeight: 400 }}
+          >
+            {QUESTION_DATA.text}
+          </h3>
+          <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
+            {QUESTION_DATA.options.map((opt, n) => {
+              const selected = step >= 1 && n === QUESTION_DATA.selectedIndex
+              return (
+                <div
+                  key={n}
+                  className="flex items-start gap-2 rounded-lg px-2.5 py-2"
+                  style={{
+                    border: `1.5px solid ${selected ? '#005258' : 'rgba(190,200,201,0.25)'}`,
+                    background: selected ? 'rgba(0,82,88,0.05)' : '#fff',
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  <div
+                    className="w-3.5 h-3.5 rounded-full shrink-0 mt-0.5 flex items-center justify-center"
+                    style={{
+                      border: `2px solid ${selected ? '#005258' : '#bec8c9'}`,
+                      background: selected ? '#005258' : 'transparent',
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    {selected && (
+                      <span className="material-symbols-outlined text-white" style={{ fontSize: '8px' }}>
+                        check
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className="text-[11px] leading-snug text-on-background"
+                    style={{ fontWeight: selected ? 500 : 300, transition: 'font-weight 0.3s' }}
+                  >
+                    {opt}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        <div className="px-5 pb-4">
+          <div
+            className="w-full rounded-full py-2.5 text-center text-xs font-medium text-white"
+            style={{ background: '#842b16', opacity: step >= 2 ? 1 : 0.3, transition: 'opacity 0.3s ease' }}
+          >
+            Continue
+          </div>
+        </div>
+      </div>
+
+      {/* Results view */}
+      <div
+        className="absolute inset-0 flex flex-col"
+        style={{
+          opacity: +!!showResults,
+          transform: showResults ? 'scale(1) translateY(0)' : 'scale(0.97) translateY(12px)',
+          transition: 'opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s',
+          pointerEvents: showResults ? 'auto' : 'none',
+          zIndex: +!!showResults,
+        }}
+      >
+        <div className="px-5 pt-6 pb-4" style={{ background: '#0D3F44' }}>
+          <p
+            className="text-[9px] font-label uppercase tracking-[0.12em] mb-2"
+            style={{ color: '#e8755a' }}
+          >
+            Your profile is ready
+          </p>
+          <h3
+            className="font-headline text-lg text-white mb-1"
+            style={{ lineHeight: 1.25, fontWeight: 400 }}
+          >
+            Your body isn&apos;t betraying you. It&apos;s changing.
+          </h3>
+          <p
+            className="text-[11px] font-light"
+            style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}
+          >
+            Here&apos;s a preview of what we found.
+          </p>
+        </div>
+        <div className="flex-1 px-4 py-3 pb-5 flex flex-col gap-3 overflow-hidden">
+          <div className="bg-white rounded-xl px-4 py-3 shadow-sm">
+            <p className="text-[9px] font-label uppercase tracking-[0.12em] text-primary-container mb-1">
+              Your stage
+            </p>
+            <h4 className="font-headline text-base text-on-background" style={{ fontWeight: 400 }}>
+              {STAGE_RESULT.label}
+            </h4>
+            <p className="text-[10px] text-outline mt-0.5">
+              STRAW+10 stage: <strong className="text-primary">{STAGE_RESULT.straw}</strong>
+            </p>
+          </div>
+          <div className="bg-white rounded-xl px-4 py-3 shadow-sm">
+            <p className="text-[9px] font-label uppercase tracking-[0.12em] text-primary-container mb-2.5">
+              Symptom domain scores
+            </p>
+            <div className="flex flex-col gap-2.5">
+              {SYMPTOM_SCORES.map((s, t) => {
+                const visible = barIndex >= t
+                const severity = s.pct > 66 ? 'High' : s.pct > 33 ? 'Moderate' : 'Low'
+                return (
+                  <div key={s.key}>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-[11px] font-medium text-on-background">{s.label}</span>
+                      <span
+                        className="text-[10px] text-outline"
+                        style={{ opacity: +!!visible, transition: 'opacity 0.3s' }}
+                      >
+                        {severity}
+                      </span>
+                    </div>
+                    <div className="h-[4px] bg-surface-variant rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: visible ? `${s.pct}%` : '0%',
+                          background: s.color,
+                          transition: 'width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                        }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          <div
+            className="rounded-xl px-4 py-3"
+            style={{
+              background: '#005258',
+              opacity: +!!showInsight,
+              transform: showInsight ? 'translateY(0)' : 'translateY(10px)',
+              transition: 'opacity 0.5s ease, transform 0.5s ease',
+            }}
+          >
+            <div className="flex items-start gap-2.5">
+              <span
+                className="material-symbols-outlined shrink-0 mt-0.5"
+                style={{ fontSize: '14px', color: '#8bd2da' }}
+              >
+                lightbulb
+              </span>
+              <div>
+                <p
+                  className="text-[8px] font-label uppercase tracking-[0.15em] mb-1"
+                  style={{ color: '#8bd2da' }}
+                >
+                  Daily Insight
+                </p>
+                <p
+                  className="text-[11px] leading-relaxed font-light"
+                  style={{ color: 'rgba(255,255,255,0.8)' }}
+                >
+                  {DAILY_INSIGHT_TEXT}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function InsightsDemo() {
+  const [step, setStep] = useState(0)
+  const [scrollY, setScrollY] = useState(0)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    const sequence = [
+      [1, 1600], [2, 500], [3, 1000], [4, 900],
+      [5, 1400], [6, 1400], [7, 1000], [8, 4000], [0, 100],
+    ]
+
+    function run() {
+      setStep(0)
+      setScrollY(0)
+      let acc = 0
+      sequence.forEach(([s, delay]) => {
+        acc += delay
+        setTimeout(() => {
+          setStep(s)
+          if (s === 5) setScrollY(80)
+          if (s === 6) setScrollY(160)
+          if (s === 7) setScrollY(210)
+          if (s === 0) setScrollY(0)
+        }, acc)
+      })
+    }
+
+    run()
+    const total = sequence.reduce((a, [, d]) => a + d, 0)
+    timerRef.current = setInterval(run, total)
+    return () => clearInterval(timerRef.current)
+  }, [])
+
+  const activeCategory = step >= 1 ? 'Sleep' : 'All'
+  const filteredArticles = step >= 2 ? INSIGHT_ARTICLES.filter((a) => a.category === 'Sleep') : INSIGHT_ARTICLES
+  const isSelected = step >= 3
+  const showArticle = step >= 4
+  const showStat = step >= 7
+
+  return (
+    <div
+      className="w-full rounded-xl overflow-hidden"
+      style={{ background: 'rgba(255,255,255,0.08)', minHeight: '380px' }}
+    >
+      <div
+        className="flex gap-1.5 px-4 pt-4 pb-3 overflow-hidden"
+        style={{
+          opacity: +!showArticle,
+          height: showArticle ? 0 : 'auto',
+          paddingTop: showArticle ? 0 : undefined,
+          paddingBottom: showArticle ? 0 : undefined,
+          transition: 'all 0.4s ease',
+        }}
+      >
+        {INSIGHT_CATEGORIES.map((cat) => {
+          const active = cat === activeCategory
+          return (
+            <div
+              key={cat}
+              className="shrink-0 rounded-full px-3 py-1 text-[10px] font-label whitespace-nowrap"
+              style={{
+                background: active ? '#fff' : 'rgba(255,255,255,0.1)',
+                color: active ? '#005258' : 'rgba(255,255,255,0.5)',
+                fontWeight: active ? 600 : 400,
+                transition: 'all 0.3s ease',
+              }}
+            >
+              {cat}
+            </div>
+          )
+        })}
+      </div>
+      <div className="px-4 pb-4">
+        {showArticle ? (
+          <div className="overflow-hidden" style={{ maxHeight: '280px' }}>
+            <div
+              style={{
+                transform: `translateY(-${scrollY}px)`,
+                transition: 'transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              }}
+            >
+              <div className="mb-3">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '14px', color: '#8bd2da' }}
+                  >
+                    bedtime
+                  </span>
+                  <span
+                    className="text-[9px] font-label uppercase tracking-wider"
+                    style={{ color: '#8bd2da' }}
+                  >
+                    Sleep · 6 min read
+                  </span>
+                </div>
+                <h4
+                  className="font-headline text-[15px] text-white mb-1"
+                  style={{ lineHeight: 1.3 }}
+                >
+                  Why Sleep Falls Apart in Perimenopause
+                </h4>
+                <div className="flex items-center gap-1.5 mb-3">
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '11px', color: '#8bd2da' }}
+                  >
+                    verified
+                  </span>
+                  <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    Dr. Rodriguez, MD, FACOG
+                  </span>
+                </div>
+                <div className="h-px mb-3" style={{ background: 'rgba(255,255,255,0.1)' }} />
+              </div>
+              <div className="flex flex-col gap-3">
+                {SLEEP_PARAGRAPHS.map((p, i) => (
+                  <p
+                    key={i}
+                    className="text-[11px] font-light leading-relaxed"
+                    style={{ color: 'rgba(255,255,255,0.65)' }}
+                  >
+                    {p}
+                  </p>
+                ))}
+              </div>
+              <div
+                className="mt-4 rounded-lg px-4 py-3 flex items-start gap-3"
+                style={{
+                  background: 'rgba(253,223,172,0.1)',
+                  border: '1px solid rgba(253,223,172,0.15)',
+                  opacity: +!!showStat,
+                  transition: 'opacity 0.4s ease',
+                }}
+              >
+                <span
+                  className="font-headline text-lg shrink-0"
+                  style={{ color: '#dfc392', lineHeight: 1 }}
+                >
+                  {SLEEP_STAT.value}
+                </span>
+                <p
+                  className="text-[10px] font-light leading-snug"
+                  style={{ color: 'rgba(255,255,255,0.5)' }}
+                >
+                  {SLEEP_STAT.text}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {filteredArticles.map((article, t) => {
+              const highlighted = isSelected && t === 0
+              return (
+                <div
+                  key={article.title}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5"
+                  style={{
+                    background: highlighted ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                    border: highlighted
+                      ? '1px solid rgba(255,255,255,0.2)'
+                      : '1px solid transparent',
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  <span
+                    className="material-symbols-outlined shrink-0"
+                    style={{
+                      fontSize: '18px',
+                      color: highlighted ? '#8bd2da' : 'rgba(255,255,255,0.3)',
+                      transition: 'color 0.3s',
+                    }}
+                  >
+                    {article.icon}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className="text-[11px] leading-snug truncate"
+                      style={{
+                        color: highlighted ? '#fff' : 'rgba(255,255,255,0.7)',
+                        fontWeight: highlighted ? 500 : 300,
+                        transition: 'all 0.3s',
+                      }}
+                    >
+                      {article.title}
+                    </p>
+                    <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                      {article.category} · {article.time} read
+                    </p>
+                  </div>
+                  {highlighted && (
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '14px', color: '#8bd2da' }}
+                    >
+                      arrow_forward
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SymptomTrackerDemo() {
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const [saved, setSaved] = useState(false)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    function run() {
+      setActiveIndex(-1)
+      setSaved(false)
+      SYMPTOM_DOMAINS.forEach((_, n) => {
+        setTimeout(() => setActiveIndex(n), 800 + n * 700)
+      })
+      setTimeout(() => {
+        setActiveIndex(SYMPTOM_SAVED_INDEX)
+        setSaved(true)
+      }, 800 + SYMPTOM_DOMAINS.length * 700 + 400)
+      setTimeout(() => {
+        setActiveIndex(-1)
+        setSaved(false)
+      }, 800 + SYMPTOM_DOMAINS.length * 700 + 2800)
+    }
+
+    run()
+    timerRef.current = setInterval(run, 800 + SYMPTOM_DOMAINS.length * 700 + 3600)
+    return () => clearInterval(timerRef.current)
+  }, [])
+
+  return (
+    <div className="w-full max-w-sm mx-auto bg-surface-container-lowest rounded-2xl p-6 md:p-8 shadow-lg border border-outline-variant/10">
+      <p className="text-[10px] font-label uppercase tracking-[0.2em] text-primary mb-1">
+        Daily Check-in
+      </p>
+      <h4 className="font-headline text-xl md:text-2xl text-on-background mb-6 italic">
+        How are you feeling today?
+      </h4>
+      <div className="flex flex-col gap-5">
+        {SYMPTOM_DOMAINS.map((item, n) => {
+          const active = activeIndex >= n
+          const value = active ? item.target : 0
+          return (
+            <div key={item.label}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="material-symbols-outlined text-primary text-lg"
+                    style={{ transition: 'opacity 0.3s', opacity: active ? 1 : 0.4 }}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className="text-sm font-medium text-on-background">{item.label}</span>
+                </div>
+                <span
+                  className="text-sm font-headline italic text-primary"
+                  style={{ transition: 'opacity 0.4s ease', opacity: +!!active }}
+                >
+                  {item.desc}
+                </span>
+              </div>
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4, 5].map((v) => (
+                  <div
+                    key={v}
+                    className="h-[6px] flex-1 rounded-full"
+                    style={{
+                      backgroundColor: v <= value ? '#005258' : '#e5e2dd',
+                      transition: `background-color 0.3s ease ${v * 0.06}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <button
+        className="w-full mt-8 rounded-full py-3.5 font-semibold text-sm transition-all duration-300"
+        style={{
+          backgroundColor: saved ? '#005258' : '#842b16',
+          color: '#ffffff',
+          transform: saved ? 'scale(0.97)' : 'scale(1)',
+          boxShadow: saved ? 'none' : '0 4px 16px rgba(132, 43, 22, 0.2)',
+        }}
+      >
+        {saved ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="material-symbols-outlined text-lg">check_circle</span>
+            Saved!
+          </span>
+        ) : (
+          'Save today\'s log'
+        )}
+      </button>
+    </div>
+  )
+}
+
+/* ─── Main Landing Page ─── */
 
 export default function LandingPage() {
   return (
-    <div style={{ overflow: 'hidden' }}>
+    <div className="bg-surface text-on-background font-body selection:bg-secondary-container/30 overflow-x-hidden">
       {/* Nav */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'rgba(252,249,244,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <img src={mareaLogo} alt="Marea Health" style={{ height: '1.4rem' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-            {NAV_LINKS.map(l => l.isRoute ? (
-              <Link key={l.label} to={l.href} style={{ fontSize: '0.85rem', fontWeight: 500, color: '#3f484a' }}>{l.label}</Link>
-            ) : (
-              <a key={l.label} href={l.href} style={{ fontSize: '0.85rem', fontWeight: 500, color: '#3f484a' }}>{l.label}</a>
-            ))}
-            <a href="#download" style={{ background: '#005258', color: '#fff', padding: '0.6rem 1.5rem', borderRadius: '9999px', fontSize: '0.82rem', fontWeight: 600 }}>
-              Download
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-outline-variant/10">
+        <div className="flex justify-between items-center px-6 md:px-16 lg:px-20 py-5 max-w-[1400px] mx-auto">
+          <Link to="/" className="shrink-0">
+            <img src={mareaLogo} alt="Marea" style={{ height: '30px', width: 'auto' }} />
+          </Link>
+          <div className="hidden md:flex gap-10 items-center">
+            <a
+              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
+              href="#vision"
+            >
+              Our Vision
+            </a>
+            <a
+              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
+              href="#features"
+            >
+              The Science
+            </a>
+            <Link
+              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
+              to="/blog"
+            >
+              Journal
+            </Link>
+            <Link
+              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
+              to="/articles"
+            >
+              Articles
+            </Link>
+            <a
+              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
+              href="#download"
+            >
+              Membership
             </a>
           </div>
+          <button className="md:hidden text-on-surface-variant" aria-label="Menu">
+            <span className="material-symbols-outlined text-2xl">menu</span>
+          </button>
+          <a
+            href="#download"
+            className="hidden md:inline-flex bg-tertiary text-on-tertiary px-6 py-2.5 rounded-full text-[11px] font-label uppercase tracking-widest hover:bg-tertiary-container transition-all shadow-lg shadow-tertiary/10"
+          >
+            Get Started
+          </a>
         </div>
       </nav>
 
       {/* Hero */}
-      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '8rem 2rem 4rem', position: 'relative' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 0%, rgba(0,82,88,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: '720px', position: 'relative' }}>
-          <p style={{ fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#842b16', fontWeight: 600, marginBottom: '1.5rem' }}>
-            Designed by practicing OB/GYNs
-          </p>
-          <h1 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: 'clamp(2.5rem, 6vw, 4rem)', fontWeight: 400, lineHeight: 1.1, color: '#1c1c19', marginBottom: '1.5rem' }}>
-            Perimenopause,<br />finally understood.
-          </h1>
-          <p style={{ fontSize: '1.1rem', fontWeight: 300, color: '#3f484a', lineHeight: 1.7, marginBottom: '2.5rem', maxWidth: '560px', margin: '0 auto 2.5rem' }}>
-            The app that gives you clinical answers about your hormones, your symptoms, and what to do next — built by the doctors who treat this every day.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <a href="#download" style={{ background: '#005258', color: '#fff', padding: '1rem 2.5rem', borderRadius: '9999px', fontSize: '0.95rem', fontWeight: 600, boxShadow: '0 4px 24px rgba(0,82,88,0.25)' }}>
-              Download the app
-            </a>
-            <a href="#features" style={{ background: '#fff', color: '#005258', padding: '1rem 2.5rem', borderRadius: '9999px', fontSize: '0.95rem', fontWeight: 600, border: '1.5px solid #005258' }}>
-              See features
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Social proof bar */}
-      <section style={{ background: '#005258', padding: '2.5rem 2rem', textAlign: 'center' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', justifyContent: 'center', gap: '4rem', flexWrap: 'wrap' }}>
-          <div>
-            <p style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2rem', fontWeight: 400, color: '#fff' }}>STRAW+10</p>
-            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.25rem' }}>Clinical staging framework</p>
-          </div>
-          <div>
-            <p style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2rem', fontWeight: 400, color: '#fff' }}>5</p>
-            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.25rem' }}>Hormone labs interpreted</p>
-          </div>
-          <div>
-            <p style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2rem', fontWeight: 400, color: '#fff' }}>Evidence-based</p>
-            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.25rem' }}>Every recommendation cited</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" style={{ padding: '6rem 2rem', maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <p style={{ fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#842b16', fontWeight: 600, marginBottom: '1rem' }}>Features</p>
-          <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 400, color: '#1c1c19', marginBottom: '1rem' }}>
-            Everything you need in one place
-          </h2>
-          <p style={{ fontSize: '1rem', fontWeight: 300, color: '#3f484a', maxWidth: '520px', margin: '0 auto', lineHeight: 1.7 }}>
-            No more piecing together answers from forums, outdated articles, and dismissive appointments.
-          </p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-          {FEATURES.map(f => (
-            <div key={f.title} style={{ background: '#fff', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0,82,88,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#005258' }}>{f.icon}</span>
-              </div>
-              <h3 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.2rem', fontWeight: 400, color: '#1c1c19', marginBottom: '0.6rem' }}>{f.title}</h3>
-              <p style={{ fontSize: '0.88rem', fontWeight: 300, color: '#6f797a', lineHeight: 1.7 }}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Clinical credibility */}
-      <section id="clinical" style={{ background: '#0D3F44', padding: '6rem 2rem', color: '#fff' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#e8755a', fontWeight: 600, marginBottom: '1rem' }}>Built by clinicians</p>
-          <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 400, marginBottom: '1.5rem' }}>
-            Designed by practicing OB/GYNs who see perimenopause patients every day
-          </h2>
-          <p style={{ fontSize: '1rem', fontWeight: 300, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, marginBottom: '3rem', maxWidth: '640px', margin: '0 auto 3rem' }}>
-            Marea was born from a clinical practice — not a tech startup. Every assessment question, every lab range, every recommendation comes from the same evidence base we use with our own patients. We built the app we wished existed for the women we see every week.
-          </p>
-
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
-            {TEAM.map(t => (
-              <div key={t.name} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '2rem', maxWidth: '320px', backdropFilter: 'blur(8px)' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '28px', color: 'rgba(255,255,255,0.8)' }}>person</span>
+      <section className="pt-28 pb-16 md:pt-40 md:pb-24">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div className="order-2 lg:order-1">
+            <span className="font-label uppercase tracking-[0.2em] text-primary text-[11px] font-semibold mb-4 block">
+              Hormonal Intelligence
+            </span>
+            <h1
+              className="font-headline text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl text-on-background tracking-tight mb-6"
+              style={{ letterSpacing: '-0.02em' }}
+            >
+              Find your rhythm through perimenopause.
+            </h1>
+            <p className="font-body font-light text-base md:text-lg text-on-surface-variant max-w-md mb-8 leading-relaxed">
+              A personalized sanctuary designed to help you navigate hormonal shifts with clinical
+              precision and soulful intuition.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <a
+                href="#download"
+                className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 hover:opacity-90 transition-all"
+              >
+                <span className="material-symbols-outlined text-xl">phone_iphone</span>
+                <div className="text-left">
+                  <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">
+                    Download on the
+                  </p>
+                  <p className="text-sm font-semibold leading-none mt-0.5">App Store</p>
                 </div>
-                <p style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '0.25rem' }}>{t.name}</p>
-                <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>{t.role}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section style={{ padding: '6rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <p style={{ fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#842b16', fontWeight: 600, marginBottom: '1rem' }}>How it works</p>
-          <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 400, color: '#1c1c19' }}>
-            Three steps to clarity
-          </h2>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {[
-            { step: '01', title: 'Take the assessment', desc: 'Answer questions about your cycle, symptoms, and history. In 4 minutes, get your STRAW+10 stage and a personalized symptom profile.' },
-            { step: '02', title: 'Understand your body', desc: 'Read your lab results in plain language. Track daily symptoms. Learn the science behind what you\'re experiencing — not just that it\'s "normal."' },
-            { step: '03', title: 'Take action', desc: 'Get a doctor-ready visit summary. Know which questions to ask. Understand your treatment options with evidence, not opinions.' },
-          ].map(s => (
-            <div key={s.step} style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', background: '#fff', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
-              <div style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '2.5rem', fontWeight: 400, color: 'rgba(0,82,88,0.15)', lineHeight: 1, flexShrink: 0, minWidth: '60px' }}>{s.step}</div>
-              <div>
-                <h3 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.2rem', fontWeight: 400, color: '#1c1c19', marginBottom: '0.5rem' }}>{s.title}</h3>
-                <p style={{ fontSize: '0.88rem', fontWeight: 300, color: '#6f797a', lineHeight: 1.7 }}>{s.desc}</p>
+              </a>
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-on-primary shrink-0">
+                  <span className="material-symbols-outlined text-lg">verified</span>
+                </div>
+                <p className="text-sm text-on-surface-variant">
+                  Built by board-certified{' '}
+                  <span className="font-semibold text-primary">OB/GYNs</span>
+                </p>
               </div>
             </div>
-          ))}
+          </div>
+          <div className="order-1 lg:order-2 relative">
+            <div className="absolute -top-8 -right-8 w-48 h-48 bg-secondary-container rounded-full blur-[60px] opacity-40 -z-10" />
+            <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-primary-fixed-dim rounded-full blur-[50px] opacity-30 -z-10" />
+            <div className="rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/10 border border-outline-variant/10">
+              <img
+                src="/hero.png"
+                alt="Woman navigating perimenopause with confidence"
+                className="w-full aspect-[3/4] object-cover object-top"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* CTA / Download */}
-      <section id="download" style={{ background: 'linear-gradient(135deg, #005258 0%, #0D3F44 50%, #842b16 100%)', padding: '6rem 2rem', textAlign: 'center', color: '#fff' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 400, marginBottom: '1rem' }}>
-            Your hormones deserve better than Google.
+      {/* The Marea Philosophy */}
+      <section id="vision" className="py-16 md:py-24 bg-surface-container-low">
+        <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
+          <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
+            The Marea Philosophy
+          </div>
+          <h2
+            className="font-headline text-3xl md:text-4xl lg:text-5xl mb-6"
+            style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
+          >
+            Intelligence meets Empathy.
           </h2>
-          <p style={{ fontSize: '1rem', fontWeight: 300, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-            Download Marea and get the answers you've been looking for — backed by the doctors who know this best.
+          <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed mb-10">
+            We believe hormonal health shouldn&apos;t be a black box. Our proprietary
+            &ldquo;Pulse&rdquo; visualization transforms complex cycle data into a serene, intuitive
+            experience that adapts as you do.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <a href="#" style={{ background: '#fff', color: '#005258', padding: '1rem 2.5rem', borderRadius: '9999px', fontSize: '0.95rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>apple</span>
-              App Store
-            </a>
-            <a href="#" style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', padding: '1rem 2.5rem', borderRadius: '9999px', fontSize: '0.95rem', fontWeight: 600, border: '1.5px solid rgba(255,255,255,0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>play_arrow</span>
-              Google Play
-            </a>
+          <div className="relative h-3 w-full max-w-sm mx-auto bg-outline-variant/20 rounded-full overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary-container to-tertiary-container animate-pulse opacity-60" />
           </div>
-          <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginTop: '1.5rem' }}>Coming soon to iOS and Android</p>
         </div>
       </section>
 
-      {/* Blog preview */}
-      <section style={{ padding: '6rem 2rem', maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <p style={{ fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#842b16', fontWeight: 600, marginBottom: '0.5rem' }}>From the blog</p>
-            <h2 style={{ fontFamily: 'Newsreader, Georgia, serif', fontSize: '1.8rem', fontWeight: 400, color: '#1c1c19' }}>Clinical insights, made clear</h2>
+      {/* Medical Team */}
+      <section className="pt-16 pb-8 md:pt-20 md:pb-12 bg-surface">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
+          <div className="text-center mb-10">
+            <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
+              Our Medical Team
+            </div>
+            <h2
+              className="font-headline text-3xl md:text-4xl lg:text-5xl mb-4"
+              style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
+            >
+              Built by practicing OB/GYNs.
+            </h2>
+            <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
+              Marea was born from a clinical practice — not a tech startup. Every assessment, every
+              lab range, every recommendation comes from the same evidence base we use with our own
+              patients.
+            </p>
           </div>
-          <Link to="/blog" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#005258' }}>
-            View all posts →
-          </Link>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-20">
+            <div className="flex flex-col items-center max-w-[260px]">
+              <div
+                className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
+                style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
+              >
+                <img
+                  src="/richmond.png"
+                  alt="Dr. Richmond, MD, FACOG"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+              <p className="text-lg font-medium text-on-background text-center">Dr. Richmond</p>
+              <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
+                MD, FACOG
+              </p>
+              <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
+                Co-Founder &amp; Medical Director
+              </p>
+            </div>
+            <div className="flex flex-col items-center max-w-[260px]">
+              <div
+                className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
+                style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
+              >
+                <img
+                  src="/rodriguez.png"
+                  alt="Dr. Rodriguez, MD, FACOG"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+              <p className="text-lg font-medium text-on-background text-center">Dr. Rodriguez</p>
+              <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
+                MD, FACOG
+              </p>
+              <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
+                Co-Founder &amp; Medical Director
+              </p>
+            </div>
+          </div>
         </div>
-        <div style={{ background: '#fff', borderRadius: '1rem', padding: '2.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', textAlign: 'center', color: '#888780' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#d4d1cc', marginBottom: '1rem', display: 'block' }}>article</span>
-          <p style={{ fontSize: '0.95rem', fontWeight: 300 }}>Blog posts will appear here once published from the admin panel.</p>
+      </section>
+
+      {/* Features / Capabilities */}
+      <section id="features" className="pt-8 pb-16 md:pt-12 md:pb-28 bg-surface">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
+            {/* Personalized Profile */}
+            <div className="md:col-span-7 bg-surface-container-lowest rounded-2xl p-6 md:p-10 shadow-sm border border-outline-variant/10 overflow-hidden relative group">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div className="relative z-10">
+                  <span className="material-symbols-outlined text-primary mb-4 text-3xl block">
+                    query_stats
+                  </span>
+                  <h3
+                    className="font-headline text-2xl md:text-3xl text-on-background mb-3"
+                    style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
+                  >
+                    Personalized Perimenopause Profile
+                  </h3>
+                  <p className="text-on-surface-variant font-light text-sm leading-relaxed mb-5">
+                    A dynamic health identity that evolves with your symptoms, labs, and goals. No
+                    more generic advice — just yours.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
+                      <span className="material-symbols-outlined text-primary text-base">
+                        check_circle
+                      </span>
+                      Hormone Baseline Assessment
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
+                      <span className="material-symbols-outlined text-primary text-base">
+                        check_circle
+                      </span>
+                      Life-stage Adaptive UI
+                    </li>
+                  </ul>
+                </div>
+                <div className="relative z-10">
+                  <AssessmentDemo />
+                </div>
+              </div>
+            </div>
+
+            {/* Physician-Vetted Insights */}
+            <div className="md:col-span-5 bg-primary text-on-primary rounded-2xl p-6 md:p-10 flex flex-col justify-between overflow-hidden relative">
+              <div className="relative z-10">
+                <span className="material-symbols-outlined text-primary-fixed mb-4 text-3xl block">
+                  psychology
+                </span>
+                <h3
+                  className="font-headline text-2xl md:text-3xl mb-3"
+                  style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
+                >
+                  Physician-Vetted Insights
+                </h3>
+                <p className="text-primary-fixed/80 font-light text-sm leading-relaxed">
+                  Stop the late-night doom-scrolling. Every insight in Marea is peer-reviewed by
+                  practicing OB/GYNs.
+                </p>
+              </div>
+              <div className="mt-6 relative z-10">
+                <InsightsDemo />
+              </div>
+            </div>
+
+            {/* Empathetic Symptom Tracking */}
+            <div className="md:col-span-12 bg-secondary-container/30 rounded-2xl p-6 md:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+              <div className="order-2 lg:order-1 flex justify-center">
+                <SymptomTrackerDemo />
+              </div>
+              <div className="order-1 lg:order-2">
+                <span className="material-symbols-outlined text-secondary mb-4 text-3xl block">
+                  favorite
+                </span>
+                <h3
+                  className="font-headline text-2xl md:text-3xl lg:text-4xl mb-4"
+                  style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
+                >
+                  Empathetic Symptom Tracking
+                </h3>
+                <p className="text-on-surface-variant font-light text-base leading-relaxed mb-6">
+                  Track the symptoms that matter most — hot flashes, sleep, mood, energy, focus, and
+                  cycle patterns. Our system identifies trends before you do, offering proactive
+                  relief strategies.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-white/40 backdrop-blur rounded-xl">
+                    <p className="text-xl font-headline text-primary">5+</p>
+                    <p className="text-[9px] font-label uppercase tracking-widest text-on-surface-variant mt-1">
+                      Daily Domains
+                    </p>
+                  </div>
+                  <div className="p-4 bg-white/40 backdrop-blur rounded-xl">
+                    <p className="text-xl font-headline text-primary">Daily</p>
+                    <p className="text-[9px] font-label uppercase tracking-widest text-on-surface-variant mt-1">
+                      Pattern Recognition
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonial */}
+      <section className="py-16 md:py-24 bg-surface-container">
+        <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
+          <span className="material-symbols-outlined text-secondary text-4xl mb-6 block">
+            format_quote
+          </span>
+          <blockquote className="font-headline text-xl sm:text-2xl md:text-3xl lg:text-4xl text-on-background italic leading-snug mb-8">
+            &ldquo;Marea is the first tool that didn&apos;t make me feel like I was malfunctioning.
+            It&apos;s like having a kind, extremely smart doctor in my pocket every morning.&rdquo;
+          </blockquote>
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden mb-3 border-2 border-white bg-surface-container-high flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary text-2xl">person</span>
+            </div>
+            <cite className="not-italic font-label uppercase tracking-widest text-primary text-xs font-bold">
+              Sarah Jenkins, 48
+            </cite>
+            <p className="text-[11px] text-on-surface-variant mt-1">Beta Member since 2023</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Clinical insights / Blog preview */}
+      <section className="py-16 md:py-24 bg-surface">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+            <div>
+              <div className="inline-block px-3 py-1 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.2em] mb-3">
+                From the Journal
+              </div>
+              <h2
+                className="font-headline text-2xl md:text-3xl"
+                style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
+              >
+                Clinical insights, made clear
+              </h2>
+            </div>
+            <Link
+              to="/blog"
+              className="text-xs font-label font-semibold text-primary hover:text-tertiary transition-colors uppercase tracking-widest whitespace-nowrap"
+            >
+              View all posts →
+            </Link>
+          </div>
+          <div className="bg-surface-container-lowest rounded-2xl p-8 md:p-10 shadow-sm border border-outline-variant/10 text-center">
+            <span className="material-symbols-outlined text-outline-variant text-4xl mb-3 block">
+              article
+            </span>
+            <p className="text-on-surface-variant font-light text-sm">
+              Blog posts will appear here once published from the admin panel.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Download CTA */}
+      <section id="download" className="py-16 md:py-24 bg-surface">
+        <div className="max-w-5xl mx-auto px-6 md:px-16 lg:px-20">
+          <div className="bg-primary-container rounded-2xl md:rounded-3xl p-8 sm:p-12 md:p-20 text-center text-on-primary relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <div className="absolute top-0 left-0 w-72 h-72 bg-white rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute bottom-0 right-0 w-72 h-72 bg-secondary-container rounded-full blur-[100px] translate-x-1/2 translate-y-1/2" />
+            </div>
+            <h2
+              className="font-headline text-2xl sm:text-3xl md:text-5xl mb-5 relative z-10"
+              style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
+            >
+              Ready to redefine your journey?
+            </h2>
+            <p className="text-on-primary-container text-sm sm:text-base md:text-lg font-light mb-8 md:mb-10 max-w-xl mx-auto relative z-10">
+              Join thousands of women who are reclaiming their clarity and confidence. Start your
+              free 14-day trial today.
+            </p>
+            <div className="flex flex-col items-center gap-4 relative z-10">
+              <a
+                href="#"
+                className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold hover:scale-105 transition-transform shadow-xl shadow-tertiary/20"
+              >
+                <span className="material-symbols-outlined text-xl">download</span>
+                Download on the App Store
+              </a>
+              <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
+                Available on iOS
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ background: '#1c1c19', padding: '3rem 2rem', color: 'rgba(255,255,255,0.5)' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+      <footer className="border-t border-outline-variant/15 bg-white">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-6 md:px-16 lg:px-20 py-12 max-w-[1400px] mx-auto">
           <div>
-            <img src={mareaLogo} alt="Marea Health" style={{ height: '1.2rem', filter: 'brightness(0) invert(1)', opacity: 0.6, marginBottom: '0.5rem' }} />
-            <p style={{ fontSize: '0.75rem' }}>Perimenopause care, designed by OB/GYNs.</p>
+            <img
+              src={mareaLogo}
+              alt="Marea"
+              style={{ height: '28px', width: 'auto' }}
+              className="mb-4"
+            />
+            <p className="font-light text-sm text-on-background/50 max-w-xs leading-relaxed">
+              Dedicated to closing the gender data gap in midlife health through intelligence and
+              empathy.
+            </p>
           </div>
-          <div style={{ display: 'flex', gap: '2rem', fontSize: '0.8rem' }}>
-            <Link to="/blog">Blog</Link>
-            <a href="#features">Features</a>
-            <a href="#clinical">Our Team</a>
+          <div className="grid grid-cols-3 gap-4 sm:gap-6">
+            <div className="flex flex-col gap-3">
+              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
+                Company
+              </p>
+              <a
+                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
+                href="#vision"
+              >
+                Our Vision
+              </a>
+              <a
+                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
+                href="#features"
+              >
+                The Science
+              </a>
+              <Link
+                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
+                to="/blog"
+              >
+                Journal
+              </Link>
+              <Link
+                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
+                to="/articles"
+              >
+                Articles
+              </Link>
+            </div>
+            <div className="flex flex-col gap-3">
+              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
+                Legal
+              </p>
+              <a
+                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
+                href="#"
+              >
+                Privacy
+              </a>
+              <a
+                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
+                href="#"
+              >
+                Terms
+              </a>
+            </div>
+            <div className="flex flex-col gap-3">
+              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
+                Download
+              </p>
+              <a
+                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
+                href="#"
+              >
+                App Store
+              </a>
+              <p className="text-sm font-light text-on-background/30">Android coming soon</p>
+            </div>
           </div>
-          <p style={{ fontSize: '0.72rem', width: '100%', textAlign: 'center', marginTop: '1rem', color: 'rgba(255,255,255,0.3)' }}>
-            &copy; {new Date().getFullYear()} Marea Health. All rights reserved.
+        </div>
+        <div className="px-6 md:px-16 lg:px-20 py-6 border-t border-outline-variant/15 flex flex-col sm:flex-row justify-between items-center gap-3 max-w-[1400px] mx-auto">
+          <p className="font-light text-xs text-on-background/40">
+            &copy; {new Date().getFullYear()} Marea Intelligence. All rights reserved.
           </p>
+          <div className="flex gap-4">
+            <a
+              className="text-on-background/40 hover:text-primary transition-colors"
+              href="#"
+            >
+              <span className="material-symbols-outlined text-xl">brand_awareness</span>
+            </a>
+            <a
+              className="text-on-background/40 hover:text-primary transition-colors"
+              href="#"
+            >
+              <span className="material-symbols-outlined text-xl">group</span>
+            </a>
+          </div>
         </div>
       </footer>
     </div>
