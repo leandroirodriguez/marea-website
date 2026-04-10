@@ -1,8 +1,11 @@
 import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
 import { articleImage } from '../lib/images'
+
+marked.setOptions({ breaks: true, gfm: true })
 import mareaLogo from '../assets/marealogo.svg'
 
 const CATEGORIES = ['Sleep', 'Mood', 'Brain fog', 'Hot flashes', 'HRT', 'Lifestyle', 'Intimacy']
@@ -103,16 +106,7 @@ export default function AdminArticleEditor() {
 
   function markdownToHtml(text) {
     if (!text) return ''
-    return text
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^- (.+)$/gm, '<li>$1</li>')
-      .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/^(?!<[hul])(.+)$/gm, '<p>$1</p>')
-      .replace(/<p><\/p>/g, '')
+    return marked.parse(text)
   }
 
   const coverPreview = form.cover_url || articleImage(form.slug || 'preview', form.category)
@@ -156,7 +150,7 @@ export default function AdminArticleEditor() {
               <p className="text-[0.88rem] text-outline mb-6">By {form.author}</p>
               <img src={coverPreview} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
               <div
-                className="font-body text-base font-light text-on-surface-variant leading-[1.85]"
+                className="prose font-body text-base font-light text-on-surface-variant"
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(form.body) }}
               />
             </div>
@@ -187,9 +181,14 @@ export default function AdminArticleEditor() {
                   rows={24}
                   className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y font-mono leading-relaxed"
                 />
-                <p className="text-[0.72rem] text-outline-variant mt-1">
-                  Use ## for headings, **bold**, *italic*, - for lists
-                </p>
+                <div className="text-[0.72rem] text-outline-variant mt-2 space-y-1">
+                  <p className="font-semibold text-outline mb-1">Markdown formatting:</p>
+                  <p><code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">## Heading</code> and <code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">### Subheading</code></p>
+                  <p><code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">**bold text**</code> and <code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">*italic text*</code></p>
+                  <p><code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">- bullet item</code> for lists</p>
+                  <p><code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">&gt; quote text</code> for blockquotes</p>
+                  <p>Blank line between paragraphs. Use <strong>Preview</strong> to check formatting.</p>
+                </div>
               </div>
             </div>
 

@@ -1,22 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
 import { articleImage } from '../lib/images'
 import { useAuth } from '../hooks/useAuth'
 import mareaLogo from '../assets/marealogo.svg'
 
+marked.setOptions({ breaks: true, gfm: true })
+
 function markdownToHtml(text) {
   if (!text) return ''
-  return text
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/^(?!<[hul])(.+)$/gm, '<p>$1</p>')
-    .replace(/<p><\/p>/g, '')
+  return marked.parse(text)
 }
 
 export default function ArticlePage() {
@@ -128,8 +122,8 @@ export default function ArticlePage() {
           /* Paywall */
           <div className="relative">
             <div
-              className="font-body text-base font-light text-on-surface-variant max-h-[200px] overflow-hidden"
-              style={{ lineHeight: 1.85, maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' }}
+              className="prose font-body text-base font-light text-on-surface-variant max-h-[200px] overflow-hidden"
+              style={{ maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' }}
               dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body?.substring(0, 500)) }}
             />
             <div className="bg-primary-container rounded-2xl p-10 text-center shadow-lg mt-4">
@@ -164,8 +158,7 @@ export default function ArticlePage() {
         ) : (
           /* Full article */
           <div
-            className="font-body text-base font-light text-on-surface-variant"
-            style={{ lineHeight: 1.85 }}
+            className="prose font-body text-base font-light text-on-surface-variant"
             dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body) }}
           />
         )}
