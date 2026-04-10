@@ -22,6 +22,8 @@ export default function AdminBlogEditor() {
   const bodyRef = useRef(null)
   const adminVerified = useAdminGuard()
 
+  const inlineImageRef = useRef(null)
+
   function insertHtml(before, after = '') {
     const el = bodyRef.current
     if (!el) return
@@ -36,6 +38,25 @@ export default function AdminBlogEditor() {
       el.selectionStart = start + before.length
       el.selectionEnd = start + before.length + (selected || 'text').length
     }, 0)
+  }
+
+  async function handleInlineImageUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `blog/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('public-assets').upload(path, file)
+    if (!error) {
+      const { data: { publicUrl } } = supabase.storage.from('public-assets').getPublicUrl(path)
+      const el = bodyRef.current
+      const pos = el ? el.selectionStart : form.body_html.length
+      const imgTag = `\n<img src="${publicUrl}" alt="" style="width:100%;border-radius:12px;margin:1rem 0" />\n`
+      const newBody = form.body_html.substring(0, pos) + imgTag + form.body_html.substring(pos)
+      setForm(prev => ({ ...prev, body_html: newBody }))
+    }
+    setUploading(false)
+    if (inlineImageRef.current) inlineImageRef.current.value = ''
   }
 
   useEffect(() => {
@@ -158,9 +179,11 @@ export default function AdminBlogEditor() {
               <button type="button" onClick={() => insertHtml('<a href="url">', '</a>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Link">
                 <span className="material-symbols-outlined text-[16px]">link</span>
               </button>
-              <button type="button" onClick={() => insertHtml('<img src="', '" alt="" />')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Image">
+              <button type="button" onClick={() => inlineImageRef.current?.click()} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Upload image into post">
                 <span className="material-symbols-outlined text-[16px]">image</span>
               </button>
+              <input ref={inlineImageRef} type="file" accept="image/*" onChange={handleInlineImageUpload} className="hidden" />
+              {uploading && <span className="text-[0.72rem] text-outline ml-2">Uploading...</span>}
             </div>
             <textarea ref={bodyRef} value={form.body_html} onChange={e => setForm({ ...form, body_html: e.target.value })} placeholder="<p>Write your post content in HTML...</p>" rows={16} className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y font-mono leading-relaxed" />
           </div>

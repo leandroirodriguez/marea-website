@@ -31,7 +31,27 @@ export default function AdminArticleEditor() {
   })
 
   const bodyRef = useRef(null)
+  const inlineImageRef = useRef(null)
   const adminVerified = useAdminGuard()
+
+  async function handleInlineImageUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('public-assets').upload(path, file)
+    if (!error) {
+      const { data: { publicUrl } } = supabase.storage.from('public-assets').getPublicUrl(path)
+      const el = bodyRef.current
+      const pos = el ? el.selectionStart : form.body.length
+      const imgMarkdown = `\n![](${publicUrl})\n`
+      const newBody = form.body.substring(0, pos) + imgMarkdown + form.body.substring(pos)
+      setForm(prev => ({ ...prev, body: newBody }))
+    }
+    setUploading(false)
+    if (inlineImageRef.current) inlineImageRef.current.value = ''
+  }
 
   function insertMarkdown(before, after = '') {
     const el = bodyRef.current
@@ -223,6 +243,11 @@ export default function AdminArticleEditor() {
                   <button type="button" onClick={() => insertMarkdown('[', '](url)')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Link">
                     <span className="material-symbols-outlined text-[16px]">link</span>
                   </button>
+                  <button type="button" onClick={() => inlineImageRef.current?.click()} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Upload image into article">
+                    <span className="material-symbols-outlined text-[16px]">image</span>
+                  </button>
+                  <input ref={inlineImageRef} type="file" accept="image/*" onChange={handleInlineImageUpload} className="hidden" />
+                  {uploading && <span className="text-[0.72rem] text-outline ml-2">Uploading...</span>}
                 </div>
                 <textarea
                   ref={bodyRef}
