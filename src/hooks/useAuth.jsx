@@ -31,9 +31,10 @@ export function AuthProvider({ children }) {
   }
 
   const isPaid = profile?.subscription_tier === 'member' && profile?.subscription_status === 'active'
+  const isAdmin = profile?.is_admin === true
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, isPaid, loadProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, isPaid, isAdmin, loadProfile }}>
       {children}
     </AuthContext.Provider>
   )

@@ -1,3 +1,4 @@
+import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -47,10 +48,9 @@ export default function AdminDashboard() {
   const [topArticles, setTopArticles] = useState([])
   const [signupTrend, setSignupTrend] = useState([])
 
+  const adminVerified = useAdminGuard()
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return navigate('/admin')
-    })
     loadDashboard()
   }, [navigate])
 
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
     // Recent users
     const { data: recent } = await supabase
       .from('users')
-      .select('id, email, name, subscription_tier, subscription_status, assessment_stage, created_at')
+      .select('id, email, name, subscription_tier, subscription_status, assessment_stage, is_admin, created_at')
       .order('created_at', { ascending: false })
       .limit(10)
     setRecentUsers(recent || [])
@@ -303,6 +303,46 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-4 py-3 text-outline">
                           {u.created_at ? new Date(u.created_at).toLocaleDateString() : '\u2014'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {/* Admin management */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm mt-8">
+              <h2 className="font-headline text-[1.2rem] font-normal text-on-background mb-4">Admin Access</h2>
+              <p className="text-[0.82rem] text-outline mb-4">Toggle admin privileges for users. Only admins can access the admin panel.</p>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[0.85rem]">
+                  <thead>
+                    <tr className="border-b border-surface-variant">
+                      <th className="text-left px-4 py-3 text-outline font-medium text-[0.72rem] tracking-widest uppercase">User</th>
+                      <th className="text-center px-4 py-3 text-outline font-medium text-[0.72rem] tracking-widest uppercase">Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentUsers.map(u => (
+                      <tr key={u.id + '-admin'} className="border-b border-surface-container">
+                        <td className="px-4 py-3">
+                          <p className="text-on-background font-medium">{u.name || 'Unnamed'}</p>
+                          <p className="text-outline text-[0.78rem]">{u.email || '\u2014'}</p>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={async () => {
+                              await supabase.from('users').update({ is_admin: !u.is_admin }).eq('id', u.id)
+                              loadDashboard()
+                            }}
+                            className={`px-3 py-1 rounded-full text-[0.75rem] font-semibold border-none cursor-pointer transition-colors ${
+                              u.is_admin
+                                ? 'bg-primary text-on-primary hover:bg-primary-container'
+                                : 'bg-on-background/5 text-outline hover:bg-on-background/10'
+                            }`}
+                          >
+                            {u.is_admin ? 'Admin' : 'Not admin'}
+                          </button>
                         </td>
                       </tr>
                     ))}

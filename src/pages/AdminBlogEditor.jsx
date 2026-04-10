@@ -1,3 +1,4 @@
+import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -18,10 +19,9 @@ export default function AdminBlogEditor() {
     published: false,
   })
 
+  const adminVerified = useAdminGuard()
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return navigate('/admin')
-    })
     if (id) {
       supabase.from('blog_posts').select('*').eq('id', id).single()
         .then(({ data }) => { if (data) setForm(data) })

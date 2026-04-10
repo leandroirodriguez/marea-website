@@ -1,3 +1,4 @@
+import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -13,10 +14,9 @@ export default function AdminArticles() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
 
+  const adminVerified = useAdminGuard()
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return navigate('/admin')
-    })
     loadArticles()
   }, [navigate])
 

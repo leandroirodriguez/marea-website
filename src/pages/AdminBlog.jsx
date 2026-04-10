@@ -1,3 +1,4 @@
+import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -8,10 +9,9 @@ export default function AdminBlog() {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const adminVerified = useAdminGuard()
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return navigate('/admin')
-    })
     loadPosts()
   }, [navigate])
 

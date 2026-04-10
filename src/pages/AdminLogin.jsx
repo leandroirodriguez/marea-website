@@ -11,8 +11,11 @@ export default function AdminLogin() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate('/admin/dashboard')
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const { data } = await supabase.from('users').select('is_admin').eq('id', session.user.id).single()
+        if (data?.is_admin) navigate('/admin/dashboard')
+      }
     })
   }, [navigate])
 
@@ -20,9 +23,18 @@ export default function AdminLogin() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password })
-    if (err) { setError(err.message); setLoading(false) }
-    else navigate('/admin/dashboard')
+    const { data: authData, error: err } = await supabase.auth.signInWithPassword({ email, password })
+    if (err) { setError(err.message); setLoading(false); return }
+
+    const { data: profile } = await supabase.from('users').select('is_admin').eq('id', authData.user.id).single()
+    if (!profile?.is_admin) {
+      setError('You do not have admin access. Contact an administrator.')
+      await supabase.auth.signOut()
+      setLoading(false)
+      return
+    }
+
+    navigate('/admin/dashboard')
   }
 
   return (
