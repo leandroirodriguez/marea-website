@@ -8,6 +8,10 @@ export default function AdminBlog() {
   const navigate = useNavigate()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showGenerate, setShowGenerate] = useState(false)
+  const [genTopic, setGenTopic] = useState('')
+  const [genStyle, setGenStyle] = useState('')
+  const [generating, setGenerating] = useState(false)
 
   const adminVerified = useAdminGuard()
 
@@ -58,9 +62,18 @@ export default function AdminBlog() {
             Blog Posts
             <span className="text-[0.85rem] font-normal text-outline ml-3">{posts.length} post{posts.length !== 1 ? 's' : ''}</span>
           </h1>
-          <Link to="/admin/blog/new" className="bg-primary text-on-primary px-6 py-2.5 rounded-full text-[0.85rem] font-semibold">
-            + New Post
-          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowGenerate(true)}
+              className="bg-tertiary text-on-tertiary px-5 py-2.5 rounded-full text-[0.85rem] font-semibold cursor-pointer flex items-center gap-2 hover:bg-tertiary-container transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+              Generate with AI
+            </button>
+            <Link to="/admin/blog/new" className="bg-primary text-on-primary px-6 py-2.5 rounded-full text-[0.85rem] font-semibold">
+              + New Post
+            </Link>
+          </div>
         </div>
 
         {loading ? <p className="text-outline">Loading...</p> : (
@@ -119,6 +132,99 @@ export default function AdminBlog() {
           </div>
         )}
       </div>
+
+      {/* AI Generate Modal */}
+      {showGenerate && (
+        <div className="fixed inset-0 bg-on-background/50 z-50 flex items-center justify-center p-6" onClick={() => !generating && setShowGenerate(false)}>
+          <div className="bg-white rounded-2xl p-8 max-w-[500px] w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-tertiary">auto_awesome</span>
+              </div>
+              <div>
+                <h2 className="font-headline text-xl font-normal text-on-background">Generate Blog Post with AI</h2>
+                <p className="text-[0.78rem] text-outline">Claude will write an SEO-friendly draft for your review</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Topic / Title idea</label>
+                <input
+                  value={genTopic}
+                  onChange={e => setGenTopic(e.target.value)}
+                  placeholder="e.g. 5 signs you might be in perimenopause and don't know it"
+                  className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Style notes (optional)</label>
+                <textarea
+                  value={genStyle}
+                  onChange={e => setGenStyle(e.target.value)}
+                  placeholder="e.g. Conversational tone, include a CTA to download the app, target women 40-50"
+                  rows={2}
+                  className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white resize-y"
+                />
+              </div>
+
+              <div className="flex gap-3 mt-2">
+                <button
+                  onClick={async () => {
+                    if (!genTopic) return
+                    setGenerating(true)
+                    try {
+                      const { data: { session } } = await supabase.auth.getSession()
+                      const res = await fetch('/api/generate-blog', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${session.access_token}`,
+                        },
+                        body: JSON.stringify({ topic: genTopic, style: genStyle }),
+                      })
+                      const result = await res.json()
+                      if (result.success) {
+                        setShowGenerate(false)
+                        setGenTopic('')
+                        setGenStyle('')
+                        navigate(`/admin/blog/edit/${result.post.id}`)
+                      } else {
+                        alert('Error: ' + (result.error || 'Failed to generate'))
+                      }
+                    } catch (err) {
+                      alert('Error: ' + err.message)
+                    }
+                    setGenerating(false)
+                  }}
+                  disabled={generating || !genTopic}
+                  className={`flex-1 bg-tertiary text-on-tertiary border-none py-3 rounded-full text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 ${generating || !genTopic ? 'opacity-50' : 'hover:bg-tertiary-container'} transition-colors`}
+                >
+                  {generating ? (
+                    <>
+                      <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+                      Generate Draft
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowGenerate(false)}
+                  disabled={generating}
+                  className="px-6 py-3 rounded-full text-sm font-medium text-on-surface-variant border border-outline-variant cursor-pointer bg-transparent hover:bg-surface-container transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

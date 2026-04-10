@@ -1,5 +1,5 @@
 import { useAdminGuard } from '../hooks/useAdminGuard'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import mareaLogo from '../assets/marealogo.svg'
@@ -19,7 +19,24 @@ export default function AdminBlogEditor() {
     published: false,
   })
 
+  const bodyRef = useRef(null)
   const adminVerified = useAdminGuard()
+
+  function insertHtml(before, after = '') {
+    const el = bodyRef.current
+    if (!el) return
+    const start = el.selectionStart
+    const end = el.selectionEnd
+    const selected = form.body_html.substring(start, end)
+    const replacement = before + (selected || 'text') + after
+    const newBody = form.body_html.substring(0, start) + replacement + form.body_html.substring(end)
+    setForm(prev => ({ ...prev, body_html: newBody }))
+    setTimeout(() => {
+      el.focus()
+      el.selectionStart = start + before.length
+      el.selectionEnd = start + before.length + (selected || 'text').length
+    }, 0)
+  }
 
   useEffect(() => {
     if (!adminVerified) return
@@ -121,10 +138,31 @@ export default function AdminBlogEditor() {
 
           <div>
             <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Body (HTML)</label>
-            <textarea value={form.body_html} onChange={e => setForm({ ...form, body_html: e.target.value })} placeholder="<p>Write your post content in HTML...</p>" rows={16} className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y font-mono leading-relaxed" />
-            <p className="text-[0.72rem] text-outline-variant mt-1">
-              Use HTML tags: &lt;p&gt;, &lt;h2&gt;, &lt;h3&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;blockquote&gt;, &lt;img src="..."&gt;
-            </p>
+            {/* Toolbar */}
+            <div className="flex flex-wrap gap-1 mb-2 p-2 bg-surface-container-low rounded-xl border border-outline-variant/50">
+              <button type="button" onClick={() => insertHtml('<h2>', '</h2>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] font-semibold text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Heading">H2</button>
+              <button type="button" onClick={() => insertHtml('<h3>', '</h3>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] font-semibold text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Subheading">H3</button>
+              <div className="w-px bg-outline-variant/30 mx-1" />
+              <button type="button" onClick={() => insertHtml('<strong>', '</strong>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] font-bold text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Bold">B</button>
+              <button type="button" onClick={() => insertHtml('<em>', '</em>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] italic text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Italic">I</button>
+              <div className="w-px bg-outline-variant/30 mx-1" />
+              <button type="button" onClick={() => insertHtml('<p>', '</p>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Paragraph">
+                <span className="material-symbols-outlined text-[16px]">notes</span>
+              </button>
+              <button type="button" onClick={() => insertHtml('<ul>\n  <li>', '</li>\n</ul>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="List">
+                <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+              </button>
+              <button type="button" onClick={() => insertHtml('<blockquote>', '</blockquote>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Blockquote">
+                <span className="material-symbols-outlined text-[16px]">format_quote</span>
+              </button>
+              <button type="button" onClick={() => insertHtml('<a href="url">', '</a>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Link">
+                <span className="material-symbols-outlined text-[16px]">link</span>
+              </button>
+              <button type="button" onClick={() => insertHtml('<img src="', '" alt="" />')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Image">
+                <span className="material-symbols-outlined text-[16px]">image</span>
+              </button>
+            </div>
+            <textarea ref={bodyRef} value={form.body_html} onChange={e => setForm({ ...form, body_html: e.target.value })} placeholder="<p>Write your post content in HTML...</p>" rows={16} className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y font-mono leading-relaxed" />
           </div>
 
           <div className="flex items-center gap-2">
