@@ -55,7 +55,7 @@ CREATE POLICY "Authenticated users can manage content" ON content
 -- ============================================================
 -- USER PROFILES (extended from auth.users)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS profiles (
+CREATE TABLE IF NOT EXISTS users (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   email TEXT,
   name TEXT,
@@ -67,22 +67,22 @@ CREATE TABLE IF NOT EXISTS profiles (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can read own profile" ON profiles
+CREATE POLICY "Users can read own profile" ON users
   FOR SELECT USING (auth.uid() = id);
 
-CREATE POLICY "Users can update own profile" ON profiles
+CREATE POLICY "Users can update own profile" ON users
   FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY "Admins can read all profiles" ON profiles
+CREATE POLICY "Admins can read all users" ON users
   FOR SELECT USING (auth.role() = 'authenticated');
 
 -- Auto-create profile on signup
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, email, name)
+  INSERT INTO users (id, email, name)
   VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'name', ''));
   RETURN NEW;
 END;

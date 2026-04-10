@@ -56,15 +56,15 @@ export default function AdminDashboard() {
 
   async function loadDashboard() {
     const [users, paid, articles, posts, reads, community, logs, labs, assessed] = await Promise.all([
-      supabase.from('profiles').select('id', { count: 'exact', head: true }),
-      supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('subscription_tier', 'member').eq('subscription_status', 'active'),
+      supabase.from('users').select('id', { count: 'exact', head: true }),
+      supabase.from('users').select('id', { count: 'exact', head: true }).eq('subscription_tier', 'member').eq('subscription_status', 'active'),
       supabase.from('content').select('id', { count: 'exact', head: true }),
       supabase.from('blog_posts').select('id', { count: 'exact', head: true }),
       supabase.from('article_reads').select('id', { count: 'exact', head: true }),
       supabase.from('community_posts').select('id', { count: 'exact', head: true }),
       supabase.from('symptom_logs').select('id', { count: 'exact', head: true }),
       supabase.from('lab_results').select('id', { count: 'exact', head: true }),
-      supabase.from('profiles').select('id', { count: 'exact', head: true }).not('assessment_stage', 'is', null),
+      supabase.from('users').select('id', { count: 'exact', head: true }).not('assessment_stage', 'is', null),
     ])
 
     const totalUsers = users.count || 0
@@ -86,7 +86,7 @@ export default function AdminDashboard() {
 
     // Recent users
     const { data: recent } = await supabase
-      .from('profiles')
+      .from('users')
       .select('id, email, name, subscription_tier, subscription_status, assessment_stage, created_at')
       .order('created_at', { ascending: false })
       .limit(10)
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
     // Signup trend (last 7 days)
     const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
     const { data: recentSignups } = await supabase
-      .from('profiles')
+      .from('users')
       .select('created_at')
       .gte('created_at', sevenDaysAgo)
       .order('created_at', { ascending: true })
