@@ -1,5 +1,5 @@
 import { useAdminGuard } from '../hooks/useAdminGuard'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
@@ -30,7 +30,24 @@ export default function AdminArticleEditor() {
     published: false,
   })
 
+  const bodyRef = useRef(null)
   const adminVerified = useAdminGuard()
+
+  function insertMarkdown(before, after = '') {
+    const el = bodyRef.current
+    if (!el) return
+    const start = el.selectionStart
+    const end = el.selectionEnd
+    const selected = form.body.substring(start, end)
+    const replacement = before + (selected || 'text') + after
+    const newBody = form.body.substring(0, start) + replacement + form.body.substring(end)
+    setForm(prev => ({ ...prev, body: newBody }))
+    setTimeout(() => {
+      el.focus()
+      el.selectionStart = start + before.length
+      el.selectionEnd = start + before.length + (selected || 'text').length
+    }, 0)
+  }
 
   useEffect(() => {
     if (!adminVerified) return
@@ -174,21 +191,47 @@ export default function AdminArticleEditor() {
                 <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">
                   Body (Markdown)
                 </label>
+                {/* Toolbar */}
+                <div className="flex flex-wrap gap-1 mb-2 p-2 bg-surface-container-low rounded-xl border border-outline-variant/50">
+                  <button type="button" onClick={() => insertMarkdown('## ', '\n')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] font-semibold text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Heading">
+                    H2
+                  </button>
+                  <button type="button" onClick={() => insertMarkdown('### ', '\n')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] font-semibold text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Subheading">
+                    H3
+                  </button>
+                  <div className="w-px bg-outline-variant/30 mx-1" />
+                  <button type="button" onClick={() => insertMarkdown('**', '**')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] font-bold text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Bold">
+                    B
+                  </button>
+                  <button type="button" onClick={() => insertMarkdown('*', '*')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] italic text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Italic">
+                    I
+                  </button>
+                  <div className="w-px bg-outline-variant/30 mx-1" />
+                  <button type="button" onClick={() => insertMarkdown('\n- ', '\n')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Bullet list">
+                    <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+                  </button>
+                  <button type="button" onClick={() => insertMarkdown('\n1. ', '\n')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Numbered list">
+                    <span className="material-symbols-outlined text-[16px]">format_list_numbered</span>
+                  </button>
+                  <button type="button" onClick={() => insertMarkdown('\n> ', '\n')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Blockquote">
+                    <span className="material-symbols-outlined text-[16px]">format_quote</span>
+                  </button>
+                  <div className="w-px bg-outline-variant/30 mx-1" />
+                  <button type="button" onClick={() => insertMarkdown('\n---\n', '')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Horizontal rule">
+                    <span className="material-symbols-outlined text-[16px]">horizontal_rule</span>
+                  </button>
+                  <button type="button" onClick={() => insertMarkdown('[', '](url)')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Link">
+                    <span className="material-symbols-outlined text-[16px]">link</span>
+                  </button>
+                </div>
                 <textarea
+                  ref={bodyRef}
                   value={form.body}
                   onChange={e => setForm({ ...form, body: e.target.value })}
                   placeholder="Write your article content using markdown..."
                   rows={24}
                   className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y font-mono leading-relaxed"
                 />
-                <div className="text-[0.72rem] text-outline-variant mt-2 space-y-1">
-                  <p className="font-semibold text-outline mb-1">Markdown formatting:</p>
-                  <p><code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">## Heading</code> and <code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">### Subheading</code></p>
-                  <p><code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">**bold text**</code> and <code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">*italic text*</code></p>
-                  <p><code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">- bullet item</code> for lists</p>
-                  <p><code className="bg-surface-container px-1.5 py-0.5 rounded text-[0.7rem]">&gt; quote text</code> for blockquotes</p>
-                  <p>Blank line between paragraphs. Use <strong>Preview</strong> to check formatting.</p>
-                </div>
               </div>
             </div>
 

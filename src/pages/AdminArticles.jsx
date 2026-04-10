@@ -13,6 +13,11 @@ export default function AdminArticles() {
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
+  const [showGenerate, setShowGenerate] = useState(false)
+  const [genTopic, setGenTopic] = useState('')
+  const [genCategory, setGenCategory] = useState('Sleep')
+  const [genStyle, setGenStyle] = useState('')
+  const [generating, setGenerating] = useState(false)
 
   const adminVerified = useAdminGuard()
 
@@ -77,9 +82,18 @@ export default function AdminArticles() {
               {filtered.length} article{filtered.length !== 1 ? 's' : ''}
             </span>
           </h1>
-          <Link to="/admin/articles/new" className="bg-primary text-on-primary px-6 py-2.5 rounded-full text-[0.85rem] font-semibold">
-            + New Article
-          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowGenerate(true)}
+              className="bg-tertiary text-on-tertiary px-5 py-2.5 rounded-full text-[0.85rem] font-semibold cursor-pointer flex items-center gap-2 hover:bg-tertiary-container transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+              Generate with AI
+            </button>
+            <Link to="/admin/articles/new" className="bg-primary text-on-primary px-6 py-2.5 rounded-full text-[0.85rem] font-semibold">
+              + New Article
+            </Link>
+          </div>
         </div>
 
         {/* Filters */}
@@ -178,6 +192,110 @@ export default function AdminArticles() {
           </div>
         )}
       </div>
+
+      {/* AI Generate Modal */}
+      {showGenerate && (
+        <div className="fixed inset-0 bg-on-background/50 z-50 flex items-center justify-center p-6" onClick={() => !generating && setShowGenerate(false)}>
+          <div className="bg-white rounded-2xl p-8 max-w-[500px] w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-tertiary">auto_awesome</span>
+              </div>
+              <div>
+                <h2 className="font-headline text-xl font-normal text-on-background">Generate Article with AI</h2>
+                <p className="text-[0.78rem] text-outline">Claude will write a clinical draft for your review</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Topic / Title idea</label>
+                <input
+                  value={genTopic}
+                  onChange={e => setGenTopic(e.target.value)}
+                  placeholder="e.g. How progesterone affects sleep quality during perimenopause"
+                  className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Category</label>
+                <select
+                  value={genCategory}
+                  onChange={e => setGenCategory(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white"
+                >
+                  {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Style notes (optional)</label>
+                <textarea
+                  value={genStyle}
+                  onChange={e => setGenStyle(e.target.value)}
+                  placeholder="e.g. Focus on actionable advice, include supplement dosages, mention when to see a doctor"
+                  rows={2}
+                  className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-sm bg-white resize-y"
+                />
+              </div>
+
+              <div className="flex gap-3 mt-2">
+                <button
+                  onClick={async () => {
+                    if (!genTopic) return
+                    setGenerating(true)
+                    try {
+                      const { data: { session } } = await supabase.auth.getSession()
+                      const res = await fetch('/api/generate-article', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${session.access_token}`,
+                        },
+                        body: JSON.stringify({ topic: genTopic, category: genCategory, style: genStyle }),
+                      })
+                      const result = await res.json()
+                      if (result.success) {
+                        setShowGenerate(false)
+                        setGenTopic('')
+                        setGenStyle('')
+                        navigate(`/admin/articles/edit/${result.article.id}`)
+                      } else {
+                        alert('Error: ' + (result.error || 'Failed to generate'))
+                      }
+                    } catch (err) {
+                      alert('Error: ' + err.message)
+                    }
+                    setGenerating(false)
+                  }}
+                  disabled={generating || !genTopic}
+                  className={`flex-1 bg-tertiary text-on-tertiary border-none py-3 rounded-full text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 ${generating || !genTopic ? 'opacity-50' : 'hover:bg-tertiary-container'} transition-colors`}
+                >
+                  {generating ? (
+                    <>
+                      <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+                      Generate Draft
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowGenerate(false)}
+                  disabled={generating}
+                  className="px-6 py-3 rounded-full text-sm font-medium text-on-surface-variant border border-outline-variant cursor-pointer bg-transparent hover:bg-surface-container transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
