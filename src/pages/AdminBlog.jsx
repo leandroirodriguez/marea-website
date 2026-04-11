@@ -12,6 +12,23 @@ export default function AdminBlog() {
   const [genTopic, setGenTopic] = useState('')
   const [genStyle, setGenStyle] = useState('')
   const [generating, setGenerating] = useState(false)
+  const [suggestions, setSuggestions] = useState([])
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
+
+  async function loadSuggestions() {
+    setLoadingSuggestions(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/suggest-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ type: 'blog' }),
+      })
+      const result = await res.json()
+      setSuggestions(result.suggestions || [])
+    } catch { setSuggestions([]) }
+    setLoadingSuggestions(false)
+  }
 
   const adminVerified = useAdminGuard()
 
@@ -136,20 +153,53 @@ export default function AdminBlog() {
       {/* AI Generate Modal */}
       {showGenerate && (
         <div className="fixed inset-0 bg-on-background/50 z-50 flex items-center justify-center p-6" onClick={() => !generating && setShowGenerate(false)}>
-          <div className="bg-white rounded-2xl p-8 max-w-[500px] w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl p-8 max-w-[600px] w-full shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center">
                 <span className="material-symbols-outlined text-tertiary">auto_awesome</span>
               </div>
               <div>
                 <h2 className="font-headline text-xl font-normal text-on-background">Generate Blog Post with AI</h2>
-                <p className="text-[0.78rem] text-outline">Claude will write an SEO-friendly draft for your review</p>
+                <p className="text-[0.78rem] text-outline">Choose a suggested topic or enter your own</p>
               </div>
             </div>
 
             <div className="flex flex-col gap-4">
+              {/* Suggested topics */}
               <div>
-                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Topic / Title idea</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline">Suggested topics</label>
+                  <button
+                    onClick={loadSuggestions}
+                    disabled={loadingSuggestions}
+                    className="text-[0.75rem] text-primary font-semibold cursor-pointer bg-transparent border-none hover:text-primary-container transition-colors flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">{loadingSuggestions ? 'progress_activity' : 'refresh'}</span>
+                    {loadingSuggestions ? 'Loading...' : suggestions.length ? 'Refresh ideas' : 'Get ideas from Claude'}
+                  </button>
+                </div>
+                {suggestions.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setGenTopic(s.title)}
+                        className={`text-left p-3 rounded-xl border transition-all cursor-pointer ${
+                          genTopic === s.title
+                            ? 'border-primary bg-primary/5'
+                            : 'border-outline-variant/30 bg-surface-container-lowest hover:border-primary/50'
+                        }`}
+                      >
+                        <p className="text-[0.85rem] font-medium text-on-background">{s.title}</p>
+                        <p className="text-[0.72rem] text-outline mt-0.5">{s.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-outline-variant/20 pt-4">
+                <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Or enter your own topic</label>
                 <input
                   value={genTopic}
                   onChange={e => setGenTopic(e.target.value)}
