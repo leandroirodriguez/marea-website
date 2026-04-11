@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
 import { articleImage, fixStorageUrl } from '../lib/images'
+import { compressImage } from '../lib/compressImage'
 
 marked.setOptions({ breaks: true, gfm: true })
 import mareaLogo from '../assets/marealogo.svg'
@@ -39,9 +40,9 @@ export default function AdminArticleEditor() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const ext = file.name.split('.').pop()
-    const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage.from('public-assets').upload(path, file, { upsert: true })
+    const compressed = await compressImage(file)
+    const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
+    const { error } = await supabase.storage.from('public-assets').upload(path, compressed, { upsert: true })
     if (error) {
       console.error('Inline image upload failed:', error)
       alert(`Image upload failed: ${error.message}`)
@@ -102,10 +103,11 @@ export default function AdminArticleEditor() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    setUploadStatus('Uploading image...')
-    const ext = file.name.split('.').pop()
-    const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage.from('public-assets').upload(path, file, { upsert: true })
+    setUploadStatus('Compressing image...')
+    const compressed = await compressImage(file)
+    setUploadStatus(`Uploading (${(compressed.size / 1024).toFixed(0)} KB)...`)
+    const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
+    const { error } = await supabase.storage.from('public-assets').upload(path, compressed, { upsert: true })
     if (error) {
       console.error('Cover image upload failed:', error)
       setUploadStatus(`Upload failed: ${error.message}`)
