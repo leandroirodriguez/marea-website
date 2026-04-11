@@ -2,6 +2,7 @@ import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { fixStorageUrl } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 export default function AdminBlog() {
@@ -116,7 +117,7 @@ export default function AdminBlog() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {p.cover_url && (
-                            <div className="w-12 h-9 rounded-md shrink-0" style={{ background: `url(${p.cover_url}) center/cover` }} />
+                            <div className="w-12 h-9 rounded-md shrink-0" style={{ background: `url(${fixStorageUrl(p.cover_url)}) center/cover` }} />
                           )}
                           <div>
                             <p className="text-on-background font-medium">{p.title}</p>

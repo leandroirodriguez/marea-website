@@ -2,7 +2,7 @@ import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { articleImage } from '../lib/images'
+import { articleImage, fixStorageUrl } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 const CATEGORIES = ['All', 'Sleep', 'Mood', 'Brain fog', 'Hot flashes', 'HRT', 'Lifestyle', 'Intimacy']
@@ -45,7 +45,7 @@ export default function AdminArticles() {
   async function loadArticles() {
     const { data, error } = await supabase
       .from('content')
-      .select('id, title, slug, category, read_time, is_premium, author, published, published_at, updated_at')
+      .select('id, title, slug, category, read_time, is_premium, author, cover_url, published, published_at, updated_at')
       .order('published_at', { ascending: false })
     console.log('AdminArticles loadArticles:', { data: data?.length, error })
     setArticles(data || [])
@@ -161,7 +161,7 @@ export default function AdminArticles() {
                     <tr key={a.id} className="border-b border-surface-container">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-9 rounded-md shrink-0" style={{ background: `url(${articleImage(a.slug, a.category, 96, 72)}) center/cover` }} />
+                          <div className="w-12 h-9 rounded-md shrink-0" style={{ background: `url(${fixStorageUrl(a.cover_url) || articleImage(a.slug, a.category, 96, 72)}) center/cover` }} />
                           <div>
                             <p className="text-on-background font-medium mb-0.5">{a.title}</p>
                             <p className="text-[0.72rem] text-outline-variant">{a.author} &middot; {a.read_time} min</p>

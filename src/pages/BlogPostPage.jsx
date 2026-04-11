@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { fixStorageUrl } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 export default function BlogPostPage() {
@@ -50,7 +51,7 @@ export default function BlogPostPage() {
           {post.title}
         </h1>
         {post.cover_url && (
-          <img src={post.cover_url} alt="" className="w-full rounded-2xl mb-8" />
+          <img src={fixStorageUrl(post.cover_url)} alt="" className="w-full rounded-2xl mb-8" />
         )}
         <div
           className="prose font-body text-base font-light text-on-surface-variant"

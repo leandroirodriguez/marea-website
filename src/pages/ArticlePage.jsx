@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
-import { articleImage } from '../lib/images'
+import { articleImage, fixStorageUrl } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 marked.setOptions({ breaks: true, gfm: true })
@@ -48,7 +48,7 @@ export default function ArticlePage() {
     </div>
   )
 
-  const coverUrl = article.cover_url || articleImage(article.slug, article.category, 1200, 600)
+  const coverUrl = fixStorageUrl(article.cover_url) || articleImage(article.slug, article.category, 1200, 600)
 
   return (
     <div className="min-h-screen bg-surface">

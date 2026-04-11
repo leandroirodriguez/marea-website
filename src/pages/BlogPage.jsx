@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { fixStorageUrl } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 export default function BlogPage() {
@@ -52,7 +53,7 @@ export default function BlogPage() {
             <Link key={post.id} to={`/blog/${post.slug}`} className="no-underline group">
               <article className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 flex transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md">
                 {post.cover_url && (
-                  <div className="w-[200px] min-h-[160px] shrink-0 bg-cover bg-center" style={{ backgroundImage: `url(${post.cover_url})` }} />
+                  <div className="w-[200px] min-h-[160px] shrink-0 bg-cover bg-center" style={{ backgroundImage: `url(${fixStorageUrl(post.cover_url)})` }} />
                 )}
                 <div className="p-6 flex-1">
                   <p className="font-label text-[0.72rem] text-outline mb-2">

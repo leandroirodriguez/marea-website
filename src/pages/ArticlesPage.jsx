@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { articleImage } from '../lib/images'
+import { articleImage, fixStorageUrl } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 const CATEGORIES = ['All', 'Sleep', 'Mood', 'Brain fog', 'Hot flashes', 'HRT', 'Lifestyle', 'Intimacy']
@@ -18,7 +18,7 @@ export default function ArticlesPage() {
   useEffect(() => {
     supabase
       .from('content')
-      .select('id, title, slug, category, read_time, is_premium, author, published_at')
+      .select('id, title, slug, category, read_time, is_premium, author, cover_url, published_at')
       .eq('published', true)
       .order('published_at', { ascending: false })
       .then(({ data }) => { setArticles(data || []); setLoading(false) })
@@ -107,7 +107,7 @@ export default function ArticlesPage() {
               <article className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-lg">
                 <div
                   className="h-[180px] bg-cover bg-center relative"
-                  style={{ backgroundImage: `url(${article.cover_url || articleImage(article.slug, article.category)})` }}
+                  style={{ backgroundImage: `url(${fixStorageUrl(article.cover_url) || articleImage(article.slug, article.category)})` }}
                 >
                   {article.is_premium && (
                     <span className="absolute top-3 right-3 bg-tertiary/90 text-on-tertiary font-label text-[0.65rem] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">

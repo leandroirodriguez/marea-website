@@ -2,6 +2,7 @@ import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { fixStorageUrl } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
 
 export default function AdminBlogEditor() {
@@ -10,6 +11,7 @@ export default function AdminBlogEditor() {
   const isNew = !id
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState('')
   const [form, setForm] = useState({
     title: '',
     slug: '',
@@ -46,8 +48,11 @@ export default function AdminBlogEditor() {
     setUploading(true)
     const ext = file.name.split('.').pop()
     const path = `blog/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage.from('public-assets').upload(path, file)
-    if (!error) {
+    const { error } = await supabase.storage.from('public-assets').upload(path, file, { upsert: true })
+    if (error) {
+      console.error('Inline image upload failed:', error)
+      alert(`Image upload failed: ${error.message}`)
+    } else {
       const { data: { publicUrl } } = supabase.storage.from('public-assets').getPublicUrl(path)
       const el = bodyRef.current
       const pos = el ? el.selectionStart : form.body_html.length
@@ -63,7 +68,7 @@ export default function AdminBlogEditor() {
     if (!adminVerified) return
     if (id) {
       supabase.from('blog_posts').select('*').eq('id', id).single()
-        .then(({ data }) => { if (data) setForm(data) })
+        .then(({ data }) => { if (data) setForm({ ...data, cover_url: fixStorageUrl(data.cover_url) || '' }) })
     }
   }, [id, adminVerified])
 
@@ -82,14 +87,30 @@ export default function AdminBlogEditor() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
+    setUploadStatus('Uploading image...')
     const ext = file.name.split('.').pop()
-    const path = `blog/${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('public-assets').upload(path, file)
-    if (!error) {
+    const path = `blog/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('public-assets').upload(path, file, { upsert: true })
+    if (error) {
+      console.error('Cover image upload failed:', error)
+      setUploadStatus(`Upload failed: ${error.message}`)
+      setTimeout(() => setUploadStatus(''), 4000)
+    } else {
       const { data: { publicUrl } } = supabase.storage.from('public-assets').getPublicUrl(path)
       setForm(prev => ({ ...prev, cover_url: publicUrl }))
+      setUploadStatus('Image uploaded — remember to save!')
+      setTimeout(() => setUploadStatus(''), 4000)
     }
     setUploading(false)
+  }
+
+  function handleCoverDrop(e) {
+    e.preventDefault()
+    e.currentTarget.classList.remove('ring-2', 'ring-primary')
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      handleImageUpload({ target: { files: [file] } })
+    }
   }
 
   async function handleSave() {
@@ -104,10 +125,17 @@ export default function AdminBlogEditor() {
       published_at: form.published ? (form.published_at || new Date().toISOString()) : null,
     }
 
+    let result
     if (isNew) {
-      await supabase.from('blog_posts').insert(payload)
+      result = await supabase.from('blog_posts').insert(payload)
     } else {
-      await supabase.from('blog_posts').update(payload).eq('id', id)
+      result = await supabase.from('blog_posts').update(payload).eq('id', id)
+    }
+    if (result.error) {
+      console.error('Save failed:', result.error)
+      alert(`Save failed: ${result.error.message}`)
+      setSaving(false)
+      return
     }
     setSaving(false)
     navigate('/admin/blog')
@@ -153,8 +181,36 @@ export default function AdminBlogEditor() {
           <div>
             <label className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-1 block">Cover Image</label>
             {form.cover_url && <img src={form.cover_url} alt="" className="w-full max-h-[200px] object-cover rounded-xl mb-3" />}
-            <input type="file" accept="image/*" onChange={handleImageUpload} className="text-[0.85rem]" />
-            {uploading && <p className="text-[0.8rem] text-outline mt-1">Uploading...</p>}
+            <label
+              onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('ring-2', 'ring-primary') }}
+              onDragLeave={e => e.currentTarget.classList.remove('ring-2', 'ring-primary')}
+              onDrop={handleCoverDrop}
+              className={`flex flex-col items-center justify-center gap-1.5 p-5 rounded-xl border-2 border-dashed cursor-pointer transition-all ${
+                uploading ? 'border-primary/50 bg-primary/[0.03]' : 'border-outline-variant/40 hover:border-primary/50 hover:bg-primary/[0.02]'
+              }`}
+            >
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              {uploading ? (
+                <span className="material-symbols-outlined text-primary text-[20px] animate-spin">progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined text-outline text-[20px]">cloud_upload</span>
+              )}
+              <span className="text-[0.75rem] text-outline-variant">
+                {uploading ? 'Uploading...' : 'Click or drag image here'}
+              </span>
+            </label>
+            {uploadStatus && (
+              <p className={`text-[0.75rem] mt-2 font-medium ${
+                uploadStatus.includes('failed') ? 'text-tertiary' : 'text-primary'
+              }`}>
+                {uploadStatus}
+              </p>
+            )}
+            {form.cover_url && (
+              <button onClick={() => { setForm(prev => ({ ...prev, cover_url: '' })); setUploadStatus('') }} className="bg-transparent border-none text-[0.75rem] text-tertiary cursor-pointer mt-2 hover:underline">
+                Remove cover image
+              </button>
+            )}
           </div>
 
           <div>

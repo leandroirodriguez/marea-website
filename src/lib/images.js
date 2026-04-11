@@ -65,3 +65,15 @@ export function categoryImage(category, seed = 0, w = 800, h = 500) {
 export function articleImage(slug, category, w = 800, h = 500) {
   return categoryImage(category, slug, w, h)
 }
+
+/**
+ * Fix malformed Supabase Storage URLs that are missing /public/ in the path.
+ * e.g. .../storage/v1/object/public-assets/... → .../storage/v1/object/public/public-assets/...
+ */
+export function fixStorageUrl(url) {
+  if (!url) return url
+  return url.replace(
+    /\/storage\/v1\/object\/public-assets\//,
+    '/storage/v1/object/public/public-assets/'
+  )
+}
