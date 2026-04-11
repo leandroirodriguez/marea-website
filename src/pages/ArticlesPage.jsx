@@ -34,11 +34,12 @@ export default function ArticlesPage() {
       <nav className="fixed top-0 w-full z-50 bg-surface/92 backdrop-blur-xl border-b border-outline-variant/10 px-6 md:px-8 py-4">
         <div className="max-w-[1100px] mx-auto flex justify-between items-center">
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
-          <div className="flex items-center gap-6">
-            <Link to="/blog" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
-            <a href="#download" className="bg-primary text-on-primary rounded-full px-5 py-2 font-label text-[0.82rem] font-semibold hover:bg-primary-container transition-colors flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            <Link to="/blog" className="hidden sm:inline font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
+            <a href="#download" className="bg-primary text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold hover:bg-primary-container transition-colors flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px]">download</span>
-              Get the App
+              <span className="hidden sm:inline">Get the App</span>
+              <span className="sm:hidden">App</span>
             </a>
           </div>
         </div>

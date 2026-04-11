@@ -608,6 +608,7 @@ function SymptomTrackerDemo() {
 
 export default function LandingPage() {
   const [recentArticles, setRecentArticles] = useState([])
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     supabase
@@ -659,8 +660,8 @@ export default function LandingPage() {
               Membership
             </a>
           </div>
-          <button className="md:hidden text-on-surface-variant" aria-label="Menu">
-            <span className="material-symbols-outlined text-2xl">menu</span>
+          <button className="md:hidden text-on-surface-variant" aria-label="Menu" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <span className="material-symbols-outlined text-2xl">{mobileMenuOpen ? 'close' : 'menu'}</span>
           </button>
           <a
             href="#download"
@@ -669,6 +670,18 @@ export default function LandingPage() {
             Get Started
           </a>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-outline-variant/10 bg-white/95 backdrop-blur-xl px-6 py-4 flex flex-col gap-3">
+            <a className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" href="#vision" onClick={() => setMobileMenuOpen(false)}>Our Vision</a>
+            <a className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" href="#features" onClick={() => setMobileMenuOpen(false)}>The Science</a>
+            <Link className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" to="/blog" onClick={() => setMobileMenuOpen(false)}>Journal</Link>
+            <Link className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" to="/articles" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
+            <a className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" href="#download" onClick={() => setMobileMenuOpen(false)}>Membership</a>
+            <a href="#download" className="bg-tertiary text-on-tertiary px-6 py-3 rounded-full text-[11px] font-label uppercase tracking-widest text-center mt-2" onClick={() => setMobileMenuOpen(false)}>Get Started</a>
+          </div>
+        )}
       </nav>
 
       {/* Hero */}
