@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
 import { articleImage } from '../lib/images'
-import { useAuth } from '../hooks/useAuth'
 import mareaLogo from '../assets/marealogo.svg'
 
 marked.setOptions({ breaks: true, gfm: true })
@@ -15,8 +14,6 @@ function markdownToHtml(text) {
 
 export default function ArticlePage() {
   const { slug } = useParams()
-  const navigate = useNavigate()
-  const { user, isPaid } = useAuth()
   const [article, setArticle] = useState(null)
   const [loading, setLoading] = useState(true)
   const [locked, setLocked] = useState(false)
@@ -35,42 +32,12 @@ export default function ArticlePage() {
       })
   }, [slug])
 
-  async function checkAccess(article) {
-    if (isPaid) { setLocked(false); recordRead(article.slug); return }
-
-    const maxFree = user ? 5 : 1
-
-    if (user) {
-      const { count } = await supabase
-        .from('article_reads')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-      const { data: existing } = await supabase
-        .from('article_reads')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('article_slug', article.slug)
-        .maybeSingle()
-
-      if (existing) { setLocked(false); return }
-      if ((count || 0) >= maxFree) { setLocked(true); return }
-      setLocked(false)
-      recordRead(article.slug)
-    } else {
-      const reads = JSON.parse(localStorage.getItem('marea_article_reads') || '[]')
-      if (reads.includes(article.slug)) { setLocked(false); return }
-      if (reads.length >= maxFree) { setLocked(true); return }
-      setLocked(false)
-      localStorage.setItem('marea_article_reads', JSON.stringify([...reads, article.slug]))
-    }
-  }
-
-  async function recordRead(articleSlug) {
-    if (!user) return
-    await supabase
-      .from('article_reads')
-      .upsert({ user_id: user.id, article_slug: articleSlug }, { onConflict: 'user_id,article_slug' })
-      .select()
+  function checkAccess(article) {
+    const reads = JSON.parse(localStorage.getItem('marea_article_reads') || '[]')
+    if (reads.includes(article.slug)) { setLocked(false); return }
+    if (reads.length >= 1) { setLocked(true); return }
+    setLocked(false)
+    localStorage.setItem('marea_article_reads', JSON.stringify([...reads, article.slug]))
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-outline">Loading...</div>
@@ -90,7 +57,11 @@ export default function ArticlePage() {
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
           <div className="flex items-center gap-6">
             <Link to="/blog" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
-            <Link to="/articles" className="font-label text-[0.85rem] font-medium text-primary hover:text-primary-container transition-colors">All articles</Link>
+            <Link to="/articles" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">All articles</Link>
+            <a href="#download" className="bg-primary text-on-primary rounded-full px-5 py-2 font-label text-[0.82rem] font-semibold hover:bg-primary-container transition-colors flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">download</span>
+              Get the App
+            </a>
           </div>
         </div>
       </nav>
@@ -102,11 +73,6 @@ export default function ArticlePage() {
             {article.category}
           </span>
           <span className="font-label text-xs text-outline">{article.read_time} min read</span>
-          {article.is_premium && (
-            <span className="font-label text-[0.65rem] font-bold text-tertiary bg-tertiary/[0.08] px-2.5 py-1 rounded-full uppercase tracking-wider">
-              Member
-            </span>
-          )}
         </div>
 
         <h1 className="font-headline text-[clamp(2rem,5vw,2.75rem)] font-normal text-on-background mb-3" style={{ lineHeight: 1.2, letterSpacing: '-0.02em' }}>
@@ -119,7 +85,7 @@ export default function ArticlePage() {
         <img src={coverUrl} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
 
         {locked ? (
-          /* Paywall */
+          /* Paywall — download app CTA */
           <div className="relative">
             <div
               className="prose font-body text-base font-light text-on-surface-variant max-h-[200px] overflow-hidden"
@@ -127,31 +93,19 @@ export default function ArticlePage() {
               dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body?.substring(0, 500)) }}
             />
             <div className="bg-primary-container rounded-2xl p-10 text-center shadow-lg mt-4">
-              <span className="material-symbols-outlined text-[48px] text-primary-fixed mb-4 block">lock</span>
+              <span className="material-symbols-outlined text-[48px] text-primary-fixed mb-4 block">phone_iphone</span>
               <h2 className="font-headline text-2xl font-normal text-on-primary mb-3">
-                {!user ? 'Sign in to keep reading' : 'Upgrade to continue'}
+                Continue reading in the Marea app
               </h2>
-              <p className="text-[0.9rem] text-on-primary/75 mb-6 max-w-[400px] mx-auto">
-                {!user
-                  ? 'Create a free account to read up to 5 articles. Become a member for unlimited access.'
-                  : 'You\'ve used all your free articles. Upgrade to a membership for unlimited access to all clinical content.'
-                }
+              <p className="text-[0.9rem] text-on-primary/75 mb-6 max-w-[420px] mx-auto">
+                Get unlimited access to our full education library, personalized symptom tracking, lab interpretation, and AI health assistant — all designed by practicing OB/GYNs.
               </p>
-              <div className="flex justify-center gap-4 flex-wrap">
-                {!user ? (
-                  <>
-                    <Link to="/login" className="bg-white text-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold hover:bg-primary-fixed transition-colors">
-                      Sign in free
-                    </Link>
-                    <Link to="/signup" className="bg-transparent text-on-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold border-[1.5px] border-on-primary/50 hover:border-on-primary transition-colors">
-                      Create account
-                    </Link>
-                  </>
-                ) : (
-                  <Link to="/account" className="bg-white text-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold hover:bg-primary-fixed transition-colors">
-                    Upgrade membership
-                  </Link>
-                )}
+              <div className="flex flex-col items-center gap-4">
+                <a href="#" className="bg-white text-primary rounded-full px-8 py-3.5 font-label text-[0.9rem] font-semibold hover:bg-primary-fixed transition-colors inline-flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-xl">download</span>
+                  Download Marea — Free
+                </a>
+                <p className="text-[0.72rem] text-on-primary/50 font-label uppercase tracking-widest">Available on iOS</p>
               </div>
             </div>
           </div>
@@ -162,6 +116,16 @@ export default function ArticlePage() {
             dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body) }}
           />
         )}
+
+        {/* Bottom CTA — always visible */}
+        <div className="mt-12 pt-8 border-t border-outline-variant/20 text-center">
+          <p className="font-headline text-xl text-on-background mb-2">Get more from Marea</p>
+          <p className="text-[0.88rem] text-outline mb-5">Track symptoms, interpret labs, and chat with our AI health assistant.</p>
+          <a href="#" className="bg-primary text-on-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold hover:bg-primary-container transition-colors inline-flex items-center gap-2">
+            <span className="material-symbols-outlined text-lg">download</span>
+            Download the App
+          </a>
+        </div>
       </article>
     </div>
   )

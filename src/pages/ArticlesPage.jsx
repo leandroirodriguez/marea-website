@@ -2,17 +2,18 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { articleImage } from '../lib/images'
-import { useAuth } from '../hooks/useAuth'
 import mareaLogo from '../assets/marealogo.svg'
 
 const CATEGORIES = ['All', 'Sleep', 'Mood', 'Brain fog', 'Hot flashes', 'HRT', 'Lifestyle', 'Intimacy']
 
 export default function ArticlesPage() {
-  const { user, isPaid } = useAuth()
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState('All')
-  const [readCount, setReadCount] = useState(0)
+
+  const reads = JSON.parse(localStorage.getItem('marea_article_reads') || '[]')
+  const readCount = reads.length
+  const hasReachedLimit = readCount >= 1
 
   useEffect(() => {
     supabase
@@ -22,22 +23,6 @@ export default function ArticlesPage() {
       .order('published_at', { ascending: false })
       .then(({ data }) => { setArticles(data || []); setLoading(false) })
   }, [])
-
-  useEffect(() => {
-    if (user) {
-      supabase
-        .from('article_reads')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .then(({ count }) => setReadCount(count || 0))
-    } else {
-      const reads = JSON.parse(localStorage.getItem('marea_article_reads') || '[]')
-      setReadCount(reads.length)
-    }
-  }, [user])
-
-  const maxFreeArticles = user ? 5 : 1
-  const hasReachedLimit = !isPaid && readCount >= maxFreeArticles
 
   const filtered = activeCategory === 'All'
     ? articles
@@ -51,11 +36,10 @@ export default function ArticlesPage() {
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
           <div className="flex items-center gap-6">
             <Link to="/blog" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
-            {user ? (
-              <Link to="/account" className="font-label text-[0.85rem] font-medium text-primary hover:text-primary-container transition-colors">My Account</Link>
-            ) : (
-              <Link to="/login" className="bg-primary text-on-primary rounded-full px-5 py-2 font-label text-[0.82rem] font-semibold hover:bg-primary-container transition-colors">Sign in</Link>
-            )}
+            <a href="#download" className="bg-primary text-on-primary rounded-full px-5 py-2 font-label text-[0.82rem] font-semibold hover:bg-primary-container transition-colors flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">download</span>
+              Get the App
+            </a>
           </div>
         </div>
       </nav>
@@ -67,47 +51,25 @@ export default function ArticlesPage() {
             Education Library
           </h1>
           <p className="text-on-surface-variant font-light text-[0.95rem] leading-relaxed">
-            Clinical insights on perimenopause, written by practicing OB/GYNs.
+            Clinical insights on perimenopause, written by practicing OB/GYNs. Download the Marea app for full access.
           </p>
         </div>
 
         {/* Access banner */}
-        {!isPaid && (
-          <div className={`rounded-2xl px-6 py-5 mb-8 flex justify-between items-center flex-wrap gap-4 ${
-            hasReachedLimit
-              ? 'bg-gradient-to-br from-tertiary to-primary'
-              : 'bg-primary/[0.06]'
-          }`}>
+        {hasReachedLimit && (
+          <div className="bg-gradient-to-br from-tertiary to-primary rounded-2xl px-6 py-5 mb-8 flex justify-between items-center flex-wrap gap-4">
             <div>
-              <p className={`text-[0.9rem] font-semibold mb-1 ${hasReachedLimit ? 'text-on-primary' : 'text-on-background'}`}>
-                {hasReachedLimit
-                  ? 'You\'ve reached your free article limit'
-                  : `${readCount} of ${maxFreeArticles} free article${maxFreeArticles > 1 ? 's' : ''} used`
-                }
+              <p className="text-[0.9rem] font-semibold mb-1 text-on-primary">
+                Want to keep reading?
               </p>
-              <p className={`text-[0.82rem] ${hasReachedLimit ? 'text-on-primary/75' : 'text-outline'}`}>
-                {!user
-                  ? 'Sign in for 5 free articles, or become a member for unlimited access.'
-                  : isPaid ? '' : 'Become a member for unlimited access to all articles.'}
+              <p className="text-[0.82rem] text-on-primary/75">
+                Download the Marea app for unlimited access to our full education library, symptom tracking, and more.
               </p>
             </div>
-            {!user ? (
-              <Link to="/login" className={`rounded-full px-6 py-2.5 font-label text-[0.82rem] font-semibold whitespace-nowrap transition-colors ${
-                hasReachedLimit
-                  ? 'bg-white text-primary hover:bg-primary-fixed'
-                  : 'bg-primary text-on-primary hover:bg-primary-container'
-              }`}>
-                Sign in free
-              </Link>
-            ) : (
-              <Link to="/account" className={`rounded-full px-6 py-2.5 font-label text-[0.82rem] font-semibold whitespace-nowrap transition-colors ${
-                hasReachedLimit
-                  ? 'bg-white text-primary hover:bg-primary-fixed'
-                  : 'bg-primary text-on-primary hover:bg-primary-container'
-              }`}>
-                Upgrade
-              </Link>
-            )}
+            <a href="#download" className="bg-white text-primary rounded-full px-6 py-2.5 font-label text-[0.82rem] font-semibold whitespace-nowrap hover:bg-primary-fixed transition-colors flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">download</span>
+              Download App
+            </a>
           </div>
         )}
 

@@ -24,7 +24,11 @@ export default function BlogPage() {
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
           <div className="flex items-center gap-6">
             <Link to="/articles" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Articles</Link>
-            <Link to="/" className="font-label text-[0.85rem] font-medium text-primary hover:text-primary-container transition-colors">&larr; Back to home</Link>
+            <Link to="/" className="font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">&larr; Home</Link>
+            <a href="#download" className="bg-primary text-on-primary rounded-full px-5 py-2 font-label text-[0.82rem] font-semibold hover:bg-primary-container transition-colors flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">download</span>
+              Get the App
+            </a>
           </div>
         </div>
       </nav>
