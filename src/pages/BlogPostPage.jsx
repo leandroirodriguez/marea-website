@@ -49,8 +49,7 @@ export default function BlogPostPage() {
           <img src={post.cover_url} alt="" className="w-full rounded-2xl mb-8" />
         )}
         <div
-          className="font-body text-base font-light text-on-surface-variant"
-          style={{ lineHeight: 1.85 }}
+          className="prose font-body text-base font-light text-on-surface-variant"
           dangerouslySetInnerHTML={{ __html: post.body_html }}
         />
       </article>
