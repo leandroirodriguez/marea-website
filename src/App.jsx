@@ -11,6 +11,8 @@ import AdminBlog from './pages/AdminBlog'
 import AdminBlogEditor from './pages/AdminBlogEditor'
 import AdminArticles from './pages/AdminArticles'
 import AdminArticleEditor from './pages/AdminArticleEditor'
+import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
 
 export default function App() {
   return (
@@ -29,6 +31,8 @@ export default function App() {
         <Route path="/admin/articles" element={<AdminArticles />} />
         <Route path="/admin/articles/new" element={<AdminArticleEditor />} />
         <Route path="/admin/articles/edit/:id" element={<AdminArticleEditor />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
       </Routes>
     </AuthProvider>
   )

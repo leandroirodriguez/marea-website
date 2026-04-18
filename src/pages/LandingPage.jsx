@@ -1090,18 +1090,18 @@ export default function LandingPage() {
               <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
                 Legal
               </p>
-              <a
+              <Link
                 className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                href="#"
+                to="/privacy"
               >
                 Privacy
-              </a>
-              <a
+              </Link>
+              <Link
                 className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                href="#"
+                to="/terms"
               >
                 Terms
-              </a>
+              </Link>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
