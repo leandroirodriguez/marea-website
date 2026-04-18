@@ -39,7 +39,7 @@ export default function PrivacyPage() {
         </p>
 
         <Section title="1. Who We Are">
-          <p>Marea Health, Inc. ("Marea," "we," "us") operates the Marea app and website. Our platform is designed by Dr. Rodriguez, MD, FACOG and Dr. Richmond, MD, FACOG to support women navigating perimenopause with evidence-based information, symptom tracking, and community support.</p>
+          <p>Marea Health, Inc. ("Marea," "we," "us") operates the Marea app and website. Our platform is designed by board-certified OB/GYNs to support women navigating perimenopause with evidence-based information, symptom tracking, and community support.</p>
           <p>Marea is not a medical practice and does not provide medical diagnoses, treatment, or prescriptions. Content is for informational and educational purposes only.</p>
         </Section>
 
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title="7. Intimacy &amp; Sexual Health Content">
-          <p>Marea includes an Intimacy &amp; Sexual Health section developed in consultation with Dr. Richmond, MD, FACOG. This content is intended for adult women (18+) and addresses medical and wellness topics related to sexual health during perimenopause. Content is clinically grounded and tasteful. It is not explicit or pornographic in nature.</p>
+          <p>Marea includes an Intimacy &amp; Sexual Health section developed in consultation with board-certified OB/GYNs. This content is intended for adult women (18+) and addresses medical and wellness topics related to sexual health during perimenopause. Content is clinically grounded and tasteful. It is not explicit or pornographic in nature.</p>
         </Section>
 
         <Section title="8. Your Rights">
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
             <li>Request deletion of your account and all associated data</li>
             <li>Opt out of non-essential communications</li>
           </ul>
-          <p>To exercise any of these rights, contact us at <strong>privacy@mareahealth.com</strong>.</p>
+          <p>To exercise any of these rights, contact us at <strong>hello@mareahealth.com</strong>.</p>
         </Section>
 
         <Section title="9. Age Restriction">
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
 
         <div className="p-5 bg-surface rounded-xl border border-outline/20 mt-8">
           <p className="text-sm text-on-background/80 leading-relaxed">
-            <strong>Questions?</strong> Contact us at <strong>privacy@mareahealth.com</strong> or write to Marea Health, Inc., Miami, FL.
+            <strong>Questions?</strong> Contact us at <strong>hello@mareahealth.com</strong>.
           </p>
           <p className="text-sm text-on-background/70 mt-3">
             See also our <Link to="/terms" className="text-primary font-medium hover:text-tertiary transition-colors">Terms of Service</Link>.

@@ -112,7 +112,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="17. Contact">
-          <p>Questions about these Terms? Contact us at <strong>legal@mareahealth.com</strong> or see our{' '}
+          <p>Questions about these Terms? Contact us at <strong>hello@mareahealth.com</strong> or see our{' '}
             <Link to="/privacy" className="text-primary font-medium hover:text-tertiary transition-colors">Privacy Policy</Link>.
           </p>
         </Section>
