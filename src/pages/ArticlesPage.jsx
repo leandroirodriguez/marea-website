@@ -36,11 +36,10 @@ export default function ArticlesPage() {
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
           <div className="flex items-center gap-4">
             <Link to="/blog" className="hidden sm:inline font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
-            <a href="#download" className="bg-primary text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold hover:bg-primary-container transition-colors flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">download</span>
-              <span className="hidden sm:inline">Get the App</span>
-              <span className="sm:hidden">App</span>
-            </a>
+            <span className="bg-primary/80 text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]">schedule</span>
+              <span>Coming Soon</span>
+            </span>
           </div>
         </div>
       </nav>
@@ -52,7 +51,7 @@ export default function ArticlesPage() {
             Education Library
           </h1>
           <p className="text-on-surface-variant font-light text-[0.95rem] leading-relaxed">
-            Clinical insights on perimenopause, written by practicing OB/GYNs. Download the Marea app for full access.
+            Clinical insights on perimenopause, written by practicing OB/GYNs. The Marea app is coming soon — full library access arrives with it.
           </p>
         </div>
 
@@ -64,13 +63,13 @@ export default function ArticlesPage() {
                 Want to keep reading?
               </p>
               <p className="text-[0.82rem] text-on-primary/75">
-                Download the Marea app for unlimited access to our full education library, symptom tracking, and more.
+                The Marea app — with unlimited library access, symptom tracking, and more — is coming soon.
               </p>
             </div>
-            <a href="#download" className="bg-white text-primary rounded-full px-6 py-2.5 font-label text-[0.82rem] font-semibold whitespace-nowrap hover:bg-primary-fixed transition-colors flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px]">download</span>
-              Download App
-            </a>
+            <span className="bg-white text-primary rounded-full px-6 py-2.5 font-label text-[0.82rem] font-semibold whitespace-nowrap flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">schedule</span>
+              Coming Soon
+            </span>
           </div>
         )}
 

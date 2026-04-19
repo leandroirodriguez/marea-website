@@ -702,18 +702,17 @@ export default function LandingPage() {
               precision and soulful intuition.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-              <a
-                href="#download"
-                className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 hover:opacity-90 transition-all"
+              <div
+                className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 opacity-90"
               >
                 <span className="material-symbols-outlined text-xl">phone_iphone</span>
                 <div className="text-left">
                   <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">
-                    Download on the
+                    Coming Soon
                   </p>
-                  <p className="text-sm font-semibold leading-none mt-0.5">App Store</p>
+                  <p className="text-sm font-semibold leading-none mt-0.5">iOS · Android</p>
                 </div>
-              </a>
+              </div>
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-on-primary shrink-0">
                   <span className="material-symbols-outlined text-lg">verified</span>
@@ -1026,15 +1025,12 @@ export default function LandingPage() {
               free 14-day trial today.
             </p>
             <div className="flex flex-col items-center gap-4 relative z-10">
-              <a
-                href="#"
-                className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold hover:scale-105 transition-transform shadow-xl shadow-tertiary/20"
-              >
-                <span className="material-symbols-outlined text-xl">download</span>
-                Download on the App Store
-              </a>
+              <div className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20">
+                <span className="material-symbols-outlined text-xl">schedule</span>
+                Coming Soon
+              </div>
               <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
-                Available on iOS
+                Coming soon to iOS &amp; Android
               </p>
             </div>
           </div>
@@ -1105,21 +1101,16 @@ export default function LandingPage() {
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
-                Download
+                App
               </p>
-              <a
-                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                href="#"
-              >
-                App Store
-              </a>
-              <p className="text-sm font-light text-on-background/30">Android coming soon</p>
+              <p className="text-sm font-light text-on-background/50">iOS — coming soon</p>
+              <p className="text-sm font-light text-on-background/30">Android — coming soon</p>
             </div>
           </div>
         </div>
         <div className="px-6 md:px-16 lg:px-20 py-6 border-t border-outline-variant/15 flex flex-col sm:flex-row justify-between items-center gap-3 max-w-[1400px] mx-auto">
           <p className="font-light text-xs text-on-background/40">
-            &copy; {new Date().getFullYear()} Marea Intelligence. All rights reserved.
+            &copy; {new Date().getFullYear()} Marea Health, LLC. All rights reserved.
           </p>
           <div className="flex gap-4">
             <a

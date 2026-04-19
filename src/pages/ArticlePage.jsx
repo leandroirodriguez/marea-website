@@ -57,11 +57,10 @@ export default function ArticlePage() {
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
           <div className="flex items-center gap-3 sm:gap-4">
             <Link to="/articles" className="font-label text-[0.8rem] sm:text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">&larr; Articles</Link>
-            <a href="#download" className="bg-primary text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold hover:bg-primary-container transition-colors flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">download</span>
-              <span className="hidden sm:inline">Get the App</span>
-              <span className="sm:hidden">App</span>
-            </a>
+            <span className="bg-primary/80 text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]">schedule</span>
+              <span>Coming Soon</span>
+            </span>
           </div>
         </div>
       </nav>
@@ -98,14 +97,14 @@ export default function ArticlePage() {
                 Continue reading in the Marea app
               </h2>
               <p className="text-[0.9rem] text-on-primary/75 mb-6 max-w-[420px] mx-auto">
-                Get unlimited access to our full education library, personalized symptom tracking, lab interpretation, and AI health assistant — all designed by practicing OB/GYNs.
+                The Marea app is launching soon with unlimited access to our full education library, personalized symptom tracking, lab interpretation, and an AI health assistant — all designed by practicing OB/GYNs.
               </p>
               <div className="flex flex-col items-center gap-4">
-                <a href="#" className="bg-white text-primary rounded-full px-8 py-3.5 font-label text-[0.9rem] font-semibold hover:bg-primary-fixed transition-colors inline-flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-xl">download</span>
-                  Download Marea — Free
-                </a>
-                <p className="text-[0.72rem] text-on-primary/50 font-label uppercase tracking-widest">Available on iOS</p>
+                <span className="bg-white text-primary rounded-full px-8 py-3.5 font-label text-[0.9rem] font-semibold inline-flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-xl">schedule</span>
+                  Coming Soon
+                </span>
+                <p className="text-[0.72rem] text-on-primary/50 font-label uppercase tracking-widest">Coming soon to iOS &amp; Android</p>
               </div>
             </div>
           </div>
@@ -121,10 +120,10 @@ export default function ArticlePage() {
         <div className="mt-12 pt-8 border-t border-outline-variant/20 text-center">
           <p className="font-headline text-xl text-on-background mb-2">Get more from Marea</p>
           <p className="text-[0.88rem] text-outline mb-5">Track symptoms, interpret labs, and chat with our AI health assistant.</p>
-          <a href="#" className="bg-primary text-on-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold hover:bg-primary-container transition-colors inline-flex items-center gap-2">
-            <span className="material-symbols-outlined text-lg">download</span>
-            Download the App
-          </a>
+          <span className="bg-primary/80 text-on-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold inline-flex items-center gap-2">
+            <span className="material-symbols-outlined text-lg">schedule</span>
+            Coming Soon
+          </span>
         </div>
       </article>
     </div>

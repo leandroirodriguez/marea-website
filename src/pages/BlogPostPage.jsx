@@ -34,11 +34,10 @@ export default function BlogPostPage() {
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
           <div className="flex items-center gap-3 sm:gap-4">
             <Link to="/blog" className="font-label text-[0.8rem] sm:text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">&larr; Blog</Link>
-            <a href="#download" className="bg-primary text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold hover:bg-primary-container transition-colors flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">download</span>
-              <span className="hidden sm:inline">Get the App</span>
-              <span className="sm:hidden">App</span>
-            </a>
+            <span className="bg-primary/80 text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]">schedule</span>
+              <span>Coming Soon</span>
+            </span>
           </div>
         </div>
       </nav>
