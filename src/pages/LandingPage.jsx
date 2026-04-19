@@ -604,6 +604,273 @@ function SymptomTrackerDemo() {
   )
 }
 
+/* ─── Marea Index orb + demo ─── */
+
+function ScoreOrbCanvas({ score = 78, size = 180, color = '#005258' }) {
+  const ref = useRef(null)
+  const anim = useRef(null)
+  const t = useRef(0)
+  useEffect(() => {
+    const canvas = ref.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    const dpr = window.devicePixelRatio || 1
+    canvas.width = size * dpr; canvas.height = size * dpr
+    ctx.scale(dpr, dpr)
+    const cx = size / 2, cy = size / 2, r = size / 2 - 3
+    function draw() {
+      t.current += 0.014
+      ctx.clearRect(0, 0, size, size)
+      ctx.fillStyle = '#e8f3f4'
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill()
+      const waterY = cy + r - (score / 100) * (r * 2)
+      ctx.save()
+      ctx.beginPath(); ctx.arc(cx, cy, r - 1, 0, Math.PI * 2); ctx.clip()
+      const grad = ctx.createLinearGradient(0, waterY, 0, size)
+      grad.addColorStop(0, color + 'aa'); grad.addColorStop(1, color)
+      ctx.fillStyle = grad
+      ctx.beginPath(); ctx.moveTo(0, size)
+      for (let x = 0; x <= size; x += 2) {
+        const y = waterY + Math.sin(x * 0.06 + t.current) * 4 + Math.sin(x * 0.12 + t.current * 1.3) * 2
+        ctx.lineTo(x, y)
+      }
+      ctx.lineTo(size, size); ctx.closePath(); ctx.fill()
+      ctx.globalAlpha = 0.35
+      ctx.beginPath(); ctx.moveTo(0, size)
+      for (let x = 0; x <= size; x += 2) {
+        const y = waterY + 6 + Math.sin(x * 0.08 + t.current * 0.8 + 1.5) * 3
+        ctx.lineTo(x, y)
+      }
+      ctx.lineTo(size, size); ctx.closePath(); ctx.fill()
+      ctx.globalAlpha = 1
+      ctx.restore()
+      ctx.strokeStyle = '#c8e0e2'; ctx.lineWidth = 1.5
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke()
+      anim.current = requestAnimationFrame(draw)
+    }
+    draw()
+    return () => cancelAnimationFrame(anim.current)
+  }, [score, size, color])
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <canvas ref={ref} style={{ width: size, height: size }} />
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <div className="font-headline text-[2.6rem] text-white font-light leading-none" style={{ textShadow: '0 1px 6px rgba(0,0,0,0.12)' }}>{score}</div>
+      </div>
+    </div>
+  )
+}
+
+function MareaIndexDemo() {
+  const [step, setStep] = useState(0)
+  useEffect(() => {
+    const seq = [[1, 600], [2, 900], [3, 1300], [4, 4500], [0, 200]]
+    function run() {
+      setStep(0)
+      let acc = 0
+      seq.forEach(([s, d]) => { acc += d; setTimeout(() => setStep(s), acc) })
+    }
+    run()
+    const total = seq.reduce((a, [, d]) => a + d, 0)
+    const iv = setInterval(run, total)
+    return () => clearInterval(iv)
+  }, [])
+
+  const PILLARS = [
+    { label: 'Sleep',    score: 72, color: '#005258' },
+    { label: 'Body',     score: 84, color: '#2A8A93' },
+    { label: 'Mind',     score: 68, color: '#715b33' },
+    { label: 'Symptoms', score: 70, color: '#c0522a' },
+  ]
+  const TREND = [62, 65, 70, 68, 75, 74, 78]
+
+  return (
+    <div
+      className="w-full max-w-sm mx-auto rounded-2xl shadow-lg border border-outline-variant/10 overflow-hidden relative"
+      style={{ background: '#fcf9f4', height: '560px', padding: '1.5rem' }}
+    >
+      <div className="text-center mb-3">
+        <p className="text-[9px] font-label uppercase tracking-[0.15em]" style={{ color: '#715b33' }}>Today · Apr 19</p>
+        <h3 className="font-headline text-[1.1rem] mt-1" style={{ color: '#1c1c19', fontWeight: 400 }}>Your Marea Index</h3>
+      </div>
+
+      <div className="flex justify-center mb-4" style={{ opacity: step >= 1 ? 1 : 0.3, transition: 'opacity .6s ease' }}>
+        <ScoreOrbCanvas score={78} size={170} color="#005258" />
+      </div>
+
+      <p
+        className="text-center text-[0.8rem] italic font-light mb-4 px-2"
+        style={{ fontFamily: 'Newsreader, Georgia, serif', color: '#3f484a', opacity: step >= 2 ? 1 : 0, transform: step >= 2 ? 'translateY(0)' : 'translateY(6px)', transition: 'all .5s ease' }}
+      >
+        Steady current — a balanced day.
+      </p>
+
+      <div className="flex flex-col gap-2 mb-4">
+        {PILLARS.map((p, i) => (
+          <div key={p.label}>
+            <div className="flex justify-between mb-0.5">
+              <span className="text-[10px] font-medium" style={{ color: '#1c1c19' }}>{p.label}</span>
+              <span className="text-[9px]" style={{ color: '#6f797a', opacity: step >= 2 ? 1 : 0, transition: `opacity .3s ${i * 0.1 + 0.1}s` }}>{p.score}</span>
+            </div>
+            <div className="h-[4px] rounded-full overflow-hidden" style={{ background: '#f0ede9' }}>
+              <div style={{
+                width: step >= 2 ? `${p.score}%` : '0%',
+                height: '100%', background: p.color, borderRadius: '2px',
+                transition: `width .7s cubic-bezier(.25,.46,.45,.94) ${i * 0.12}s`,
+              }}/>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        className="flex items-end gap-1.5 px-1"
+        style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity .5s ease' }}
+      >
+        <span className="text-[9px] font-label uppercase tracking-[0.12em] self-center" style={{ color: '#888780' }}>7 days</span>
+        <div className="flex gap-1 flex-1 items-end h-[26px]">
+          {TREND.map((v, i) => (
+            <div key={i} style={{
+              flex: 1, height: `${v * 0.28}px`,
+              background: i === TREND.length - 1 ? '#005258' : '#c8e0e2',
+              borderRadius: '2px',
+              transition: `height .4s ${i * 0.07}s`,
+            }}/>
+          ))}
+        </div>
+        <span className="text-[9px] font-semibold self-center" style={{ color: '#2d6a35' }}>+16</span>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Daily Forecast demo ─── */
+
+const FORECAST_TONES = [
+  { label: 'Clear skies',       tide: 'High tide',       sublabel: 'Follicular · day 8',   grad: ['#d8eef0', '#ddeee8', '#e8f0e4'], orb: '#7aaab0', wave: '#005258', accent: '#005258', conf: 78, icon: 'sunny',            blurb: 'Your pattern data is optimistic. Rising estrogen, strong HRV, and solid sleep point to one of your better days ahead.' },
+  { label: 'Shifting currents', tide: 'Steady current',  sublabel: 'Early luteal · day 18', grad: ['#deeef0', '#e8eeea', '#f0ede6'], orb: '#9abcc0', wave: '#2A8A93', accent: '#2A8A93', conf: 71, icon: 'partly_cloudy_day', blurb: 'A mixed day likely. Progesterone rising in early luteal — some fatigue is normal, but your HRV held steady overnight.' },
+  { label: 'Rough seas ahead',  tide: 'Low tide',        sublabel: 'Late luteal · day 26',  grad: ['#dce8ea', '#e8d8d2', '#f0e0d8'], orb: '#c47a50', wave: '#842b16', accent: '#842b16', conf: 82, icon: 'thunderstorm',      blurb: 'Your data pattern suggests a difficult day. Late luteal plus declining HRV points to elevated symptom burden — be gentle.' },
+]
+
+function DemoWaveCanvas({ color }) {
+  const ref = useRef(null)
+  const anim = useRef(null)
+  const t = useRef(0)
+  useEffect(() => {
+    const canvas = ref.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    function draw() {
+      t.current += 0.012
+      ctx.clearRect(0, 0, W, H)
+      const g = ctx.createLinearGradient(0, 0, 0, H)
+      g.addColorStop(0, color + 'aa'); g.addColorStop(1, color + '44')
+      ctx.fillStyle = g; ctx.globalAlpha = 0.5
+      ctx.beginPath(); ctx.moveTo(0, H)
+      for (let x = 0; x <= W; x += 3) {
+        const y = Math.sin(x * 0.018 + t.current) * 8 +
+                  Math.sin(x * 0.031 + t.current * 1.4) * 4 + 22
+        ctx.lineTo(x, y)
+      }
+      ctx.lineTo(W, H); ctx.closePath(); ctx.fill()
+      ctx.globalAlpha = 0.18
+      ctx.beginPath(); ctx.moveTo(0, H)
+      for (let x = 0; x <= W; x += 3) {
+        const y = Math.sin(x * 0.022 + t.current * 0.8 + 1.5) * 6 +
+                  Math.sin(x * 0.04 + t.current * 1.1) * 3 + 14
+        ctx.lineTo(x, y)
+      }
+      ctx.lineTo(W, H); ctx.closePath(); ctx.fill()
+      anim.current = requestAnimationFrame(draw)
+    }
+    draw()
+    return () => cancelAnimationFrame(anim.current)
+  }, [color])
+  return <canvas ref={ref} width={400} height={56} className="absolute bottom-0 left-0 w-full h-14" />
+}
+
+function ForecastDemo() {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => {
+    const iv = setInterval(() => setIdx(i => (i + 1) % FORECAST_TONES.length), 4500)
+    return () => clearInterval(iv)
+  }, [])
+  const f = FORECAST_TONES[idx]
+
+  return (
+    <div
+      className="w-full max-w-sm mx-auto rounded-2xl shadow-lg border border-outline-variant/10 overflow-hidden relative"
+      style={{ background: '#fcf9f4', height: '560px' }}
+    >
+      <div
+        className="relative overflow-hidden"
+        style={{
+          height: '240px',
+          background: `linear-gradient(180deg, ${f.grad[0]} 0%, ${f.grad[1]} 55%, ${f.grad[2]} 100%)`,
+          transition: 'background 1.2s ease',
+        }}
+      >
+        <div
+          className="absolute top-5 right-6 w-11 h-11 rounded-full"
+          style={{
+            background: `radial-gradient(circle at 40% 38%, ${f.orb}cc, ${f.orb}66)`,
+            boxShadow: `0 0 24px ${f.orb}44`,
+            transition: 'all 1.2s ease',
+          }}
+        />
+        <DemoWaveCanvas color={f.wave} />
+        <div className="absolute top-4 left-5 right-20">
+          <p className="text-[9px] font-label uppercase tracking-[0.16em] mb-1" style={{ color: '#6f797a' }}>Tomorrow's Forecast</p>
+          <h3 className="text-[1.35rem]" style={{ fontFamily: 'Newsreader, Georgia, serif', color: '#1c1c19', fontWeight: 400, lineHeight: 1.15 }}>
+            {f.label}
+          </h3>
+          <p className="text-[0.72rem] mt-1" style={{ color: '#6f797a' }}>{f.sublabel}</p>
+        </div>
+        <div
+          className="absolute left-4 bottom-[56px] px-3 py-1 rounded-full"
+          style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(6px)', color: f.accent, fontSize: '0.7rem', fontWeight: 600, transition: 'color 1.2s ease' }}
+        >
+          {f.tide}
+        </div>
+        <div
+          className="absolute right-4 bottom-[56px] px-3 py-1 rounded-full"
+          style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(6px)', color: '#3f484a', fontSize: '0.68rem' }}
+        >
+          {f.conf}% confidence
+        </div>
+      </div>
+
+      <div className="p-5">
+        <div className="pl-3 mb-4" style={{ borderLeft: `3px solid ${f.accent}`, transition: 'border-color 1.2s' }}>
+          <p className="text-[9px] font-label uppercase tracking-[0.14em] mb-1" style={{ color: f.accent, transition: 'color 1.2s' }}>Pattern note</p>
+          <p className="text-[0.8rem] italic leading-relaxed" style={{ fontFamily: 'Newsreader, Georgia, serif', color: '#3f484a' }}>
+            {f.blurb}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-1 text-center">
+          <div className="py-2">
+            <p className="text-[8px] font-label uppercase tracking-[0.1em]" style={{ color: '#888780' }}>Today</p>
+            <span className="material-symbols-outlined text-[18px] mt-1 block" style={{ color: '#6f797a' }}>partly_cloudy_day</span>
+            <p className="text-[0.78rem] mt-0.5" style={{ fontFamily: 'Newsreader, Georgia, serif', color: '#3f484a' }}>Mixed</p>
+          </div>
+          <div className="py-2 rounded-lg" style={{ background: '#e8f3f4' }}>
+            <p className="text-[8px] font-label uppercase tracking-[0.1em]" style={{ color: f.accent, transition: 'color 1.2s' }}>Tomorrow</p>
+            <span className="material-symbols-outlined text-[18px] mt-1 block" style={{ color: f.accent, transition: 'color 1.2s' }}>{f.icon}</span>
+            <p className="text-[0.78rem] mt-0.5 font-semibold" style={{ fontFamily: 'Newsreader, Georgia, serif', color: f.accent, transition: 'color 1.2s' }}>{f.tide.split(' ')[0]}</p>
+          </div>
+          <div className="py-2">
+            <p className="text-[8px] font-label uppercase tracking-[0.1em]" style={{ color: '#888780' }}>Day after</p>
+            <span className="material-symbols-outlined text-[18px] mt-1 block" style={{ color: '#6f797a' }}>cloud</span>
+            <p className="text-[0.78rem] mt-0.5" style={{ fontFamily: 'Newsreader, Georgia, serif', color: '#3f484a' }}>—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Main Landing Page ─── */
 
 export default function LandingPage() {
@@ -921,6 +1188,85 @@ export default function LandingPage() {
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Marea Index & Daily Forecast */}
+      <section className="py-16 md:py-24 bg-surface">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
+          <div className="text-center mb-10 md:mb-14">
+            <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
+              Your rhythm, in real time
+            </div>
+            <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl mb-4" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+              One number for today.<br className="hidden sm:inline" /> A forecast for tomorrow.
+            </h2>
+            <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
+              Marea reads the signals your body is already giving — cycle, sleep, HRV, symptoms — and translates them into something you can actually use.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+            {/* Marea Index */}
+            <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-10 shadow-sm border border-outline-variant/10 overflow-hidden relative">
+              <div className="flex flex-col gap-6">
+                <div>
+                  <span className="material-symbols-outlined text-primary mb-4 text-3xl block">waves</span>
+                  <h3 className="font-headline text-2xl md:text-3xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+                    Marea Index
+                  </h3>
+                  <p className="text-on-surface-variant font-light text-sm leading-relaxed mb-5">
+                    A daily 0–100 reading of how your body is moving — weighted across sleep, body, mind, and symptoms. Tap the orb anytime for a plain-language explanation.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      Four weighted pillars
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      Personalized AI explanation
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      7-day pattern trend
+                    </li>
+                  </ul>
+                </div>
+                <div><MareaIndexDemo /></div>
+              </div>
+            </div>
+
+            {/* Daily Forecast */}
+            <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-10 shadow-sm border border-outline-variant/10 overflow-hidden relative">
+              <div className="flex flex-col gap-6">
+                <div>
+                  <span className="material-symbols-outlined text-primary mb-4 text-3xl block">partly_cloudy_day</span>
+                  <h3 className="font-headline text-2xl md:text-3xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+                    Daily Forecast
+                  </h3>
+                  <p className="text-on-surface-variant font-light text-sm leading-relaxed mb-5">
+                    A weather-style read of tomorrow based on your cycle phase, HRV, momentum, and recent symptoms. Clear language, explicit confidence — never false certainty.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      Five weighted signals
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      Confidence shown, capped at 85%
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      Preparation plan, not a prescription
+                    </li>
+                  </ul>
+                </div>
+                <div><ForecastDemo /></div>
               </div>
             </div>
           </div>
