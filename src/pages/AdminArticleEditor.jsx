@@ -36,6 +36,51 @@ export default function AdminArticleEditor() {
   const inlineImageRef = useRef(null)
   const adminVerified = useAdminGuard()
 
+  // AI revision panel
+  const [revisionInstruction, setRevisionInstruction] = useState('')
+  const [revising, setRevising] = useState(false)
+  const [revisionError, setRevisionError] = useState(null)
+  const [previousBody, setPreviousBody] = useState(null)
+
+  async function handleRevise() {
+    const instruction = revisionInstruction.trim()
+    if (!instruction || !form.body) return
+    setRevising(true)
+    setRevisionError(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (!token) throw new Error('Session expired — please sign in again.')
+
+      const resp = await fetch('/api/revise-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          body: form.body,
+          instruction,
+          title: form.title,
+          category: form.category,
+        }),
+      })
+      const data = await resp.json().catch(() => ({}))
+      if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`)
+
+      setPreviousBody(form.body)
+      setForm(prev => ({ ...prev, body: data.body }))
+      setRevisionInstruction('')
+    } catch (err) {
+      setRevisionError(err.message)
+    } finally {
+      setRevising(false)
+    }
+  }
+
+  function undoRevision() {
+    if (previousBody == null) return
+    setForm(prev => ({ ...prev, body: previousBody }))
+    setPreviousBody(null)
+  }
+
   async function handleInlineImageUpload(e) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -288,6 +333,55 @@ export default function AdminArticleEditor() {
                   rows={24}
                   className="w-full px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y font-mono leading-relaxed"
                 />
+              </div>
+
+              {/* AI revision panel */}
+              <div className="border border-primary/20 bg-primary/[0.03] rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="material-symbols-outlined text-primary text-[18px]">auto_awesome</span>
+                  <span className="text-[0.72rem] font-semibold tracking-widest uppercase text-primary">Suggest changes — AI edit</span>
+                </div>
+                <p className="text-[0.78rem] text-on-surface-variant leading-relaxed mb-3">
+                  Describe what you'd like changed in plain language. Marea's AI will rewrite the body while preserving images and heading structure. You can undo if the result isn't right.
+                </p>
+                <textarea
+                  value={revisionInstruction}
+                  onChange={e => setRevisionInstruction(e.target.value)}
+                  placeholder="e.g. Make the opening more approachable. Add a short section on magnesium glycinate for sleep. Tighten the HRT paragraph."
+                  rows={3}
+                  disabled={revising || !form.body}
+                  className="w-full px-3 py-2.5 rounded-lg border border-outline-variant focus:border-primary outline-none text-[0.82rem] bg-white resize-y leading-relaxed disabled:opacity-60"
+                />
+                <div className="flex items-center gap-3 mt-3 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={handleRevise}
+                    disabled={revising || !revisionInstruction.trim() || !form.body}
+                    className={`bg-primary text-on-primary border-none px-4 py-2 rounded-full text-[0.82rem] font-semibold cursor-pointer inline-flex items-center gap-1.5 ${revising || !revisionInstruction.trim() || !form.body ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {revising && <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>}
+                    {revising ? 'Revising…' : 'Revise with AI'}
+                  </button>
+                  {previousBody != null && !revising && (
+                    <button
+                      type="button"
+                      onClick={undoRevision}
+                      className="bg-transparent border border-outline-variant/60 text-on-surface-variant px-4 py-2 rounded-full text-[0.82rem] font-medium cursor-pointer inline-flex items-center gap-1.5 hover:bg-surface-container"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">undo</span>
+                      Undo last revision
+                    </button>
+                  )}
+                  {!form.body && (
+                    <span className="text-[0.72rem] text-outline">Write some body content first.</span>
+                  )}
+                </div>
+                {revisionError && (
+                  <p className="text-[0.75rem] text-tertiary mt-2">{revisionError}</p>
+                )}
+                {previousBody != null && !revising && !revisionError && (
+                  <p className="text-[0.72rem] text-primary mt-2">Revision applied. Preview to review; save to commit.</p>
+                )}
               </div>
             </div>
 
