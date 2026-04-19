@@ -35,14 +35,15 @@ const DAILY_INSIGHT_TEXT =
   'Estrogen and serotonin are deeply linked. When estrogen drops sharply, serotonin drops with it. The emotional volatility is neurochemistry, not weakness.'
 
 const SYMPTOM_DOMAINS = [
-  { icon: 'thermostat', label: 'Hot flashes', target: 3, desc: 'Noticeable flash' },
-  { icon: 'bedtime', label: 'Sleep', target: 2, desc: 'Mostly ok' },
-  { icon: 'sentiment_calm', label: 'Mood', target: 3, desc: 'Irritable/low' },
-  { icon: 'bolt', label: 'Energy', target: 3, desc: 'Moderate' },
-  { icon: 'neurology', label: 'Focus', target: 3, desc: 'Some fog' },
+  { icon: 'thermostat',     label: 'Hot flashes',  target: 3, desc: 'Noticeable flash' },
+  { icon: 'water_drop',     label: 'Night sweats', target: 2, desc: 'Mild' },
+  { icon: 'bedtime',        label: 'Sleep',        target: 2, desc: 'Mostly ok' },
+  { icon: 'sentiment_calm', label: 'Mood',         target: 3, desc: 'Irritable/low' },
+  { icon: 'bolt',           label: 'Energy',       target: 3, desc: 'Moderate' },
+  { icon: 'neurology',      label: 'Focus',        target: 3, desc: 'Some fog' },
 ]
 
-const SYMPTOM_SAVED_INDEX = 5
+const SYMPTOM_SAVED_INDEX = 6
 
 const INSIGHT_CATEGORIES = ['All', 'Sleep', 'Mood', 'Brain fog', 'Hot flashes', 'HRT']
 
@@ -685,7 +686,7 @@ function MareaIndexDemo() {
   const TREND = [62, 65, 70, 68, 75, 74, 78]
 
   return (
-    <div className="w-full max-w-sm mx-auto">
+    <div className="w-full max-w-sm mx-auto" style={{ minHeight: 470 }}>
       <div className="flex items-center justify-center gap-2 mb-4">
         <p className="text-[9px] font-label uppercase tracking-[0.15em]" style={{ color: '#715b33' }}>Today · Apr 19</p>
       </div>
@@ -795,7 +796,7 @@ function ForecastDemo() {
   const f = FORECAST_TONES[idx]
 
   return (
-    <div className="w-full max-w-sm mx-auto">
+    <div className="w-full max-w-sm mx-auto" style={{ minHeight: 470 }}>
       <div
         className="relative overflow-hidden rounded-2xl shadow-md"
         style={{
@@ -835,7 +836,7 @@ function ForecastDemo() {
       </div>
 
       <div className="p-5">
-        <div className="pl-3 mb-4" style={{ borderLeft: `3px solid ${f.accent}`, transition: 'border-color 1.2s' }}>
+        <div className="pl-3 mb-4" style={{ borderLeft: `3px solid ${f.accent}`, transition: 'border-color 1.2s', minHeight: '108px' }}>
           <p className="text-[9px] font-label uppercase tracking-[0.14em] mb-1" style={{ color: f.accent, transition: 'color 1.2s' }}>Pattern note</p>
           <p className="text-[0.8rem] italic leading-relaxed" style={{ fontFamily: 'Newsreader, Georgia, serif', color: '#3f484a' }}>
             {f.blurb}
@@ -1232,7 +1233,7 @@ export default function LandingPage() {
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-white/40 backdrop-blur rounded-xl">
-                    <p className="text-xl font-headline text-primary">5+</p>
+                    <p className="text-xl font-headline text-primary">6</p>
                     <p className="text-[9px] font-label uppercase tracking-widest text-on-surface-variant mt-1">
                       Daily Domains
                     </p>
