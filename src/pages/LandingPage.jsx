@@ -798,7 +798,7 @@ function ForecastDemo() {
   return (
     <div className="w-full max-w-sm mx-auto" style={{ minHeight: 470 }}>
       <div
-        className="relative overflow-hidden rounded-2xl shadow-md"
+        className="relative overflow-hidden shadow-md rounded-none md:rounded-2xl -mx-8 md:mx-0"
         style={{
           height: '240px',
           background: `linear-gradient(180deg, ${f.grad[0]} 0%, ${f.grad[1]} 55%, ${f.grad[2]} 100%)`,
