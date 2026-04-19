@@ -685,17 +685,13 @@ function MareaIndexDemo() {
   const TREND = [62, 65, 70, 68, 75, 74, 78]
 
   return (
-    <div
-      className="w-full max-w-sm mx-auto rounded-2xl shadow-lg border border-outline-variant/10 overflow-hidden relative"
-      style={{ background: '#fcf9f4', height: '560px', padding: '1.5rem' }}
-    >
-      <div className="text-center mb-3">
+    <div className="w-full max-w-sm mx-auto">
+      <div className="flex items-center justify-center gap-2 mb-4">
         <p className="text-[9px] font-label uppercase tracking-[0.15em]" style={{ color: '#715b33' }}>Today · Apr 19</p>
-        <h3 className="font-headline text-[1.1rem] mt-1" style={{ color: '#1c1c19', fontWeight: 400 }}>Your Marea Index</h3>
       </div>
 
-      <div className="flex justify-center mb-4" style={{ opacity: step >= 1 ? 1 : 0.3, transition: 'opacity .6s ease' }}>
-        <ScoreOrbCanvas score={78} size={170} color="#005258" />
+      <div className="flex justify-center mb-5" style={{ opacity: step >= 1 ? 1 : 0.3, transition: 'opacity .6s ease' }}>
+        <ScoreOrbCanvas score={78} size={200} color="#005258" />
       </div>
 
       <p
@@ -724,21 +720,21 @@ function MareaIndexDemo() {
       </div>
 
       <div
-        className="flex items-end gap-1.5 px-1"
+        className="flex items-end gap-2 px-1"
         style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity .5s ease' }}
       >
         <span className="text-[9px] font-label uppercase tracking-[0.12em] self-center" style={{ color: '#888780' }}>7 days</span>
-        <div className="flex gap-1 flex-1 items-end h-[26px]">
+        <div className="flex gap-1 flex-1 items-end h-[28px]">
           {TREND.map((v, i) => (
             <div key={i} style={{
-              flex: 1, height: `${v * 0.28}px`,
+              flex: 1, height: `${v * 0.3}px`,
               background: i === TREND.length - 1 ? '#005258' : '#c8e0e2',
               borderRadius: '2px',
               transition: `height .4s ${i * 0.07}s`,
             }}/>
           ))}
         </div>
-        <span className="text-[9px] font-semibold self-center" style={{ color: '#2d6a35' }}>+16</span>
+        <span className="text-[10px] font-semibold self-center" style={{ color: '#2d6a35' }}>+16</span>
       </div>
     </div>
   )
@@ -799,12 +795,9 @@ function ForecastDemo() {
   const f = FORECAST_TONES[idx]
 
   return (
-    <div
-      className="w-full max-w-sm mx-auto rounded-2xl shadow-lg border border-outline-variant/10 overflow-hidden relative"
-      style={{ background: '#fcf9f4', height: '560px' }}
-    >
+    <div className="w-full max-w-sm mx-auto">
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden rounded-2xl shadow-md"
         style={{
           height: '240px',
           background: `linear-gradient(180deg, ${f.grad[0]} 0%, ${f.grad[1]} 55%, ${f.grad[2]} 100%)`,
@@ -1028,6 +1021,91 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Marea Index & Daily Forecast */}
+      <section className="py-16 md:py-24 bg-surface">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
+          <div className="text-center mb-10 md:mb-14">
+            <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
+              Your rhythm, in real time
+            </div>
+            <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl mb-4" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+              One number for today.<br className="hidden sm:inline" /> A forecast for tomorrow.
+            </h2>
+            <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
+              Marea reads the signals your body is already giving — cycle, sleep, HRV, symptoms — and translates them into something you can actually use.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            {/* Marea Index — soft teal tile */}
+            <div
+              className="rounded-3xl p-8 md:p-12 lg:p-14 shadow-sm border border-outline-variant/10 overflow-hidden relative"
+              style={{ background: 'linear-gradient(165deg, #e8f3f4 0%, #d8eaec 100%)' }}
+            >
+              <div className="flex flex-col gap-8 md:gap-10">
+                <div>
+                  <span className="material-symbols-outlined text-primary mb-4 text-3xl block">waves</span>
+                  <h3 className="font-headline text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.15, color: '#0D3F44' }}>
+                    Marea Index
+                  </h3>
+                  <p className="font-light text-sm md:text-base leading-relaxed mb-6" style={{ color: '#3f484a' }}>
+                    A daily 0–100 reading of how your body is moving — weighted across sleep, body, mind, and symptoms. Tap the orb anytime for a plain-language explanation.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      Four weighted pillars
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      Personalized AI explanation
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      7-day pattern trend
+                    </li>
+                  </ul>
+                </div>
+                <div><MareaIndexDemo /></div>
+              </div>
+            </div>
+
+            {/* Daily Forecast — warm sand tile */}
+            <div
+              className="rounded-3xl p-8 md:p-12 lg:p-14 shadow-sm border border-outline-variant/10 overflow-hidden relative"
+              style={{ background: 'linear-gradient(165deg, #faefd8 0%, #f0e4d2 100%)' }}
+            >
+              <div className="flex flex-col gap-8 md:gap-10">
+                <div>
+                  <span className="material-symbols-outlined mb-4 text-3xl block" style={{ color: '#842b16' }}>partly_cloudy_day</span>
+                  <h3 className="font-headline text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.15, color: '#1c1c19' }}>
+                    Daily Forecast
+                  </h3>
+                  <p className="font-light text-sm md:text-base leading-relaxed mb-6" style={{ color: '#3f484a' }}>
+                    A weather-style read of tomorrow based on your cycle phase, HRV, momentum, and recent symptoms. Clear language, explicit confidence — never false certainty.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
+                      <span className="material-symbols-outlined text-base" style={{ color: '#842b16' }}>check_circle</span>
+                      Five weighted signals
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
+                      <span className="material-symbols-outlined text-base" style={{ color: '#842b16' }}>check_circle</span>
+                      Confidence shown, capped at 85%
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
+                      <span className="material-symbols-outlined text-base" style={{ color: '#842b16' }}>check_circle</span>
+                      Preparation plan, not a prescription
+                    </li>
+                  </ul>
+                </div>
+                <div><ForecastDemo /></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Medical Team */}
       <section className="pt-16 pb-8 md:pt-20 md:pb-12 bg-surface">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
@@ -1095,7 +1173,7 @@ export default function LandingPage() {
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
             {/* Personalized Profile */}
-            <div className="md:col-span-7 bg-surface-container-lowest rounded-2xl p-6 md:p-10 shadow-sm border border-outline-variant/10 overflow-hidden relative group">
+            <div className="md:col-span-12 bg-surface-container-lowest rounded-2xl p-6 md:p-10 shadow-sm border border-outline-variant/10 overflow-hidden relative group">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <div className="relative z-10">
                   <span className="material-symbols-outlined text-primary mb-4 text-3xl block">
@@ -1129,28 +1207,6 @@ export default function LandingPage() {
                 <div className="relative z-10">
                   <AssessmentDemo />
                 </div>
-              </div>
-            </div>
-
-            {/* Physician-Vetted Insights */}
-            <div className="md:col-span-5 bg-primary text-on-primary rounded-2xl p-6 md:p-10 flex flex-col justify-between overflow-hidden relative">
-              <div className="relative z-10">
-                <span className="material-symbols-outlined text-primary-fixed mb-4 text-3xl block">
-                  psychology
-                </span>
-                <h3
-                  className="font-headline text-2xl md:text-3xl mb-3"
-                  style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
-                >
-                  Physician-Vetted Insights
-                </h3>
-                <p className="text-primary-fixed/80 font-light text-sm leading-relaxed">
-                  Stop the late-night doom-scrolling. Every insight in Marea is peer-reviewed by
-                  practicing OB/GYNs.
-                </p>
-              </div>
-              <div className="mt-6 relative z-10">
-                <InsightsDemo />
               </div>
             </div>
 
@@ -1188,85 +1244,6 @@ export default function LandingPage() {
                     </p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Marea Index & Daily Forecast */}
-      <section className="py-16 md:py-24 bg-surface">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
-          <div className="text-center mb-10 md:mb-14">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
-              Your rhythm, in real time
-            </div>
-            <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl mb-4" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
-              One number for today.<br className="hidden sm:inline" /> A forecast for tomorrow.
-            </h2>
-            <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
-              Marea reads the signals your body is already giving — cycle, sleep, HRV, symptoms — and translates them into something you can actually use.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-            {/* Marea Index */}
-            <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-10 shadow-sm border border-outline-variant/10 overflow-hidden relative">
-              <div className="flex flex-col gap-6">
-                <div>
-                  <span className="material-symbols-outlined text-primary mb-4 text-3xl block">waves</span>
-                  <h3 className="font-headline text-2xl md:text-3xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}>
-                    Marea Index
-                  </h3>
-                  <p className="text-on-surface-variant font-light text-sm leading-relaxed mb-5">
-                    A daily 0–100 reading of how your body is moving — weighted across sleep, body, mind, and symptoms. Tap the orb anytime for a plain-language explanation.
-                  </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
-                      Four weighted pillars
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
-                      Personalized AI explanation
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
-                      7-day pattern trend
-                    </li>
-                  </ul>
-                </div>
-                <div><MareaIndexDemo /></div>
-              </div>
-            </div>
-
-            {/* Daily Forecast */}
-            <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-10 shadow-sm border border-outline-variant/10 overflow-hidden relative">
-              <div className="flex flex-col gap-6">
-                <div>
-                  <span className="material-symbols-outlined text-primary mb-4 text-3xl block">partly_cloudy_day</span>
-                  <h3 className="font-headline text-2xl md:text-3xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}>
-                    Daily Forecast
-                  </h3>
-                  <p className="text-on-surface-variant font-light text-sm leading-relaxed mb-5">
-                    A weather-style read of tomorrow based on your cycle phase, HRV, momentum, and recent symptoms. Clear language, explicit confidence — never false certainty.
-                  </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
-                      Five weighted signals
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
-                      Confidence shown, capped at 85%
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
-                      Preparation plan, not a prescription
-                    </li>
-                  </ul>
-                </div>
-                <div><ForecastDemo /></div>
               </div>
             </div>
           </div>
