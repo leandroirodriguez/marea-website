@@ -798,7 +798,7 @@ function ForecastDemo() {
   return (
     <div className="w-full max-w-sm mx-auto" style={{ minHeight: 470 }}>
       <div
-        className="relative overflow-hidden shadow-md rounded-none md:rounded-2xl -mx-8 md:mx-0"
+        className="relative overflow-hidden rounded-2xl shadow-md"
         style={{
           height: '240px',
           background: `linear-gradient(180deg, ${f.grad[0]} 0%, ${f.grad[1]} 55%, ${f.grad[2]} 100%)`,
@@ -1040,7 +1040,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {/* Marea Index — soft teal tile */}
             <div
-              className="rounded-3xl p-8 md:p-12 lg:p-14 shadow-sm border border-outline-variant/10 overflow-hidden relative"
+              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 shadow-sm border border-outline-variant/10 overflow-hidden relative"
               style={{ background: 'linear-gradient(165deg, #e8f3f4 0%, #d8eaec 100%)' }}
             >
               <div className="flex flex-col gap-8 md:gap-10">
@@ -1073,7 +1073,7 @@ export default function LandingPage() {
 
             {/* Daily Forecast — warm sand tile */}
             <div
-              className="rounded-3xl p-8 md:p-12 lg:p-14 shadow-sm border border-outline-variant/10 overflow-hidden relative"
+              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 shadow-sm border border-outline-variant/10 overflow-hidden relative"
               style={{ background: 'linear-gradient(165deg, #faefd8 0%, #f0e4d2 100%)' }}
             >
               <div className="flex flex-col gap-8 md:gap-10">
