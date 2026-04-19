@@ -1023,7 +1023,7 @@ export default function LandingPage() {
       </section>
 
       {/* Marea Index & Daily Forecast */}
-      <section className="py-16 md:py-24 bg-surface">
+      <section className="pt-16 pb-8 md:pt-24 md:pb-12 bg-surface">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
           <div className="text-center mb-10 md:mb-14">
             <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
