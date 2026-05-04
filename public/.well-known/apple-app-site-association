@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["AB3VZ29L24.com.mareahealth.app"],
+        "components": [
+          { "/": "/auth/callback*" }
+        ]
+      }
+    ]
+  }
+}

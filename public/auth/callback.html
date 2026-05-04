@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Signing you in…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: -apple-system, system-ui, "Plus Jakarta Sans", sans-serif;
+      background: #fcf9f4;
+      color: #1c1c19;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    p { font-size: 0.95rem; color: #6f797a; }
+  </style>
+</head>
+<body>
+  <p>Signing you in…</p>
+  <script>
+    // iOS users get intercepted by the Universal Link before reaching this
+    // page (the AASA at /.well-known/apple-app-site-association covers
+    // /auth/callback*, so iOS Mail opens the Marea app on tap). Web users
+    // (desktop, Android) land here — forward them to the SPA with the
+    // Supabase tokens preserved in the URL fragment so its session handler
+    // picks them up.
+    var SPA_URL = 'https://marea-app.vercel.app/';
+    location.replace(SPA_URL + location.hash);
+  </script>
+</body>
+</html>
