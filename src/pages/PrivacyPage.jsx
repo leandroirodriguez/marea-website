@@ -39,7 +39,7 @@ export default function PrivacyPage() {
         </p>
 
         <Section title="1. Who We Are">
-          <p>Marea Health, Inc. ("Marea," "we," "us") operates the Marea app and website. Our platform is designed by board-certified OB/GYNs to support women navigating perimenopause with evidence-based information, symptom tracking, and community support.</p>
+          <p>Marea Health, Inc. ("Marea," "we," "us") operates the Marea app and website. Our platform is designed by board-certified OB/GYNs to support women navigating perimenopause with evidence-based information and personalized symptom tracking.</p>
           <p>Marea is not a medical practice and does not provide medical diagnoses, treatment, or prescriptions. Content is for informational and educational purposes only.</p>
         </Section>
 
@@ -47,7 +47,6 @@ export default function PrivacyPage() {
           <p><strong>Account information:</strong> When you create an account, we collect your first name, email address, and password. You may optionally provide your zip code (for future local provider recommendations) and phone number (for appointment reminders). If you sign in with Google or Apple, we receive your name, email, and a unique account identifier from that provider — nothing more.</p>
           <p><strong>Health information:</strong> We collect responses to your initial perimenopause assessment, daily symptom logs, sleep data, and any other health information you voluntarily enter. This data is used solely to personalize your experience.</p>
           <p><strong>Apple Health (iOS):</strong> If you choose to connect Apple HealthKit, we read only the data you authorize — typically sleep, heart rate variability, and wrist temperature — to enrich your Marea Index. We never write to HealthKit without your explicit action.</p>
-          <p><strong>Community content:</strong> Posts and replies you make in the community are visible to other Marea members. Do not post personally identifying information in community posts.</p>
           <p><strong>Usage data:</strong> We collect standard analytics such as pages visited and features used to improve the product. We do not sell this data.</p>
         </Section>
 
@@ -57,7 +56,7 @@ export default function PrivacyPage() {
             <li>To calculate your daily Marea Index and show you symptom trends relevant to your perimenopause stage</li>
             <li>To connect you with local healthcare providers if you request it</li>
             <li>To send appointment reminders or care updates if you provide your phone number</li>
-            <li>To improve our educational content and community features</li>
+            <li>To improve our educational content and product features</li>
             <li>To comply with legal obligations</li>
           </ul>
           <p><strong>We do not sell, rent, or share your personal or health information with third parties for marketing purposes. Ever.</strong></p>
@@ -77,22 +76,11 @@ export default function PrivacyPage() {
           <p>Marea uses Supabase (database and authentication), Vercel (hosting), Anthropic (Claude AI for personalized insights and chat), Stripe (payment processing), and Google / Apple (OAuth sign-in). These providers have their own privacy policies and are contractually required to protect your data. We do not authorize them to use your data for any other purpose.</p>
         </Section>
 
-        <Section title="6. Community Guidelines">
-          <p>The Marea community is a supportive, moderated space for adult women. By participating, you agree to:</p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li>Be respectful and supportive of other members</li>
-            <li>Not share personal contact information publicly</li>
-            <li>Not post medical advice, diagnoses, or prescriptions</li>
-            <li>Not post content that is harassing, explicit without context, or harmful</li>
-          </ul>
-          <p>Marea reserves the right to remove content and revoke access for violations.</p>
-        </Section>
-
-        <Section title="7. Intimacy &amp; Sexual Health Content">
+        <Section title="6. Intimacy &amp; Sexual Health Content">
           <p>Marea includes an Intimacy &amp; Sexual Health section developed in consultation with board-certified OB/GYNs. This content is intended for adult women (18+) and addresses medical and wellness topics related to sexual health during perimenopause. Content is clinically grounded and tasteful. It is not explicit or pornographic in nature.</p>
         </Section>
 
-        <Section title="8. Your Rights">
+        <Section title="7. Your Rights">
           <p>You have the right to:</p>
           <ul className="list-disc pl-5 space-y-2">
             <li>Access the data we hold about you</li>
@@ -103,11 +91,11 @@ export default function PrivacyPage() {
           <p>To exercise any of these rights, contact us at <strong>hello@mareahealth.com</strong>.</p>
         </Section>
 
-        <Section title="9. Age Restriction">
+        <Section title="8. Age Restriction">
           <p>Marea is intended for adults 18 years of age or older. By creating an account, you confirm that you are at least 18 years old. We do not knowingly collect data from anyone under 18.</p>
         </Section>
 
-        <Section title="10. Changes to This Policy">
+        <Section title="9. Changes to This Policy">
           <p>We may update this Privacy Policy periodically. We will notify you of significant changes via email or an in-app notice. Your continued use of Marea after changes indicates acceptance.</p>
         </Section>
 

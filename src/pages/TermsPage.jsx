@@ -61,7 +61,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="5. Acceptable Use">
-          <p>You agree not to: (a) use Marea for any unlawful purpose; (b) attempt to gain unauthorized access to any part of the service; (c) reverse engineer, decompile, or tamper with the service; (d) upload malicious code; (e) impersonate any person; (f) harass or abuse other users in community features; or (g) use Marea to provide medical services to others.</p>
+          <p>You agree not to: (a) use Marea for any unlawful purpose; (b) attempt to gain unauthorized access to any part of the service; (c) reverse engineer, decompile, or tamper with the service; (d) upload malicious code; (e) impersonate any person; or (f) use Marea to provide medical services to others.</p>
         </Section>
 
         <Section title="6. Subscriptions, Billing & Cancellation">
@@ -74,13 +74,13 @@ export default function TermsPage() {
           <p>If you subscribe through an app store (e.g., Apple App Store or Google Play), the purchase and billing are governed by that platform's terms. Cancellations and refunds for app-store purchases must be handled through the applicable platform.</p>
         </Section>
 
-        <Section title="8. User Content">
-          <p>Content you submit to community features (posts, replies, profile content) remains yours, but you grant Marea a worldwide, non-exclusive, royalty-free license to host, display, and distribute that content within the service. You are solely responsible for the content you post and agree not to post anything unlawful, defamatory, or that violates another person's rights.</p>
-          <p>We may remove content or suspend accounts that violate these Terms or our community guidelines, at our discretion.</p>
+        <Section title="8. Your Content">
+          <p>Content you submit through the service (such as your assessment responses, daily symptom logs, lab uploads, and profile information) remains yours. You grant Marea a worldwide, non-exclusive, royalty-free license to use that content solely to operate, personalize, and improve the service for you. You are responsible for the accuracy of content you provide.</p>
+          <p>We may remove content or suspend accounts that violate these Terms, at our discretion.</p>
         </Section>
 
         <Section title="9. Intellectual Property">
-          <p>Marea, including all software, content, branding, and designs, is owned by Marea Health, Inc. and its licensors and is protected by intellectual-property laws. Except for user-generated content, you may not copy, modify, distribute, sell, or lease any part of the service without our written permission.</p>
+          <p>Marea, including all software, content, branding, and designs, is owned by Marea Health, Inc. and its licensors and is protected by intellectual-property laws. Except for content you have submitted, you may not copy, modify, distribute, sell, or lease any part of the service without our written permission.</p>
         </Section>
 
         <Section title="10. Third-Party Services">
