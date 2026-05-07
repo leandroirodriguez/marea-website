@@ -9,26 +9,26 @@ import mareaLogo from '../assets/marealogo.svg'
    The Apple App Store URL itself starts working the moment Apple flips the
    switch on their side, so this just controls whether the website surfaces
    "Download" CTAs (post-approval) or "Coming Soon" pills (pre-approval).
-   No other code change needed at launch — change this boolean, redeploy. */
+   No other code change needed at launch — change this boolean, redeploy.
+
+   Note: Marea is iPhone-only at launch. The web app exists for internal /
+   production work but is NOT offered to end users. Android is referenced
+   only in the footer as "coming soon." Don't add Android CTAs anywhere
+   else without explicit approval. */
 const APP_LIVE = false
 const APP_STORE_ID = '6763952659'
 const APP_STORE_URL = `https://apps.apple.com/app/id${APP_STORE_ID}`
-const WEB_APP_URL = 'https://app.mareahealth.com'
 
-/* Detect iOS/Android/desktop on mount. Returns one of 'ios' | 'android' |
-   'desktop' — used by the hero + download CTAs below to render the right
-   action for the device the visitor is on. SSR-safe (initial render is
-   'desktop', then refines after hydration). */
-function usePlatform() {
-  const [platform, setPlatform] = useState('desktop')
+/* Detect iOS vs everything-else on mount. iPhone gets active CTAs; other
+   visitors see informational "Available on iPhone" treatment. SSR-safe
+   (initial render is 'other', refines after hydration). */
+function useIsIOS() {
+  const [isIOS, setIsIOS] = useState(false)
   useEffect(() => {
     if (typeof navigator === 'undefined') return
-    const ua = navigator.userAgent
-    if (/iPad|iPhone|iPod/.test(ua)) setPlatform('ios')
-    else if (/Android/.test(ua)) setPlatform('android')
-    else setPlatform('desktop')
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
   }, [])
-  return platform
+  return isIOS
 }
 
 /* ─── Data constants ─── */
@@ -897,7 +897,7 @@ function ForecastDemo() {
 export default function LandingPage() {
   const [recentArticles, setRecentArticles] = useState([])
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const platform = usePlatform()
+  const isIOS = useIsIOS()
 
   useEffect(() => {
     supabase
@@ -991,7 +991,7 @@ export default function LandingPage() {
               precision and soulful intuition.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-              {APP_LIVE && platform === 'ios' ? (
+              {APP_LIVE && isIOS ? (
                 <a
                   href={APP_STORE_URL}
                   className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 hover:opacity-90 transition-opacity"
@@ -1003,16 +1003,15 @@ export default function LandingPage() {
                   </div>
                 </a>
               ) : APP_LIVE ? (
-                <a
-                  href={WEB_APP_URL}
-                  className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 hover:opacity-90 transition-opacity"
+                <div
+                  className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 opacity-90"
                 >
-                  <span className="material-symbols-outlined text-xl">computer</span>
+                  <span className="material-symbols-outlined text-xl">phone_iphone</span>
                   <div className="text-left">
-                    <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">Open Marea</p>
-                    <p className="text-sm font-semibold leading-none mt-0.5">on the web</p>
+                    <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">Available on</p>
+                    <p className="text-sm font-semibold leading-none mt-0.5">iPhone</p>
                   </div>
-                </a>
+                </div>
               ) : (
                 <div
                   className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 opacity-90"
@@ -1022,7 +1021,7 @@ export default function LandingPage() {
                     <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">
                       Coming Soon
                     </p>
-                    <p className="text-sm font-semibold leading-none mt-0.5">iOS · Web</p>
+                    <p className="text-sm font-semibold leading-none mt-0.5">iPhone</p>
                   </div>
                 </div>
               )}
@@ -1401,7 +1400,7 @@ export default function LandingPage() {
               free 14-day trial today.
             </p>
             <div className="flex flex-col items-center gap-4 relative z-10">
-              {APP_LIVE && platform === 'ios' ? (
+              {APP_LIVE && isIOS ? (
                 <>
                   <a
                     href={APP_STORE_URL}
@@ -1410,24 +1409,18 @@ export default function LandingPage() {
                     <span className="material-symbols-outlined text-xl">apple</span>
                     Download on the App Store
                   </a>
-                  <a
-                    href={WEB_APP_URL}
-                    className="text-[12px] font-label tracking-wide opacity-70 hover:opacity-100 underline underline-offset-4"
-                  >
-                    Or open Marea on the web
-                  </a>
+                  <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
+                    Available on iPhone
+                  </p>
                 </>
               ) : APP_LIVE ? (
                 <>
-                  <a
-                    href={WEB_APP_URL}
-                    className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20 hover:opacity-90 transition-opacity"
-                  >
-                    <span className="material-symbols-outlined text-xl">computer</span>
-                    Open Marea on the web
-                  </a>
+                  <div className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20">
+                    <span className="material-symbols-outlined text-xl">phone_iphone</span>
+                    Available on iPhone
+                  </div>
                   <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
-                    {platform === 'android' ? 'Web app for Android · iPhone app on the App Store' : 'Available on iPhone · Web app for everyone else'}
+                    Open marea on your iPhone to download
                   </p>
                 </>
               ) : (
@@ -1437,7 +1430,7 @@ export default function LandingPage() {
                     Coming Soon
                   </div>
                   <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
-                    Coming soon to iPhone · Web app launching with it
+                    Launching first on iPhone
                   </p>
                 </>
               )}
@@ -1512,7 +1505,16 @@ export default function LandingPage() {
               <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
                 App
               </p>
-              <p className="text-sm font-light text-on-background/50">iOS — coming soon</p>
+              {APP_LIVE ? (
+                <a
+                  href={APP_STORE_URL}
+                  className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
+                >
+                  iOS — App Store
+                </a>
+              ) : (
+                <p className="text-sm font-light text-on-background/50">iOS — coming soon</p>
+              )}
               <p className="text-sm font-light text-on-background/30">Android — coming soon</p>
             </div>
           </div>
