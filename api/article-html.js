@@ -52,6 +52,27 @@ function slugToTitle(slug) {
     .join(' ')
 }
 
+// Pull a clean preview-length description out of the markdown body. Drops
+// headers, images, and link syntax; collapses whitespace; takes the first
+// ~200 chars. Falls back to the supplied default if body is empty.
+function bodyToDescription(body, fallback) {
+  if (!body) return fallback
+  const stripped = body
+    .split('\n')
+    .filter(l => {
+      const t = l.trim()
+      return t && !t.startsWith('#') && !t.startsWith('---') && !t.startsWith('!')
+    })
+    .join(' ')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[*_`]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return stripped ? stripped.slice(0, 200) : fallback
+}
+
 export default async function handler(req, res) {
   const slug = (req.query.slug || '').toString()
   if (!slug) return res.status(400).send('Missing slug')
@@ -73,7 +94,7 @@ export default async function handler(req, res) {
   try {
     const result = await supabase
       .from('content')
-      .select('title, summary, cover_url, slug, category')
+      .select('title, body, cover_url, slug, category')
       .eq('slug', slug)
       .eq('published', true)
       .maybeSingle()
@@ -96,10 +117,8 @@ export default async function handler(req, res) {
   const fallbackTitle = slugToTitle(slug)
   const articleTitle  = article?.title || fallbackTitle
   const articleUrl    = `https://mareahealth.com/articles/${slug}`
-  const description   = (
-    article?.summary
-    || `${fallbackTitle} — a clinical guide from Marea on perimenopause.`
-  ).slice(0, 200)
+  const fallbackDesc  = `${fallbackTitle} — a clinical guide from Marea on perimenopause.`
+  const description   = bodyToDescription(article?.body, fallbackDesc)
   const ogImage = article?.cover_url
     ? article.cover_url.split('?')[0]
     : 'https://mareahealth.com/marealogo.svg'
