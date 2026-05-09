@@ -6,7 +6,8 @@
         "components": [
           { "/": "/auth/callback*" },
           { "/": "/" },
-          { "/": "/get*" }
+          { "/": "/get*" },
+          { "/": "/articles/*" }
         ]
       }
     ]
