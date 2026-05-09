@@ -40,46 +40,78 @@ function escapeHtml(s) {
     .replace(/>/g, '&gt;')
 }
 
+// Convert a slug like "heart-rate-variability-perimenopause-hrv-tracking"
+// into a passable title-cased fallback. Used when the Supabase query for
+// the real article fails or returns no row, so the link preview still
+// shows something article-shaped instead of the generic site title.
+function slugToTitle(slug) {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map(w => w.length <= 3 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1))
+    .join(' ')
+}
+
 export default async function handler(req, res) {
   const slug = (req.query.slug || '').toString()
   if (!slug) return res.status(400).send('Missing slug')
 
-  // Pull the article fields needed for meta tags. summary and cover_url are
-  // optional; we fall back to defaults if either is missing.
-  const { data: article, error } = await supabase
-    .from('content')
-    .select('title, summary, cover_url, slug, category')
-    .eq('slug', slug)
-    .eq('published', true)
-    .maybeSingle()
-
-  // If the article doesn't exist, fall through to the SPA's normal 404
-  // rendering by returning the unmodified shell.
   let shell
   try {
     shell = await getShell(req)
   } catch (e) {
+    console.error('[article-html] failed to fetch shell:', e?.message || e)
     return res.status(500).send('Failed to load shell')
   }
 
-  if (error || !article) {
-    res.setHeader('Content-Type', 'text/html; charset=utf-8')
-    return res.send(shell)
+  // Try to load the real article. Any failure (missing env, RLS denies,
+  // unpublished, typo'd slug) flows into the slug-derived fallback below
+  // so we never serve a generic "Marea Health — Perimenopause, Finally
+  // Understood" preview for a real article URL.
+  let article = null
+  let lookupStatus = 'ok'
+  try {
+    const result = await supabase
+      .from('content')
+      .select('title, summary, cover_url, slug, category')
+      .eq('slug', slug)
+      .eq('published', true)
+      .maybeSingle()
+    if (result.error) {
+      lookupStatus = `error:${result.error.message}`
+      console.error('[article-html] supabase error:', result.error)
+    } else if (!result.data) {
+      lookupStatus = 'no-article'
+    } else {
+      article = result.data
+    }
+  } catch (e) {
+    lookupStatus = `exception:${e?.message || 'unknown'}`
+    console.error('[article-html] supabase exception:', e)
   }
 
-  const articleUrl = `https://mareahealth.com/articles/${article.slug}`
-  const description = (article.summary || `A clinical guide from Marea — ${article.category || 'perimenopause, finally understood'}.`).slice(0, 200)
-  // Cover image: prefer the explicit cover_url; fall back to a default
-  // OG image if none is set. Strips any Supabase signed-URL query string
-  // since static URLs preview better in messaging clients.
-  const ogImage = article.cover_url
+  // Derive meta values: prefer the real article, fall back to slug-based
+  // values so previews still look article-specific even when Supabase is
+  // unreachable or the row is unpublished.
+  const fallbackTitle = slugToTitle(slug)
+  const articleTitle  = article?.title || fallbackTitle
+  const articleUrl    = `https://mareahealth.com/articles/${slug}`
+  const description   = (
+    article?.summary
+    || `${fallbackTitle} — a clinical guide from Marea on perimenopause.`
+  ).slice(0, 200)
+  const ogImage = article?.cover_url
     ? article.cover_url.split('?')[0]
     : 'https://mareahealth.com/marealogo.svg'
 
-  const title = `${escapeHtml(article.title)} — Marea`
+  // Surface the lookup status as a response header so we can debug from
+  // curl without redeploying. Strip in a follow-up once stable.
+  res.setHeader('X-Marea-Article-Lookup', lookupStatus)
+
+  const title = `${escapeHtml(articleTitle)} — Marea`
   const desc  = escapeHtml(description)
   const img   = escapeHtml(ogImage)
-  const aTitle = escapeHtml(article.title)
+  const aTitle = escapeHtml(articleTitle)
 
   // Replace the static <title> + description, and inject Open Graph +
   // Twitter card tags before </head>. Use replace() rather than full
