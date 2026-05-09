@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/auth/callback", "destination": "/auth/callback.html" },
+    { "source": "/articles/:slug", "destination": "/api/article-html?slug=:slug" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
