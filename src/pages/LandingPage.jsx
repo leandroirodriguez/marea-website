@@ -15,7 +15,7 @@ import mareaLogo from '../assets/marealogo.svg'
    production work but is NOT offered to end users. Android is referenced
    only in the footer as "coming soon." Don't add Android CTAs anywhere
    else without explicit approval. */
-const APP_LIVE = false
+const APP_LIVE = true
 const APP_STORE_ID = '6763952659'
 const APP_STORE_URL = `https://apps.apple.com/app/id${APP_STORE_ID}`
 
