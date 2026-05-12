@@ -1003,15 +1003,16 @@ export default function LandingPage() {
                   </div>
                 </a>
               ) : APP_LIVE ? (
-                <div
-                  className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 opacity-90"
+                <a
+                  href={APP_STORE_URL}
+                  className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 hover:opacity-90 transition-opacity"
                 >
                   <span className="material-symbols-outlined text-xl">phone_iphone</span>
                   <div className="text-left">
                     <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">Available on</p>
                     <p className="text-sm font-semibold leading-none mt-0.5">iPhone</p>
                   </div>
-                </div>
+                </a>
               ) : (
                 <div
                   className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 opacity-90"
@@ -1415,12 +1416,15 @@ export default function LandingPage() {
                 </>
               ) : APP_LIVE ? (
                 <>
-                  <div className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20">
+                  <a
+                    href={APP_STORE_URL}
+                    className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20 hover:opacity-90 transition-opacity"
+                  >
                     <span className="material-symbols-outlined text-xl">phone_iphone</span>
                     Available on iPhone
-                  </div>
+                  </a>
                   <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
-                    Open marea on your iPhone to download
+                    Tap to view on the App Store
                   </p>
                 </>
               ) : (
