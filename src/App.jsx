@@ -11,6 +11,7 @@ import AdminBlog from './pages/AdminBlog'
 import AdminBlogEditor from './pages/AdminBlogEditor'
 import AdminArticles from './pages/AdminArticles'
 import AdminArticleEditor from './pages/AdminArticleEditor'
+import AdminLabReport from './pages/AdminLabReport'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import SupportPage from './pages/SupportPage'
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/admin/articles" element={<AdminArticles />} />
         <Route path="/admin/articles/new" element={<AdminArticleEditor />} />
         <Route path="/admin/articles/edit/:id" element={<AdminArticleEditor />} />
+        <Route path="/admin/labs" element={<AdminLabReport />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/support" element={<SupportPage />} />

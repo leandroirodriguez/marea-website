@@ -141,6 +141,7 @@ export default function AdminDashboard() {
             <Link to="/admin/dashboard" className="text-[0.82rem] text-white font-semibold">Dashboard</Link>
             <Link to="/admin/blog" className="text-[0.82rem] text-white/60">Blog CMS</Link>
             <Link to="/admin/articles" className="text-[0.82rem] text-white/60">Articles CMS</Link>
+            <Link to="/admin/labs" className="text-[0.82rem] text-white/60">Lab Reports</Link>
           </div>
         </div>
         <div className="flex items-center gap-6">
@@ -243,6 +244,10 @@ export default function AdminDashboard() {
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <h2 className="font-headline text-[1.1rem] font-normal text-on-background mb-4">Quick Actions</h2>
                 <div className="flex flex-col gap-3">
+                  <Link to="/admin/labs" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
+                    <span className="material-symbols-outlined text-[20px]">labs</span>
+                    Analyze patient labs &amp; share
+                  </Link>
                   <Link to="/admin/blog/new" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
                     <span className="material-symbols-outlined text-[20px]">edit_note</span>
                     Write a new blog post
