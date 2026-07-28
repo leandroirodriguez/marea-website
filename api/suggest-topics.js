@@ -63,12 +63,12 @@ Return a JSON array of 5 objects:
 
   try {
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: 1500,
       messages: [{ role: 'user', content: prompt }],
     })
 
-    const text = response.content[0].text
+    const text = response.content.find(b => b.type === 'text')?.text || ''
     const jsonMatch = text.match(/\[[\s\S]*\]/)
     if (!jsonMatch) return res.status(500).json({ error: 'Failed to parse suggestions' })
 

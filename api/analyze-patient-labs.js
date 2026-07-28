@@ -87,12 +87,15 @@ export default async function handler(req, res) {
   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 2048,
+      // Sonnet 5 uses adaptive thinking that can consume several hundred
+      // output tokens before the JSON; a full 5-lab recommendation set then
+      // needs comfortable headroom or it truncates mid-JSON and fails to parse.
+      max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: prompt }],
     })
 
-    const text = response.content[0]?.text || ''
+    const text = response.content.find(b => b.type === 'text')?.text || ''
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) return res.status(502).json({ error: 'Could not parse AI response' })
 

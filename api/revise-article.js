@@ -50,12 +50,12 @@ Return the revised markdown body only.`
 
   try {
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: 4000,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: prompt }],
     })
-    const text = response.content[0]?.text?.trim() || ''
+    const text = response.content.find(b => b.type === 'text')?.text?.trim() || ''
     if (!text) return res.status(502).json({ error: 'Empty response' })
 
     // Strip accidental code fences if Claude wrapped the body
