@@ -4,8 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useAdminGuard } from '../hooks/useAdminGuard'
 import mareaLogo from '../assets/marealogo.svg'
 import {
-  LAB_KEYS, LAB_CONFIG, UNIT_OPTIONS, convertToDefault, evaluateLevel,
-  STAGE_OPTIONS, RECOMMENDATION_CATEGORIES,
+  LAB_KEYS, LAB_GROUPS, LAB_CONFIG, UNIT_OPTIONS, convertToDefault, evaluateLevel,
+  STAGE_OPTIONS, CLINICAL_QUESTIONS, RECOMMENDATION_CATEGORIES, derivedIndices,
 } from '../lib/labConfig'
 
 // Clinician-facing tool: enter a patient's hormone labs, get an AI analysis
@@ -37,6 +37,10 @@ export default function AdminLabReport() {
   const [values, setValues] = useState({})
   const [units, setUnits] = useState(() => Object.fromEntries(LAB_KEYS.map(k => [k, UNIT_OPTIONS[k].default])))
   const [stage, setStage] = useState('unknown')
+  const [clinicalQuestion, setClinicalQuestion] = useState('perimenopause')
+  // Groups start collapsed unless they hold a value, so a 15-lab form still
+  // opens as a short page — expand only what this panel actually covers.
+  const [openGroups, setOpenGroups] = useState(() => ({ ovarian: true }))
 
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
@@ -101,7 +105,7 @@ export default function AdminLabReport() {
       const resp = await fetch('/api/analyze-patient-labs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ values: buildSubmitValues(), stage }),
+        body: JSON.stringify({ values: buildSubmitValues(), stage, clinicalQuestion }),
       })
       const data = await resp.json()
       if (!resp.ok) throw new Error(data.error || 'Analysis failed')
@@ -131,6 +135,7 @@ export default function AdminLabReport() {
         body: JSON.stringify({
           values: buildSubmitValues(),
           stage,
+          clinicalQuestion,
           interpretation: interpretation.trim(),
           recommendations: included,
         }),
@@ -153,6 +158,8 @@ export default function AdminLabReport() {
     setValues({})
     setUnits(Object.fromEntries(LAB_KEYS.map(k => [k, UNIT_OPTIONS[k].default])))
     setStage('unknown')
+    setClinicalQuestion('perimenopause')
+    setOpenGroups({ ovarian: true })
     setInterpretation('')
     setRecs([])
     setShareUrl('')
@@ -200,28 +207,73 @@ export default function AdminLabReport() {
         {/* ─── ENTRY ─────────────────────────────────────────────── */}
         {view === 'entry' && (
           <>
-            {/* Stage */}
+            {/* What is being worked up — steers the AI's lens */}
             <div className="bg-white rounded-2xl p-5 shadow-sm mb-4">
-              <label className="block text-[0.85rem] font-semibold text-on-background mb-2">Perimenopause stage (STRAW+10)</label>
+              <label className="block text-[0.85rem] font-semibold text-on-background mb-1">What are you working up?</label>
+              <p className="text-[0.75rem] text-outline mb-3">The same numbers read differently depending on the question being asked.</p>
               <div className="flex flex-wrap gap-2">
-                {STAGE_OPTIONS.map(s => (
-                  <button key={s.value} onClick={() => setStage(s.value)}
+                {CLINICAL_QUESTIONS.map(q => (
+                  <button key={q.value} onClick={() => setClinicalQuestion(q.value)} title={q.hint}
                     className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-medium border cursor-pointer transition-colors ${
-                      stage === s.value ? 'bg-primary text-white border-primary' : 'bg-white text-outline border-surface-variant hover:border-primary/40'
+                      clinicalQuestion === q.value ? 'bg-primary text-white border-primary' : 'bg-white text-outline border-surface-variant hover:border-primary/40'
                     }`}>
-                    {s.label}
+                    {q.label}
                   </button>
                 ))}
               </div>
+              <p className="text-[0.75rem] text-outline mt-2.5 italic">
+                {CLINICAL_QUESTIONS.find(q => q.value === clinicalQuestion)?.hint}
+              </p>
             </div>
 
-            {/* Lab inputs */}
+            {/* Stage — only meaningful for a perimenopause workup */}
+            {CLINICAL_QUESTIONS.find(q => q.value === clinicalQuestion)?.needsStage && (
+              <div className="bg-white rounded-2xl p-5 shadow-sm mb-4">
+                <label className="block text-[0.85rem] font-semibold text-on-background mb-2">Perimenopause stage (STRAW+10)</label>
+                <div className="flex flex-wrap gap-2">
+                  {STAGE_OPTIONS.map(s => (
+                    <button key={s.value} onClick={() => setStage(s.value)}
+                      className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-medium border cursor-pointer transition-colors ${
+                        stage === s.value ? 'bg-primary text-white border-primary' : 'bg-white text-outline border-surface-variant hover:border-primary/40'
+                      }`}>
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Lab inputs, grouped by panel */}
             <div className="flex flex-col gap-3 mb-5">
-              {LAB_KEYS.map(key => {
+              {LAB_GROUPS.map(group => {
+                const filledCount = group.keys.filter(k => values[k] !== undefined && values[k] !== '').length
+                const isOpen = openGroups[group.key] || filledCount > 0
+                return (
+                <div key={group.key} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => setOpenGroups(o => ({ ...o, [group.key]: !isOpen }))}
+                    className="w-full flex items-center justify-between px-5 py-4 bg-transparent border-none cursor-pointer text-left">
+                    <span className="flex items-center gap-2.5 font-semibold text-[0.9rem] text-on-background">
+                      <span className="material-symbols-outlined text-[20px] text-primary">{group.icon}</span>
+                      {group.label}
+                      {filledCount > 0 && (
+                        <span className="text-[0.7rem] font-semibold text-primary bg-primary/[0.08] px-2 py-0.5 rounded-full">
+                          {filledCount}
+                        </span>
+                      )}
+                    </span>
+                    <span className={`material-symbols-outlined text-[20px] text-outline transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                      expand_more
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                  <div className="px-5 pb-5 flex flex-col gap-4 border-t border-surface-container pt-4">
+                  {group.keys.map(key => {
                 const cfg = LAB_CONFIG[key]
                 const opts = UNIT_OPTIONS[key]
                 return (
-                  <div key={key} className="bg-white rounded-2xl p-5 shadow-sm">
+                  <div key={key}>
                     <div className="flex items-center justify-between mb-2.5">
                       <span className="flex items-center gap-2 font-semibold text-[0.88rem] text-on-background">
                         <span className="material-symbols-outlined text-[18px] text-primary">{cfg.icon}</span>{cfg.label}
@@ -247,6 +299,7 @@ export default function AdminLabReport() {
                       onChange={e => setValues(v => ({ ...v, [key]: e.target.value }))}
                       className="w-full border border-surface-variant rounded-lg px-3 py-2.5 text-[0.9rem] text-on-background outline-none focus:border-primary"
                     />
+                    {cfg.hint && <p className="text-[0.72rem] text-outline mt-1.5 leading-snug">{cfg.hint}</p>}
 
                     {/* Progesterone cycle day */}
                     {key === 'progesterone' && values.progesterone && (
@@ -276,8 +329,32 @@ export default function AdminLabReport() {
                     )}
                   </div>
                 )
+                  })}
+                  </div>
+                  )}
+                </div>
+                )
               })}
             </div>
+
+            {/* Live indices, so the clinician sees the ratios before generating */}
+            {derivedIndices(buildSubmitValues()).length > 0 && (
+              <div className="bg-white rounded-2xl p-5 shadow-sm mb-5">
+                <p className="text-[0.68rem] tracking-widest uppercase text-outline font-semibold mb-3">Calculated</p>
+                <div className="flex flex-col gap-2">
+                  {derivedIndices(buildSubmitValues()).map(i => (
+                    <div key={i.key} className="flex items-center justify-between gap-3">
+                      <span className="text-[0.82rem] text-on-background">{i.label}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-[0.9rem] font-semibold text-on-background">{i.value}{i.suffix || ''}</span>
+                        <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full"
+                          style={{ background: `${i.color}15`, color: i.color }}>{i.status}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <button onClick={handleAnalyze} disabled={!hasValues() || analyzing}
               className="w-full bg-primary text-white border-none py-3.5 rounded-full text-[0.9rem] font-semibold cursor-pointer disabled:opacity-40">
@@ -310,6 +387,17 @@ export default function AdminLabReport() {
                   )
                 })}
               </div>
+              {derivedIndices(buildSubmitValues()).length > 0 && (
+                <div className="mt-4 pt-3 border-t border-surface-container flex flex-wrap gap-2">
+                  {derivedIndices(buildSubmitValues()).map(i => (
+                    <span key={i.key} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-[0.78rem]">
+                      <span className="font-medium text-on-background">{i.label}</span>
+                      <span className="text-outline">{i.value}{i.suffix || ''}</span>
+                      <span className="font-semibold" style={{ color: i.color }}>· {i.status}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Interpretation editor */}

@@ -8,6 +8,7 @@
 // management list only; it is never sent to the public page.
 import crypto from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
+import { LAB_KEYS, CLINICAL_QUESTIONS } from '../src/lib/labConfig.js'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
@@ -15,7 +16,9 @@ const supabase = createClient(
 )
 
 const ALLOWED_CATEGORIES = ['lifestyle', 'supplements', 'diet', 'medications']
-const LAB_FIELDS = ['amh', 'fsh', 'estradiol', 'testosterone', 'progesterone']
+// Whitelisted from the shared config so a newly added lab is persisted without
+// a second place to remember to update.
+const LAB_FIELDS = LAB_KEYS
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -29,7 +32,7 @@ export default async function handler(req, res) {
   const { data: profile } = await supabase.from('users').select('is_admin').eq('id', user.id).single()
   if (!profile?.is_admin) return res.status(403).json({ error: 'Admin access required' })
 
-  const { values, stage, interpretation, recommendations } = req.body || {}
+  const { values, stage, clinicalQuestion, interpretation, recommendations } = req.body || {}
 
   if (!interpretation || typeof interpretation !== 'string') {
     return res.status(400).json({ error: 'Interpretation is required' })
@@ -53,6 +56,11 @@ export default async function handler(req, res) {
   }
   if (Object.keys(labs).length === 0) {
     return res.status(400).json({ error: 'At least one lab value is required' })
+  }
+  // Recorded inside the labs jsonb rather than as its own column so no schema
+  // migration is needed. The report page ignores keys it doesn't recognise.
+  if (CLINICAL_QUESTIONS.some(q => q.value === clinicalQuestion)) {
+    labs.clinical_question = clinicalQuestion
   }
 
   // Sanitize recommendations to the known shape.

@@ -7,7 +7,7 @@
 // patient-identifiable data — only lab numbers, stage, and clinician-reviewed
 // AI text. Reports expire 30 days after creation (or when revoked).
 import { createClient } from '@supabase/supabase-js'
-import { LAB_KEYS, LAB_CONFIG, evaluateLevel, RECOMMENDATION_CATEGORIES } from '../src/lib/labConfig.js'
+import { LAB_GROUPS, LAB_CONFIG, evaluateLevel, derivedIndices, RECOMMENDATION_CATEGORIES } from '../src/lib/labConfig.js'
 import { LOGO_SPRITE, MAREA_RATIO, BEACHES_RATIO } from '../src/lib/brandLogos.js'
 
 const supabase = createClient(
@@ -180,21 +180,35 @@ function statusPage({ icon, title, message }) {
 
 function renderLabs(labs) {
   const cd = labs.progesterone_cycle_day || null
-  const cards = LAB_KEYS.map(key => {
-    const val = labs[key]
-    if (val == null) return ''
-    const cfg = LAB_CONFIG[key]
-    const cycleDay = key === 'progesterone' ? cd : null
-    const r = evaluateLevel(key, val, cycleDay)
-    // Prefer the patient-facing wording (plabel/pnote) where a range defines
-    // it — the clinical copy carries perimenopause framing that doesn't belong
-    // on a report shared straight with a patient.
-    const badge = r
-      ? `<span class="badge" style="background:${r.color}15;color:${r.color}">${escapeHtml(r.plabel || r.label)}</span>`
+  // Only render a section heading when more than one group has values —
+  // a single-panel report reads better as a plain list of cards.
+  const filled = LAB_GROUPS.map(g => ({ g, keys: g.keys.filter(k => labs[k] != null) }))
+                           .filter(x => x.keys.length)
+  const showHeadings = filled.length > 1
+
+  const sections = filled.map(({ g, keys }) => {
+    const cards = keys.map(key => renderLabCard(key, labs[key], key === 'progesterone' ? cd : null)).join('')
+    const heading = showHeadings
+      ? `<div class="cat-head"><span class="material-symbols-outlined">${g.icon}</span><h3>${escapeHtml(g.label)}</h3></div>`
       : ''
-    const note = r ? `<div class="lab-note">${escapeHtml(r.pnote || r.note)}</div>` : ''
-    const cdTag = (key === 'progesterone' && cd) ? `<span class="lab-cd">cycle day ${cd}</span>` : ''
-    return `
+    return `${heading}<div class="labs">${cards}</div>`
+  }).join('')
+
+  return sections
+}
+
+function renderLabCard(key, val, cycleDay) {
+  const cfg = LAB_CONFIG[key]
+  const r = evaluateLevel(key, val, cycleDay)
+  // Prefer the patient-facing wording (plabel/pnote) where a range defines
+  // it — the clinical copy carries perimenopause framing that doesn't belong
+  // on a report shared straight with a patient.
+  const badge = r
+    ? `<span class="badge" style="background:${r.color}15;color:${r.color}">${escapeHtml(r.plabel || r.label)}</span>`
+    : ''
+  const note = r ? `<div class="lab-note">${escapeHtml(r.pnote || r.note)}</div>` : ''
+  const cdTag = cycleDay ? `<span class="lab-cd">cycle day ${cycleDay}</span>` : ''
+  return `
       <div class="card">
         <div class="lab-head">
           <span class="lab-name"><span class="material-symbols-outlined">${cfg.icon}</span>${escapeHtml(cfg.label)}</span>
@@ -203,8 +217,27 @@ function renderLabs(labs) {
         <div><span class="lab-val">${escapeHtml(val)}</span><span class="lab-unit">${escapeHtml(cfg.unit)}</span>${cdTag}</div>
         ${note}
       </div>`
-  }).join('')
-  return `<div class="labs">${cards}</div>`
+}
+
+// Calculated ratios (LH:FSH, HOMA-IR, free androgen index). These often carry
+// more signal than any single value, so they get their own visually distinct
+// block rather than being buried among the raw results.
+function renderIndices(labs) {
+  const indices = derivedIndices(labs)
+  if (!indices.length) return ''
+  const rows = indices.map(i => `
+      <div class="card">
+        <div class="lab-head">
+          <span class="lab-name"><span class="material-symbols-outlined">calculate</span>${escapeHtml(i.label)}</span>
+          <span class="badge" style="background:${i.color}15;color:${i.color}">${escapeHtml(i.status)}</span>
+        </div>
+        <div><span class="lab-val">${escapeHtml(i.value)}</span><span class="lab-unit">${escapeHtml(i.suffix || '')}</span></div>
+        <div class="lab-note">${escapeHtml(i.note)}</div>
+      </div>`).join('')
+  return `
+    <h2>Calculated from your results</h2>
+    <p class="hint">These combine two or more of the values above into a single measure.</p>
+    <div class="labs">${rows}</div>`
 }
 
 function renderInterpretation(text) {
@@ -295,6 +328,8 @@ export default async function handler(req, res) {
 
     <h2>Your results</h2>
     ${renderLabs(report.labs || {})}
+
+    ${renderIndices(report.labs || {})}
 
     <div style="margin-top:1.5rem">${renderInterpretation(report.interpretation)}</div>
 
