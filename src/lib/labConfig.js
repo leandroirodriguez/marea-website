@@ -5,6 +5,11 @@
 // (api/report.js) all evaluate reference ranges identically. Plain JS (no
 // JSX / React) on purpose: api/report.js is a Vercel serverless function and
 // imports these helpers directly.
+//
+// A range may carry `plabel` / `pnote` — patient-facing wording used ONLY by
+// the shared report page (api/report.js). The clinician's admin view keeps the
+// clinical `label` / `note`; the patient page drops the perimenopause framing
+// so a shared report reads as a general hormone panel.
 
 // ─── Unit conversion ─────────────────────────────────────────────────────────
 
@@ -32,7 +37,8 @@ export const LAB_CONFIG = {
     placeholder: 'e.g. 1.2',
     ranges: [
       { max: 0.3,      level: 'low',    color: '#842b16', label: 'Very low',            note: 'Indicates significantly diminished ovarian reserve' },
-      { max: 1.0,      level: 'low',    color: '#715b33', label: 'Low',                 note: 'Consistent with diminished ovarian reserve, common in perimenopause' },
+      { max: 1.0,      level: 'low',    color: '#715b33', label: 'Low',                 note: 'Consistent with diminished ovarian reserve, common in perimenopause',
+        pnote: 'Consistent with a diminished ovarian reserve' },
       { max: 3.5,      level: 'normal', color: '#2d6a35', label: 'Normal',              note: 'Within expected range' },
       { max: Infinity, level: 'high',   color: '#005258', label: 'High',                note: 'Robust ovarian reserve' },
     ],
@@ -43,10 +49,14 @@ export const LAB_CONFIG = {
     icon: 'trending_up',
     placeholder: 'e.g. 28',
     ranges: [
-      { max: 10,       level: 'normal', color: '#2d6a35', label: 'Premenopausal range', note: 'Within reproductive-age range' },
-      { max: 25,       level: 'normal', color: '#715b33', label: 'Transitional',        note: 'Consistent with early perimenopause' },
-      { max: 40,       level: 'high',   color: '#842b16', label: 'Elevated',            note: 'Consistent with active perimenopause transition' },
-      { max: Infinity, level: 'high',   color: '#842b16', label: 'Menopausal range',    note: 'Consistent with late transition or postmenopause' },
+      { max: 10,       level: 'normal', color: '#2d6a35', label: 'Premenopausal range', note: 'Within reproductive-age range',
+        plabel: 'Reproductive-age range' },
+      { max: 25,       level: 'normal', color: '#715b33', label: 'Transitional',        note: 'Consistent with early perimenopause',
+        pnote: 'Consistent with an early hormonal transition' },
+      { max: 40,       level: 'high',   color: '#842b16', label: 'Elevated',            note: 'Consistent with active perimenopause transition',
+        pnote: 'Consistent with an active hormonal transition' },
+      { max: Infinity, level: 'high',   color: '#842b16', label: 'Menopausal range',    note: 'Consistent with late transition or postmenopause',
+        plabel: 'Elevated range', pnote: 'Consistent with a late hormonal transition' },
     ],
   },
   estradiol: {
@@ -55,9 +65,11 @@ export const LAB_CONFIG = {
     icon: 'show_chart',
     placeholder: 'e.g. 45',
     ranges: [
-      { max: 30,       level: 'low',    color: '#842b16', label: 'Low',                 note: 'Consistent with late perimenopause or postmenopause' },
+      { max: 30,       level: 'low',    color: '#842b16', label: 'Low',                 note: 'Consistent with late perimenopause or postmenopause',
+        pnote: 'Consistent with a later hormonal transition' },
       { max: 200,      level: 'normal', color: '#2d6a35', label: 'Normal range',        note: 'Within expected range (varies with cycle day)' },
-      { max: 400,      level: 'high',   color: '#715b33', label: 'Elevated',            note: 'Common in perimenopause — estrogen can spike before declining' },
+      { max: 400,      level: 'high',   color: '#715b33', label: 'Elevated',            note: 'Common in perimenopause — estrogen can spike before declining',
+        pnote: 'Common during hormonal transition — estrogen can spike before declining' },
       { max: Infinity, level: 'high',   color: '#842b16', label: 'Very high',           note: 'Significant spike — discuss with your provider' },
     ],
   },
@@ -83,7 +95,8 @@ export const LAB_CONFIG = {
       if (isLuteal) {
         return [
           { max: 1,        level: 'low',    color: '#842b16', label: 'Very low (luteal)',   note: 'Strong indicator of anovulatory cycle' },
-          { max: 3,        level: 'low',    color: '#715b33', label: 'Low (luteal)',        note: 'Suggests probable anovulation — common in perimenopause' },
+          { max: 3,        level: 'low',    color: '#715b33', label: 'Low (luteal)',        note: 'Suggests probable anovulation — common in perimenopause',
+            pnote: 'Suggests this cycle may not have been ovulatory — a common finding during hormonal transition' },
           { max: 20,       level: 'normal', color: '#2d6a35', label: 'Normal (luteal)',     note: 'Confirms ovulation occurred this cycle' },
           { max: Infinity, level: 'high',   color: '#005258', label: 'High (luteal)',       note: 'Strong ovulatory response' },
         ]

@@ -8,6 +8,7 @@
 // AI text. Reports expire 30 days after creation (or when revoked).
 import { createClient } from '@supabase/supabase-js'
 import { LAB_KEYS, LAB_CONFIG, evaluateLevel, RECOMMENDATION_CATEGORIES } from '../src/lib/labConfig.js'
+import { LOGO_SPRITE, MAREA_RATIO, BEACHES_RATIO } from '../src/lib/brandLogos.js'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
@@ -29,6 +30,30 @@ const C = {
   outline: '#6f797a',
   secondary: '#715b33',
   border: '#e5e2dd',
+  // Shared co-brand ink. The Marea mark is rendered in the Beaches OBGYN
+  // brand colour so the two logos read as one intentional lockup rather
+  // than two near-but-not-quite teals sitting next to each other.
+  cobrand: '#2f5664',
+}
+
+// Co-brand lockup sizing. The Beaches mark's box is much taller than its
+// wordmark (the starfish rises above the text), so matching raw box heights
+// would leave its lettering visibly smaller than Marea's. These heights were
+// tuned so the two wordmarks read at the same optical size.
+const LOCKUP = { mareaH: 26, beachesH: 56 }
+const LOCKUP_SM = { mareaH: 22, beachesH: 48 }
+
+// One logo pair, coloured by the `color` of its container.
+function logoLockup({ mareaH, beachesH }, dividerOpacity = 0.3) {
+  const mw = (mareaH * MAREA_RATIO).toFixed(1)
+  const bw = (beachesH * BEACHES_RATIO).toFixed(1)
+  // Both href and xlink:href are emitted: older iOS Safari (which patients may
+  // well be on) only honours the xlink form for <use>.
+  return `<div class="lockup">
+      <svg class="lg" width="${mw}" height="${mareaH}" role="img" aria-label="Marea"><use href="#lg-marea" xlink:href="#lg-marea"/></svg>
+      <span class="lockup-div" style="opacity:${dividerOpacity}"></span>
+      <svg class="lg" width="${bw}" height="${beachesH}" role="img" aria-label="Beaches OBGYN"><use href="#lg-beaches" xlink:href="#lg-beaches"/></svg>
+    </div>`
 }
 
 const FONTS_HREF = 'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap'
@@ -71,9 +96,10 @@ function page({ title, description, bodyHtml }) {
   body{font-family:'Plus Jakarta Sans',sans-serif;background:${C.surface};color:${C.onBg};-webkit-font-smoothing:antialiased;line-height:1.6}
   .material-symbols-outlined{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;font-size:20px;line-height:1}
   .wrap{max-width:640px;margin:0 auto;padding:0 1.25rem 4rem}
-  .brandbar{text-align:center;padding:2rem 1.25rem 1.5rem}
-  .wordmark{font-family:'Newsreader',serif;font-size:1.9rem;font-weight:400;letter-spacing:.06em;color:${C.primary};text-transform:lowercase}
-  .brandbar small{display:block;margin-top:.35rem;font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:${C.outline}}
+  .brandbar{padding:2rem 1.25rem 1.5rem;color:${C.cobrand}}
+  .lockup{display:flex;align-items:center;justify-content:center;gap:1.1rem;flex-wrap:wrap}
+  .lg{display:block;height:auto;max-width:100%}
+  .lockup-div{width:1px;height:28px;background:currentColor;flex-shrink:0}
   h1{font-family:'Newsreader',serif;font-weight:400;font-size:clamp(1.7rem,6vw,2.4rem);color:${C.onBg};line-height:1.2;margin-bottom:.6rem}
   h2{font-family:'Newsreader',serif;font-weight:400;font-size:1.4rem;color:${C.onBg};margin:2.5rem 0 1rem}
   .eyebrow{display:flex;align-items:center;gap:.4rem;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${C.primary};margin-bottom:.9rem}
@@ -105,8 +131,7 @@ function page({ title, description, bodyHtml }) {
   .hint{font-size:.75rem;color:${C.outline};margin:0 0 1rem;font-style:italic}
   .disclaimer{background:${C.surfaceLow};border-radius:.85rem;padding:1.1rem 1.25rem;font-size:.76rem;color:${C.outline};line-height:1.65;margin-top:2.5rem}
   .promo{margin-top:2.5rem;background:linear-gradient(135deg,#005258,#0D3F44);border-radius:1.15rem;padding:2rem 1.6rem;text-align:center;color:#fff}
-  .promo .wordmark{color:#fff}
-  .promo p{font-weight:300;color:rgba(255,255,255,.82);font-size:.9rem;margin:.6rem auto 1.4rem;max-width:26rem}
+  .promo p{font-weight:300;color:rgba(255,255,255,.82);font-size:.9rem;margin:1.1rem auto 1.4rem;max-width:26rem}
   .cta-row{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
   .btn{display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;font-weight:600;font-size:.85rem;padding:.75rem 1.4rem;border-radius:9999px}
   .btn-fill{background:#fff;color:${C.primary}}
@@ -119,24 +144,23 @@ function page({ title, description, bodyHtml }) {
 </style>
 </head>
 <body>
+${LOGO_SPRITE}
 ${bodyHtml}
 </body>
 </html>`
 }
 
 function brandBar() {
-  return `<div class="brandbar"><div class="wordmark">Marea</div><small>Perimenopause, understood</small></div>`
+  return `<div class="brandbar">${logoLockup(LOCKUP)}</div>`
 }
 
 function promoFooter() {
   return `
   <div class="promo">
-    <div class="wordmark">Marea</div>
-    <p>This analysis was prepared using Marea — the perimenopause app designed by OB/GYNs. Track your symptoms, interpret your labs, and get guidance backed by clinical science.</p>
+    ${logoLockup(LOCKUP_SM, 0.45)}
+    <p>This analysis was prepared using Marea — the women's health app designed by OB/GYNs. Track your symptoms, understand your labs, and get guidance backed by clinical science.</p>
     <div class="cta-row">
-      <a class="btn btn-fill" href="${APP_STORE_URL}" target="_blank" rel="noopener">
-        <span class="material-symbols-outlined">ios_share</span> Download the app
-      </a>
+      <a class="btn btn-fill" href="${APP_STORE_URL}" target="_blank" rel="noopener">Download the app</a>
       <a class="btn btn-ghost" href="${SITE_URL}" target="_blank" rel="noopener">Visit mareahealth.com</a>
     </div>
   </div>
@@ -162,10 +186,13 @@ function renderLabs(labs) {
     const cfg = LAB_CONFIG[key]
     const cycleDay = key === 'progesterone' ? cd : null
     const r = evaluateLevel(key, val, cycleDay)
+    // Prefer the patient-facing wording (plabel/pnote) where a range defines
+    // it — the clinical copy carries perimenopause framing that doesn't belong
+    // on a report shared straight with a patient.
     const badge = r
-      ? `<span class="badge" style="background:${r.color}15;color:${r.color}">${escapeHtml(r.label)}</span>`
+      ? `<span class="badge" style="background:${r.color}15;color:${r.color}">${escapeHtml(r.plabel || r.label)}</span>`
       : ''
-    const note = r ? `<div class="lab-note">${escapeHtml(r.note)}</div>` : ''
+    const note = r ? `<div class="lab-note">${escapeHtml(r.pnote || r.note)}</div>` : ''
     const cdTag = (key === 'progesterone' && cd) ? `<span class="lab-cd">cycle day ${cd}</span>` : ''
     return `
       <div class="card">
@@ -263,7 +290,7 @@ export default async function handler(req, res) {
   <div class="wrap">
     <div class="eyebrow"><span class="material-symbols-outlined">labs</span> Personalized lab analysis</div>
     <h1>Your hormone results, explained</h1>
-    <p class="meta">Prepared ${fmtDate(report.created_at)}${report.stage && report.stage !== 'unknown' ? ` &middot; ${escapeHtml(report.stage)}` : ''}</p>
+    <p class="meta">Prepared ${fmtDate(report.created_at)}</p>
     <p class="meta">This private link expires ${fmtDate(report.expires_at)}.</p>
 
     <h2>Your results</h2>
@@ -282,7 +309,7 @@ export default async function handler(req, res) {
 
   return res.status(200).send(page({
     title: 'Your Personalized Lab Analysis — Marea',
-    description: 'A private, personalized hormone lab analysis prepared with Marea, the perimenopause app designed by OB/GYNs.',
+    description: 'A private, personalized hormone lab analysis prepared with Marea, the women\'s health app designed by OB/GYNs.',
     bodyHtml: body,
   }))
 }
