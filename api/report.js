@@ -1,28 +1,35 @@
-// Public, server-rendered patient lab report at /r/<token> (wired via a
+// Public, server-rendered patient lab summary at /r/<token> (wired via a
 // vercel.json rewrite: /r/:token -> /api/report?token=:token).
 //
-// Renders a complete, self-contained, Marea-branded HTML page from a
-// patient_reports row read with the service-role key. The patient opens this
-// from their secure portal with no login, on any device. It contains ZERO
-// patient-identifiable data — only lab numbers, stage, and clinician-reviewed
-// AI text. Reports expire 30 days after creation (or when revoked).
+// This is a CLINICAL document delivered by the practice, not a product page.
+// It carries no Marea branding or promotion: the patient receives it from
+// their clinician through the patient portal, so advertising a commercial
+// product on it would make a treatment communication into a marketing one.
+//
+// It is also written to hold no Safe Harbor identifier: no name, no record
+// number, and no dates (a treatment-related date down to the day is itself an
+// identifier under 45 CFR 164.514(b)(2)). The share token is random and not
+// derived from anything about the patient, which is what 164.514(c) requires
+// of a re-identification code.
+//
+// Every hit is written to report_access_log for HIPAA audit controls, and
+// automated fetchers (link-preview crawlers, mail-security scanners) are
+// served a contentless interstitial instead of the summary.
+import crypto from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import { LAB_GROUPS, LAB_CONFIG, evaluateLevel, derivedIndices, RECOMMENDATION_CATEGORIES } from '../src/lib/labConfig.js'
-import { LOGO_SPRITE, MAREA_RATIO, BEACHES_RATIO } from '../src/lib/brandLogos.js'
+import { logoSprite, BEACHES_RATIO } from '../src/lib/brandLogos.js'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
 )
 
-const APP_STORE_URL = 'https://apps.apple.com/app/id6763952659'
-const SITE_URL = 'https://mareahealth.com'
-
-// ─── Brand tokens (mirror src/index.css @theme) ──────────────────────────────
+// ─── Brand tokens ────────────────────────────────────────────────────────────
+// Accents follow the Beaches OBGYN mark, since the practice is the author.
 const C = {
-  primary: '#005258',
-  primaryContainer: '#1b6b72',
-  tertiary: '#842b16',
+  brand: '#2f5664',
+  brandDeep: '#1f3a44',
   surface: '#fcf9f4',
   surfaceLow: '#f6f3ee',
   onBg: '#1c1c19',
@@ -30,30 +37,6 @@ const C = {
   outline: '#6f797a',
   secondary: '#715b33',
   border: '#e5e2dd',
-  // Shared co-brand ink. The Marea mark is rendered in the Beaches OBGYN
-  // brand colour so the two logos read as one intentional lockup rather
-  // than two near-but-not-quite teals sitting next to each other.
-  cobrand: '#2f5664',
-}
-
-// Co-brand lockup sizing. The Beaches mark's box is much taller than its
-// wordmark (the starfish rises above the text), so matching raw box heights
-// would leave its lettering visibly smaller than Marea's. These heights were
-// tuned so the two wordmarks read at the same optical size.
-const LOCKUP = { mareaH: 26, beachesH: 56 }
-const LOCKUP_SM = { mareaH: 22, beachesH: 48 }
-
-// One logo pair, coloured by the `color` of its container.
-function logoLockup({ mareaH, beachesH }, dividerOpacity = 0.3) {
-  const mw = (mareaH * MAREA_RATIO).toFixed(1)
-  const bw = (beachesH * BEACHES_RATIO).toFixed(1)
-  // Both href and xlink:href are emitted: older iOS Safari (which patients may
-  // well be on) only honours the xlink form for <use>.
-  return `<div class="lockup">
-      <svg class="lg" width="${mw}" height="${mareaH}" role="img" aria-label="Marea"><use href="#lg-marea" xlink:href="#lg-marea"/></svg>
-      <span class="lockup-div" style="opacity:${dividerOpacity}"></span>
-      <svg class="lg" width="${bw}" height="${beachesH}" role="img" aria-label="Beaches OBGYN"><use href="#lg-beaches" xlink:href="#lg-beaches"/></svg>
-    </div>`
 }
 
 const FONTS_HREF = 'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap'
@@ -66,143 +49,182 @@ function escapeHtml(s) {
     .replace(/>/g, '&gt;')
 }
 
-// Standalone HTML document shell shared by the report and status pages.
+// ─── Automated-fetcher detection ─────────────────────────────────────────────
+// Chat apps, social platforms, and — most relevant in healthcare — mail
+// security gateways (Proofpoint, Mimecast, Defender SafeLinks) follow links
+// automatically to build previews or detonate them in a sandbox. Any of those
+// hitting the URL is an access to the summary that no patient asked for. They
+// get an interstitial with no clinical content instead.
+const AUTOMATED_UA = /bot\b|crawler|spider|crawling|preview|scanner|curl|wget|python-requests|axios|node-fetch|go-http-client|okhttp|java\/|headless|phantomjs|slurp|facebookexternalhit|facebot|slackbot|slack-imgproxy|twitterbot|whatsapp|discord|telegram|linkedin|skypeuripreview|applebot|redditbot|embedly|iframely|quora|pinterest|outbrain|bitlybot|vkshare|w3c_validator|googlebot|bingbot|duckduckbot|baiduspider|yandex|ahrefs|semrush|petalbot|safelinks|proofpoint|mimecast|barracuda|symantec|forcepoint|zscaler|netskope|microsoft office|msoffice|ms-office|microsoft-webdav|office protocol discovery/i
+
+function isAutomated(req) {
+  // An explicit human click carries the bypass param — see the interstitial.
+  if (req.query?.open === '1') return false
+
+  const h = req.headers || {}
+  const ua = String(h['user-agent'] || '')
+  if (!ua.trim()) return true                       // no UA at all is not a browser
+  if (AUTOMATED_UA.test(ua)) return true
+
+  // Browser prefetch/prerender hints — the page is being fetched before
+  // (or without) anyone choosing to read it.
+  const sec = String(h['sec-purpose'] || '').toLowerCase()
+  if (sec.includes('prefetch') || sec.includes('prerender')) return true
+  const purpose = String(h['purpose'] || h['x-purpose'] || '').toLowerCase()
+  if (purpose === 'prefetch' || purpose === 'preview') return true
+  if (String(h['x-moz'] || '').toLowerCase() === 'prefetch') return true
+
+  return false
+}
+
+// ─── Audit log ───────────────────────────────────────────────────────────────
+// Never records a raw IP: an address is a Safe Harbor identifier, and writing
+// one here would reintroduce an identifier into the same database that holds
+// the summaries. A salted hash still distinguishes repeat visits.
+function hashIp(req) {
+  const raw = String(req.headers?.['x-forwarded-for'] || '').split(',')[0].trim()
+  if (!raw) return null
+  const salt = process.env.REPORT_LOG_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  return crypto.createHash('sha256').update(`${salt}:${raw}`).digest('hex')
+}
+
+async function logAccess(req, { token, reportId = null, outcome, automated = false }) {
+  try {
+    // supabase-js resolves with { error } rather than throwing, so check both.
+    const { error } = await supabase.from('report_access_log').insert({
+      report_id: reportId,
+      token,
+      outcome,
+      automated,
+      ip_hash: hashIp(req),
+      user_agent: String(req.headers?.['user-agent'] || '').slice(0, 200) || null,
+    })
+    if (error) console.error('[report] access log rejected:', error.message)
+  } catch (e) {
+    // Logging must never take the page down for a patient.
+    console.error('[report] access log failed:', e?.message || e)
+  }
+}
+
+// ─── Page shell ──────────────────────────────────────────────────────────────
+// No Open Graph or Twitter card tags: those exist to make a URL render as a
+// rich preview, which is the opposite of what a private clinical document
+// should do when the link is pasted anywhere.
 function page({ title, description, bodyHtml }) {
-  const t = escapeHtml(title)
-  const d = escapeHtml(description)
-  const ogImage = `${SITE_URL}/icon-512.png`
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
-<title>${t}</title>
-<meta name="description" content="${d}" />
-<meta property="og:type" content="website" />
-<meta property="og:title" content="${t}" />
-<meta property="og:description" content="${d}" />
-<meta property="og:site_name" content="Marea" />
-<meta property="og:image" content="${ogImage}" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="${t}" />
-<meta name="twitter:description" content="${d}" />
-<meta name="twitter:image" content="${ogImage}" />
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+<meta name="referrer" content="no-referrer" />
+<title>${escapeHtml(title)}</title>
+<meta name="description" content="${escapeHtml(description)}" />
 <link href="${FONTS_HREF}" rel="stylesheet" />
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Plus Jakarta Sans',sans-serif;background:${C.surface};color:${C.onBg};-webkit-font-smoothing:antialiased;line-height:1.6}
   .material-symbols-outlined{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;font-size:20px;line-height:1}
   .wrap{max-width:640px;margin:0 auto;padding:0 1.25rem 4rem}
-  .brandbar{padding:2rem 1.25rem 1.5rem;color:${C.cobrand}}
-  .lockup{display:flex;align-items:center;justify-content:center;gap:1.1rem;flex-wrap:wrap}
+  .brandbar{padding:2rem 1.25rem 1.5rem;color:${C.brand};display:flex;justify-content:center}
   .lg{display:block;height:auto;max-width:100%}
-  .lockup-div{width:1px;height:28px;background:currentColor;flex-shrink:0}
   h1{font-family:'Newsreader',serif;font-weight:400;font-size:clamp(1.7rem,6vw,2.4rem);color:${C.onBg};line-height:1.2;margin-bottom:.6rem}
   h2{font-family:'Newsreader',serif;font-weight:400;font-size:1.4rem;color:${C.onBg};margin:2.5rem 0 1rem}
-  .eyebrow{display:flex;align-items:center;gap:.4rem;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${C.primary};margin-bottom:.9rem}
+  .eyebrow{display:flex;align-items:center;gap:.4rem;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${C.brand};margin-bottom:.9rem}
   .meta{font-size:.8rem;color:${C.outline};margin-bottom:.4rem}
-  .card{background:#fff;border-radius:1rem;padding:1.25rem 1.35rem;box-shadow:0 12px 32px rgba(0,82,88,.05);border:1px solid ${C.border}}
+  .card{background:#fff;border-radius:1rem;padding:1.25rem 1.35rem;box-shadow:0 12px 32px rgba(47,86,100,.05);border:1px solid ${C.border}}
   .labs{display:flex;flex-direction:column;gap:.7rem}
   .lab-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem}
   .lab-name{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.9rem;color:${C.onBg}}
-  .lab-name .material-symbols-outlined{font-size:18px;color:${C.primary}}
+  .lab-name .material-symbols-outlined{font-size:18px;color:${C.brand}}
   .badge{padding:.2rem .6rem;border-radius:9999px;font-size:.66rem;font-weight:700;letter-spacing:.03em}
   .lab-val{font-size:1.5rem;font-weight:600;color:${C.onBg}}
   .lab-unit{font-size:.75rem;color:${C.outline};margin-left:.15rem}
   .lab-cd{font-size:.72rem;color:${C.outline};margin-left:.5rem}
   .lab-note{font-size:.82rem;color:${C.onSurfaceVariant};margin-top:.35rem}
-  .interp{background:#0D3F44;border-radius:1rem;padding:1.6rem 1.5rem;color:#fff}
+  .interp{background:${C.brandDeep};border-radius:1rem;padding:1.6rem 1.5rem;color:#fff}
   .interp .eyebrow{color:rgba(255,255,255,.55)}
   .interp p{font-weight:300;color:rgba(255,255,255,.9);font-size:.95rem;line-height:1.8;margin-bottom:.85rem}
   .interp p:last-child{margin-bottom:0}
+  .provenance{margin-top:1.1rem;padding-top:.9rem;border-top:1px solid rgba(255,255,255,.18);font-size:.76rem;line-height:1.6;color:rgba(255,255,255,.65)}
   .cat-head{display:flex;align-items:center;gap:.5rem;margin:1.9rem 0 .8rem}
   .cat-head .material-symbols-outlined{font-size:20px;color:${C.secondary}}
   .cat-head h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${C.secondary}}
   details.opt{background:#fff;border:1px solid ${C.border};border-radius:.85rem;margin-bottom:.6rem;overflow:hidden;transition:border-color .15s}
-  details.opt[open]{border-color:${C.primary}55}
+  details.opt[open]{border-color:${C.brand}55}
   details.opt summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:1rem 1.15rem;font-weight:600;font-size:.92rem;color:${C.onBg}}
   details.opt summary::-webkit-details-marker{display:none}
-  details.opt summary .chev{color:${C.primary};transition:transform .2s;flex-shrink:0}
+  details.opt summary .chev{color:${C.brand};transition:transform .2s;flex-shrink:0}
   details.opt[open] summary .chev{transform:rotate(180deg)}
   details.opt .detail{padding:0 1.15rem 1.1rem;font-size:.9rem;font-weight:300;color:${C.onSurfaceVariant};line-height:1.7}
-  .hint{font-size:.75rem;color:${C.outline};margin:0 0 1rem;font-style:italic}
+  .hint{font-size:.78rem;color:${C.outline};margin:0 0 1rem;line-height:1.6}
   .disclaimer{background:${C.surfaceLow};border-radius:.85rem;padding:1.1rem 1.25rem;font-size:.76rem;color:${C.outline};line-height:1.65;margin-top:2.5rem}
-  .promo{margin-top:2.5rem;background:linear-gradient(135deg,#005258,#0D3F44);border-radius:1.15rem;padding:2rem 1.6rem;text-align:center;color:#fff}
-  .promo p{font-weight:300;color:rgba(255,255,255,.82);font-size:.9rem;margin:1.1rem auto 1.4rem;max-width:26rem}
-  .cta-row{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
-  .btn{display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;font-weight:600;font-size:.85rem;padding:.75rem 1.4rem;border-radius:9999px}
-  .btn-fill{background:#fff;color:${C.primary}}
-  .btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35)}
   .foot{text-align:center;font-size:.72rem;color:${C.outline};margin-top:2rem;line-height:1.7}
-  .status{max-width:460px;margin:0 auto;padding:4rem 1.5rem;text-align:center}
-  .status .material-symbols-outlined{font-size:44px;color:${C.primary};margin-bottom:1rem}
+  .status{max-width:460px;margin:0 auto;padding:3rem 1.5rem;text-align:center}
+  .status .material-symbols-outlined{font-size:44px;color:${C.brand};margin-bottom:1rem}
   .status h1{margin-bottom:.75rem}
   .status p{color:${C.onSurfaceVariant};font-weight:300;margin-bottom:1.75rem}
+  .btn{display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;font-weight:600;font-size:.88rem;padding:.8rem 1.6rem;border-radius:9999px;background:${C.brand};color:#fff}
 </style>
 </head>
 <body>
-${LOGO_SPRITE}
+${logoSprite('beaches')}
 ${bodyHtml}
 </body>
 </html>`
 }
 
 function brandBar() {
-  return `<div class="brandbar">${logoLockup(LOCKUP)}</div>`
+  const h = 52
+  const w = (h * BEACHES_RATIO).toFixed(1)
+  // Both href and xlink:href: older iOS Safari only honours the xlink form.
+  return `<div class="brandbar">
+      <svg class="lg" width="${w}" height="${h}" role="img" aria-label="Beaches OBGYN"><use href="#lg-beaches" xlink:href="#lg-beaches"/></svg>
+    </div>`
 }
 
-function promoFooter() {
-  return `
-  <div class="promo">
-    ${logoLockup(LOCKUP_SM, 0.45)}
-    <p>This analysis was prepared using Marea — the women's health app designed by OB/GYNs. Track your symptoms, understand your labs, and get guidance backed by clinical science.</p>
-    <div class="cta-row">
-      <a class="btn btn-fill" href="${APP_STORE_URL}" target="_blank" rel="noopener">Download the app</a>
-      <a class="btn btn-ghost" href="${SITE_URL}" target="_blank" rel="noopener">Visit mareahealth.com</a>
-    </div>
-  </div>
-  <p class="foot">&copy; ${new Date().getFullYear()} Marea Health &middot; This link is private and expires automatically.</p>`
-}
-
-function statusPage({ icon, title, message }) {
+function statusPage({ icon, title, message, action = '' }) {
   const body = `${brandBar()}
   <div class="status">
     <span class="material-symbols-outlined">${icon}</span>
     <h1>${escapeHtml(title)}</h1>
     <p>${escapeHtml(message)}</p>
-    <a class="btn btn-fill" style="background:${C.primary};color:#fff" href="${SITE_URL}" target="_blank" rel="noopener">Discover Marea</a>
+    ${action}
   </div>`
-  return page({ title: `${title} — Marea`, description: 'A personalized lab analysis from Marea.', bodyHtml: body })
+  return page({ title, description: 'A private summary prepared by your clinician.', bodyHtml: body })
+}
+
+// Shown to link-preview crawlers and mail-security scanners. Carries no
+// clinical content, so an automated fetch reveals nothing; a human who lands
+// here by mistake is one tap from the real thing.
+function interstitialPage(token) {
+  return statusPage({
+    icon: 'lock',
+    title: 'A private summary is waiting for you',
+    message: 'This link opens a private health summary prepared for one person. Tap below to open it in your browser.',
+    action: `<a class="btn" href="/r/${encodeURIComponent(token)}?open=1">Open my summary</a>`,
+  })
 }
 
 function renderLabs(labs) {
   const cd = labs.progesterone_cycle_day || null
-  // Only render a section heading when more than one group has values —
-  // a single-panel report reads better as a plain list of cards.
   const filled = LAB_GROUPS.map(g => ({ g, keys: g.keys.filter(k => labs[k] != null) }))
                            .filter(x => x.keys.length)
   const showHeadings = filled.length > 1
 
-  const sections = filled.map(({ g, keys }) => {
+  return filled.map(({ g, keys }) => {
     const cards = keys.map(key => renderLabCard(key, labs[key], key === 'progesterone' ? cd : null)).join('')
     const heading = showHeadings
       ? `<div class="cat-head"><span class="material-symbols-outlined">${g.icon}</span><h3>${escapeHtml(g.label)}</h3></div>`
       : ''
     return `${heading}<div class="labs">${cards}</div>`
   }).join('')
-
-  return sections
 }
 
 function renderLabCard(key, val, cycleDay) {
   const cfg = LAB_CONFIG[key]
   const r = evaluateLevel(key, val, cycleDay)
-  // Prefer the patient-facing wording (plabel/pnote) where a range defines
-  // it — the clinical copy carries perimenopause framing that doesn't belong
-  // on a report shared straight with a patient.
+  // Prefer the patient-facing wording (plabel/pnote) where a range defines it.
   const badge = r
     ? `<span class="badge" style="background:${r.color}15;color:${r.color}">${escapeHtml(r.plabel || r.label)}</span>`
     : ''
@@ -219,9 +241,6 @@ function renderLabCard(key, val, cycleDay) {
       </div>`
 }
 
-// Calculated ratios (LH:FSH, HOMA-IR, free androgen index). These often carry
-// more signal than any single value, so they get their own visually distinct
-// block rather than being buried among the raw results.
 function renderIndices(labs) {
   const indices = derivedIndices(labs)
   if (!indices.length) return ''
@@ -247,6 +266,7 @@ function renderInterpretation(text) {
     <div class="interp">
       <div class="eyebrow"><span class="material-symbols-outlined">auto_awesome</span> What your results mean</div>
       ${paras}
+      <p class="provenance">This explanation was written automatically from the lab values your clinician entered, and was read and approved by your clinician before it was shared with you.</p>
     </div>`
 }
 
@@ -267,12 +287,8 @@ function renderRecommendations(recs) {
   if (!sections.trim()) return ''
   return `
     <h2>Options to consider</h2>
-    <p class="hint">Tap any option to learn more. These are possibilities to discuss with your clinician — not a prescription.</p>
+    <p class="hint">Your clinician chose these options for you. Tap any one to read more — they are possibilities to discuss at your next visit, not a prescription.</p>
     ${sections}`
-}
-
-function fmtDate(d) {
-  return new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 export default async function handler(req, res) {
@@ -281,19 +297,27 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   // Patient content — never cache at the edge or in shared proxies.
   res.setHeader('Cache-Control', 'private, no-store, max-age=0')
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet')
+  res.setHeader('Referrer-Policy', 'no-referrer')
 
   if (!token) {
     return res.status(404).send(statusPage({
-      icon: 'link_off', title: 'Report not found',
+      icon: 'link_off', title: 'Summary not found',
       message: 'This link is missing or incomplete. Please use the exact link shared by your clinician.',
     }))
+  }
+
+  // Serve automated fetchers a contentless page before touching the database.
+  if (isAutomated(req)) {
+    await logAccess(req, { token, outcome: 'automated', automated: true })
+    return res.status(200).send(interstitialPage(token))
   }
 
   let report = null
   try {
     const { data } = await supabase
       .from('patient_reports')
-      .select('labs, stage, interpretation, recommendations, created_at, expires_at, revoked')
+      .select('id, labs, interpretation, recommendations, expires_at, revoked')
       .eq('token', token)
       .maybeSingle()
     report = data
@@ -301,30 +325,33 @@ export default async function handler(req, res) {
     console.error('[report] lookup failed:', e?.message || e)
     return res.status(500).send(statusPage({
       icon: 'error', title: 'Something went wrong',
-      message: 'We couldn’t load this report right now. Please try again in a moment.',
+      message: 'We couldn’t load this summary right now. Please try again in a moment.',
     }))
   }
 
   if (!report || report.revoked) {
+    await logAccess(req, { token, reportId: report?.id ?? null, outcome: report ? 'revoked' : 'not_found' })
     return res.status(404).send(statusPage({
-      icon: 'link_off', title: 'Report not available',
+      icon: 'link_off', title: 'Summary not available',
       message: 'This link is no longer active. If you believe this is a mistake, please contact your clinician for an updated link.',
     }))
   }
 
   if (report.expires_at && new Date(report.expires_at) < new Date()) {
+    await logAccess(req, { token, reportId: report.id, outcome: 'expired' })
     return res.status(410).send(statusPage({
       icon: 'schedule', title: 'This link has expired',
-      message: 'For your privacy, personalized lab links stay active for 30 days. Please ask your clinician for a fresh link if you need to view this again.',
+      message: 'For your privacy, these private links stay active for a limited time. Please ask your clinician for a fresh link if you need to view this again.',
     }))
   }
 
+  await logAccess(req, { token, reportId: report.id, outcome: 'served' })
+
   const body = `${brandBar()}
   <div class="wrap">
-    <div class="eyebrow"><span class="material-symbols-outlined">labs</span> Personalized lab analysis</div>
+    <div class="eyebrow"><span class="material-symbols-outlined">labs</span> Your lab summary</div>
     <h1>Your hormone results, explained</h1>
-    <p class="meta">Prepared ${fmtDate(report.created_at)}</p>
-    <p class="meta">This private link expires ${fmtDate(report.expires_at)}.</p>
+    <p class="meta">Prepared for you by your clinician.</p>
 
     <h2>Your results</h2>
     ${renderLabs(report.labs || {})}
@@ -336,15 +363,15 @@ export default async function handler(req, res) {
     ${renderRecommendations(report.recommendations)}
 
     <div class="disclaimer">
-      This analysis is for educational purposes and is not a medical diagnosis. Your results should be reviewed together with your full clinical picture by your healthcare provider. A single lab draw is a snapshot — trends over time are more meaningful than any individual result. Do not start, stop, or change any medication or supplement without speaking to your clinician.
+      This summary is for your information and is not a medical diagnosis. Your results should be reviewed together with your full clinical picture by your healthcare provider. A single lab draw is a snapshot — trends over time are more meaningful than any individual result. Do not start, stop, or change any medication or supplement without speaking to your clinician.
     </div>
 
-    ${promoFooter()}
+    <p class="foot">This summary is private to you, and the link expires automatically 30 days after it was created.</p>
   </div>`
 
   return res.status(200).send(page({
-    title: 'Your Personalized Lab Analysis — Marea',
-    description: 'A private, personalized hormone lab analysis prepared with Marea, the women\'s health app designed by OB/GYNs.',
+    title: 'Your Lab Summary',
+    description: 'A private summary of your recent lab results, prepared by your clinician.',
     bodyHtml: body,
   }))
 }

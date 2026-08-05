@@ -54,6 +54,7 @@ export default function AdminLabReport() {
   const [copied, setCopied] = useState(false)
 
   const [reports, setReports] = useState([])
+  const [views, setViews] = useState({}) // report_id -> { count, last }
 
   useEffect(() => { if (adminVerified) loadReports() }, [adminVerified])
 
@@ -68,6 +69,24 @@ export default function AdminLabReport() {
       .order('created_at', { ascending: false })
       .limit(50)
     setReports(data || [])
+
+    // Roll up the audit log so each report shows whether the patient opened
+    // it. Tolerates the log table not existing yet (migration not yet run).
+    const ids = (data || []).map(r => r.id)
+    if (!ids.length) return setViews({})
+    const { data: logs, error } = await supabase
+      .from('report_access_log')
+      .select('report_id, accessed_at')
+      .in('report_id', ids)
+      .eq('outcome', 'served')
+      .order('accessed_at', { ascending: false })
+    if (error) return setViews({})
+    const rollup = {}
+    for (const l of logs || []) {
+      if (!rollup[l.report_id]) rollup[l.report_id] = { count: 0, last: l.accessed_at }
+      rollup[l.report_id].count++
+    }
+    setViews(rollup)
   }
 
   async function handleLogout() {
@@ -503,6 +522,14 @@ export default function AdminLabReport() {
                       </p>
                       <p className={`text-[0.72rem] ${inactive ? 'text-tertiary' : 'text-outline'}`}>
                         {r.revoked ? 'Revoked' : expired ? 'Expired' : `Active · expires ${new Date(r.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
+                      </p>
+                      <p className="text-[0.72rem] mt-0.5">
+                        {views[r.id]
+                          ? <span className="text-primary font-medium">
+                              Opened {views[r.id].count}{views[r.id].count === 1 ? ' time' : ' times'}
+                              {' · last '}{new Date(views[r.id].last).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
+                          : <span className="text-outline-variant">Not opened yet</span>}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
