@@ -156,24 +156,3 @@ body {
   font-size: 0.85rem;
 }
 
-/* ── Tide band (components/TideBand.jsx) ──────────────────────────────
-   Each wave path tiles at a 70-unit period, so shifting it exactly one
-   period and repeating is seamless. Different durations on the two
-   layers give the parallax. */
-@keyframes tide-drift {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-70px); }
-}
-
-.tide-wave {
-  animation: tide-drift linear infinite;
-  will-change: transform;
-}
-
-.tide-wave--back  { animation-duration: 14s; }
-.tide-wave--front { animation-duration: 9s; }
-
-/* The band is decorative. Hold it still for anyone who asked for that. */
-@media (prefers-reduced-motion: reduce) {
-  .tide-wave { animation: none; }
-}
