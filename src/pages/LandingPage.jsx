@@ -1013,28 +1013,6 @@ export default function LandingPage() {
           actually working, not a claim about it (STYLE_GUIDE §7.1). */}
       <TideBand />
 
-      {/* The Marea Philosophy */}
-      <section id="vision" className="py-16 md:py-24 bg-surface-container-low">
-        <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
-            The Marea Philosophy
-          </div>
-          <h2
-            className="font-headline text-3xl md:text-4xl lg:text-5xl mb-6"
-            style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
-          >
-            Intelligence meets Empathy.
-          </h2>
-          <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed mb-10">
-            We believe hormonal health shouldn&apos;t be a black box. Our proprietary
-            &ldquo;Pulse&rdquo; visualization transforms complex cycle data into a serene, intuitive
-            experience that adapts as you do.
-          </p>
-          <div className="relative h-3 w-full max-w-sm mx-auto bg-outline-variant/20 rounded-full overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary-container to-tertiary-container animate-pulse opacity-60" />
-          </div>
-        </div>
-      </section>
 
       {/* Marea Index & Daily Forecast */}
       <section className="pt-16 pb-8 md:pt-24 md:pb-12 bg-surface">
@@ -1064,7 +1042,7 @@ export default function LandingPage() {
                     Marea Index
                   </h3>
                   <p className="font-light text-sm md:text-base leading-relaxed mb-6" style={{ color: '#3f484a' }}>
-                    A daily 0–100 reading of how your body is moving — weighted across sleep, body, mind, and symptoms. Tap the orb anytime for a plain-language explanation.
+                    A daily reading of how your body is moving — weighted across sleep, body, mind, and symptoms. Tap the orb anytime for a plain-language explanation.
                   </p>
                   <ul className="space-y-3">
                     <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
@@ -1195,10 +1173,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Medical Team — credibility, so it sits with the testimonial rather
-          than interrupting the run of product cards above. Its bottom padding
-          was tuned to butt against the features section's pt-8; now that it
-          precedes a contrasting band, it needs the full gap back. */}
+      {/* Medical Team — credibility, so it sits below the run of product cards
+          rather than interrupting it. Its bottom padding was tuned to butt
+          against the features section's pt-8; now that it precedes a
+          contrasting band, it needs the full gap back. */}
       <section className="pt-16 pb-16 md:pt-20 md:pb-20 bg-surface">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
           <div className="text-center mb-10">
@@ -1256,6 +1234,29 @@ export default function LandingPage() {
                 Co-Founder &amp; Medical Director
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The Marea Philosophy */}
+      <section id="vision" className="py-16 md:py-24 bg-surface-container-low">
+        <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
+          <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
+            The Marea Philosophy
+          </div>
+          <h2
+            className="font-headline text-3xl md:text-4xl lg:text-5xl mb-6"
+            style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
+          >
+            Intelligence meets Empathy.
+          </h2>
+          <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed mb-10">
+            We believe hormonal health shouldn&apos;t be a black box. Our proprietary
+            &ldquo;Pulse&rdquo; visualization transforms complex cycle data into a serene, intuitive
+            experience that adapts as you do.
+          </p>
+          <div className="relative h-3 w-full max-w-sm mx-auto bg-outline-variant/20 rounded-full overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary-container to-tertiary-container animate-pulse opacity-60" />
           </div>
         </div>
       </section>
