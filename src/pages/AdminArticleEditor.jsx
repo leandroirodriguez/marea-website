@@ -8,6 +8,7 @@ import { compressImage } from '../lib/compressImage'
 
 marked.setOptions({ breaks: true, gfm: true })
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
 
 const CATEGORIES = ['Sleep', 'Mood', 'Brain fog', 'Hot flashes', 'HRT', 'Lifestyle', 'Intimacy']
 
@@ -304,23 +305,23 @@ export default function AdminArticleEditor() {
                   </button>
                   <div className="w-px bg-outline-variant/30 mx-1" />
                   <button type="button" onClick={() => insertMarkdown('\n- ', '\n')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Bullet list">
-                    <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+                    <Icon name="format_list_bulleted" className="text-[16px]" />
                   </button>
                   <button type="button" onClick={() => insertMarkdown('\n1. ', '\n')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Numbered list">
-                    <span className="material-symbols-outlined text-[16px]">format_list_numbered</span>
+                    <Icon name="format_list_numbered" className="text-[16px]" />
                   </button>
                   <button type="button" onClick={() => insertMarkdown('\n> ', '\n')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Blockquote">
-                    <span className="material-symbols-outlined text-[16px]">format_quote</span>
+                    <Icon name="format_quote" className="text-[16px]" />
                   </button>
                   <div className="w-px bg-outline-variant/30 mx-1" />
                   <button type="button" onClick={() => insertMarkdown('\n---\n', '')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Horizontal rule">
-                    <span className="material-symbols-outlined text-[16px]">horizontal_rule</span>
+                    <Icon name="horizontal_rule" className="text-[16px]" />
                   </button>
                   <button type="button" onClick={() => insertMarkdown('[', '](url)')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Link">
-                    <span className="material-symbols-outlined text-[16px]">link</span>
+                    <Icon name="link" className="text-[16px]" />
                   </button>
                   <button type="button" onClick={() => inlineImageRef.current?.click()} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Upload image into article">
-                    <span className="material-symbols-outlined text-[16px]">image</span>
+                    <Icon name="image" className="text-[16px]" />
                   </button>
                   <input ref={inlineImageRef} type="file" accept="image/*" onChange={handleInlineImageUpload} className="hidden" />
                   {uploading && <span className="text-[0.72rem] text-outline ml-2">Uploading...</span>}
@@ -338,7 +339,7 @@ export default function AdminArticleEditor() {
               {/* AI revision panel */}
               <div className="border border-primary/20 bg-primary/[0.03] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="material-symbols-outlined text-primary text-[18px]">auto_awesome</span>
+                  <Icon name="auto_awesome" className="text-primary text-[18px]" />
                   <span className="text-[0.72rem] font-semibold tracking-widest uppercase text-primary">Suggest changes — AI edit</span>
                 </div>
                 <p className="text-[0.78rem] text-on-surface-variant leading-relaxed mb-3">
@@ -359,7 +360,7 @@ export default function AdminArticleEditor() {
                     disabled={revising || !revisionInstruction.trim() || !form.body}
                     className={`bg-primary text-on-primary border-none px-4 py-2 rounded-full text-[0.82rem] font-semibold cursor-pointer inline-flex items-center gap-1.5 ${revising || !revisionInstruction.trim() || !form.body ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    {revising && <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>}
+                    {revising && <Icon name="progress_activity" className="text-[16px] animate-spin" />}
                     {revising ? 'Revising…' : 'Revise with AI'}
                   </button>
                   {previousBody != null && !revising && (
@@ -368,7 +369,7 @@ export default function AdminArticleEditor() {
                       onClick={undoRevision}
                       className="bg-transparent border border-outline-variant/60 text-on-surface-variant px-4 py-2 rounded-full text-[0.82rem] font-medium cursor-pointer inline-flex items-center gap-1.5 hover:bg-surface-container"
                     >
-                      <span className="material-symbols-outlined text-[16px]">undo</span>
+                      <Icon name="undo" className="text-[16px]" />
                       Undo last revision
                     </button>
                   )}
@@ -448,9 +449,9 @@ export default function AdminArticleEditor() {
                 >
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   {uploading ? (
-                    <span className="material-symbols-outlined text-primary text-[20px] animate-spin">progress_activity</span>
+                    <Icon name="progress_activity" className="text-primary text-[20px] animate-spin" />
                   ) : (
-                    <span className="material-symbols-outlined text-outline text-[20px]">cloud_upload</span>
+                    <Icon name="cloud_upload" className="text-outline text-[20px]" />
                   )}
                   <span className="text-[0.75rem] text-outline-variant">
                     {uploading ? 'Uploading...' : 'Click or drag image here'}

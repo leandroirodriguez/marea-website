@@ -25,8 +25,11 @@
   --color-outline: #6f797a;
   --color-on-primary-container: #a1e9f1;
   --font-headline: "Newsreader", serif;
-  --font-body: "Plus Jakarta Sans", sans-serif;
-  --font-label: "Plus Jakarta Sans", sans-serif;
+  /* Archivo replaces Plus Jakarta Sans to match the app. Jakarta is the
+     default grotesque in effectively every AI-generated app, and the site
+     and the app it advertises were set in different faces. */
+  --font-body: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-label: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 html { scroll-behavior: smooth; }
@@ -38,8 +41,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Only reached by icon names components/Icon.jsx doesn't cover — mostly
+   names arriving from the database. Re-weighted to sit at the same visual
+   weight as Icon's 1.4px custom stroke, so the fallback doesn't read as a
+   second icon system. */
 .material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' -25, 'opsz' 24;
 }
 
 /* Article prose styling */
@@ -147,4 +154,26 @@ body {
   background: none;
   padding: 0;
   font-size: 0.85rem;
+}
+
+/* ── Tide band (components/TideBand.jsx) ──────────────────────────────
+   Each wave path tiles at a 70-unit period, so shifting it exactly one
+   period and repeating is seamless. Different durations on the two
+   layers give the parallax. */
+@keyframes tide-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-70px); }
+}
+
+.tide-wave {
+  animation: tide-drift linear infinite;
+  will-change: transform;
+}
+
+.tide-wave--back  { animation-duration: 14s; }
+.tide-wave--front { animation-duration: 9s; }
+
+/* The band is decorative. Hold it still for anyone who asked for that. */
+@media (prefers-reduced-motion: reduce) {
+  .tide-wave { animation: none; }
 }

@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { fixStorageUrl } from '../lib/images'
 import { AppStorePill } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
 
 export default function BlogPage() {
   const [posts, setPosts] = useState([])
@@ -39,8 +40,8 @@ export default function BlogPage() {
         {loading && <p className="text-outline">Loading posts...</p>}
 
         {!loading && posts.length === 0 && (
-          <div className="bg-surface-container-lowest rounded-2xl p-12 text-center shadow-sm border border-outline-variant/10">
-            <span className="material-symbols-outlined text-[48px] text-outline-variant mb-4 block">article</span>
+          <div className="bg-surface-container-lowest rounded-2xl p-12 text-center border border-outline-variant/10">
+            <Icon name="article" className="text-[48px] text-outline-variant mb-4 block" />
             <p className="text-outline font-light">No posts published yet. Check back soon.</p>
           </div>
         )}

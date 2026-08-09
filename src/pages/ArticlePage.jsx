@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { articleImage, fixStorageUrl } from '../lib/images'
 import { APP_STORE_URL, AppStorePill } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
 
 marked.setOptions({ breaks: true, gfm: true })
 
@@ -87,7 +88,7 @@ export default function ArticlePage() {
             href={APP_STORE_URL}
             className="bg-primary/80 text-on-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
           >
-            <span className="material-symbols-outlined text-lg">phone_iphone</span>
+            <Icon name="phone_iphone" className="text-lg" />
             Download Marea
           </a>
         </div>

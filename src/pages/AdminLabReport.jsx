@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAdminGuard } from '../hooks/useAdminGuard'
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
 import {
   LAB_KEYS, LAB_GROUPS, LAB_CONFIG, UNIT_OPTIONS, convertToDefault, evaluateLevel,
   STAGE_OPTIONS, CLINICAL_QUESTIONS, RECOMMENDATION_CATEGORIES, derivedIndices,
@@ -273,7 +274,7 @@ export default function AdminLabReport() {
                     onClick={() => setOpenGroups(o => ({ ...o, [group.key]: !isOpen }))}
                     className="w-full flex items-center justify-between px-5 py-4 bg-transparent border-none cursor-pointer text-left">
                     <span className="flex items-center gap-2.5 font-semibold text-[0.9rem] text-on-background">
-                      <span className="material-symbols-outlined text-[20px] text-primary">{group.icon}</span>
+                      <Icon name={group.icon} className="text-[20px] text-primary" />
                       {group.label}
                       {filledCount > 0 && (
                         <span className="text-[0.7rem] font-semibold text-primary bg-primary/[0.08] px-2 py-0.5 rounded-full">
@@ -281,9 +282,7 @@ export default function AdminLabReport() {
                         </span>
                       )}
                     </span>
-                    <span className={`material-symbols-outlined text-[20px] text-outline transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-                      expand_more
-                    </span>
+                    <Icon name="expand_more" className={`text-[20px] text-outline transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {isOpen && (
@@ -295,7 +294,7 @@ export default function AdminLabReport() {
                   <div key={key}>
                     <div className="flex items-center justify-between mb-2.5">
                       <span className="flex items-center gap-2 font-semibold text-[0.88rem] text-on-background">
-                        <span className="material-symbols-outlined text-[18px] text-primary">{cfg.icon}</span>{cfg.label}
+                        <Icon name={cfg.icon} className="text-[18px] text-primary" />{cfg.label}
                       </span>
                       {opts.factor === 1 ? (
                         <span className="text-[0.72rem] text-outline">{opts.default}</span>
@@ -435,7 +434,7 @@ export default function AdminLabReport() {
                   <div key={cat.key} className="mb-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="flex items-center gap-2 text-[0.72rem] font-bold uppercase tracking-wider text-secondary">
-                        <span className="material-symbols-outlined text-[18px]">{cat.icon}</span>{cat.label}
+                        <Icon name={cat.icon} className="text-[18px]" />{cat.label}
                       </span>
                       <button onClick={() => setRecs(rs => [...rs, { category: cat.key, title: '', detail: '', include: true }])}
                         className="text-[0.72rem] text-primary font-semibold bg-transparent border-none cursor-pointer">+ Add option</button>
@@ -457,7 +456,7 @@ export default function AdminLabReport() {
                           </div>
                           <button onClick={() => setRecs(rs => rs.filter((_, xi) => xi !== i))}
                             className="text-outline hover:text-tertiary bg-transparent border-none cursor-pointer p-0.5" title="Remove">
-                            <span className="material-symbols-outlined text-[18px]">delete_outline</span>
+                            <Icon name="delete_outline" className="text-[18px]" />
                           </button>
                         </div>
                       </div>
@@ -481,7 +480,7 @@ export default function AdminLabReport() {
         {/* ─── LINK ──────────────────────────────────────────────── */}
         {view === 'link' && (
           <div className="bg-white rounded-2xl p-6 shadow-sm text-center mb-6">
-            <span className="material-symbols-outlined text-[40px] text-primary">check_circle</span>
+            <Icon name="check_circle" className="text-[40px] text-primary" />
             <h2 className="font-headline text-[1.4rem] font-normal text-on-background mt-2 mb-1">Share link ready</h2>
             <p className="text-[0.82rem] text-outline mb-4">
               Paste this into your patient portal. It contains no identifying information and expires{' '}

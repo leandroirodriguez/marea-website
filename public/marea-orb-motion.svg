@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <defs>
+    <radialGradient id="orbShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#005258" stop-opacity="0.28"/>
+      <stop offset="55%" stop-color="#005258" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#005258" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="orbClip">
+      <circle cx="140" cy="140" r="105"/>
+    </clipPath>
+  </defs>
+  <ellipse cx="140" cy="180" rx="115" ry="60" fill="url(#orbShadow)"/>
+  <circle cx="140" cy="140" r="105" fill="#d6e8ea"/>
+  <g clip-path="url(#orbClip)">
+    <path d="M 25 90 Q 60 68 100 90 T 175 90 T 250 90 L 250 245 L 25 245 Z" fill="#2A8A93"/>
+    <path d="M 35 110 Q 75 90 115 110 T 195 110 T 275 110 L 275 245 L 35 245 Z" fill="#005258"/>
+  </g>
+  <circle cx="140" cy="140" r="110" fill="none" stroke="#005258" stroke-opacity="0.2" stroke-width="1.5"/>
+  <circle cx="140" cy="140" r="116" fill="none" stroke="#005258" stroke-opacity="0.08" stroke-width="1"/>
+</svg>

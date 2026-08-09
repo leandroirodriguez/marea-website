@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
 
 export default function AccountPage() {
   const { user, profile, isPaid } = useAuth()
@@ -40,10 +41,10 @@ export default function AccountPage() {
       <div className="max-w-[600px] mx-auto px-6 md:px-8 pt-24 pb-12">
         <h1 className="font-headline text-[2rem] font-normal text-on-background mb-8" style={{ letterSpacing: '-0.02em' }}>My Account</h1>
 
-        <div className="bg-surface-container-lowest rounded-2xl p-8 shadow-sm border border-outline-variant/10 mb-6">
+        <div className="bg-surface-container-lowest rounded-2xl p-8 border border-outline-variant/10 mb-6">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-12 rounded-full bg-primary/[0.08] flex items-center justify-center">
-              <span className="material-symbols-outlined text-2xl text-primary">person</span>
+              <Icon name="person" className="text-2xl text-primary" />
             </div>
             <div>
               <p className="font-semibold text-on-background">{profile?.name || 'User'}</p>

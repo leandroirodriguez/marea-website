@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { fixStorageUrl } from '../lib/images'
 import { compressImage } from '../lib/compressImage'
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
 
 export default function AdminBlogEditor() {
   const { id } = useParams()
@@ -193,9 +194,9 @@ export default function AdminBlogEditor() {
             >
               <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
               {uploading ? (
-                <span className="material-symbols-outlined text-primary text-[20px] animate-spin">progress_activity</span>
+                <Icon name="progress_activity" className="text-primary text-[20px] animate-spin" />
               ) : (
-                <span className="material-symbols-outlined text-outline text-[20px]">cloud_upload</span>
+                <Icon name="cloud_upload" className="text-outline text-[20px]" />
               )}
               <span className="text-[0.75rem] text-outline-variant">
                 {uploading ? 'Uploading...' : 'Click or drag image here'}
@@ -226,19 +227,19 @@ export default function AdminBlogEditor() {
               <button type="button" onClick={() => insertHtml('<em>', '</em>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-[0.75rem] italic text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Italic">I</button>
               <div className="w-px bg-outline-variant/30 mx-1" />
               <button type="button" onClick={() => insertHtml('<p>', '</p>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Paragraph">
-                <span className="material-symbols-outlined text-[16px]">notes</span>
+                <Icon name="notes" className="text-[16px]" />
               </button>
               <button type="button" onClick={() => insertHtml('<ul>\n  <li>', '</li>\n</ul>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="List">
-                <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+                <Icon name="format_list_bulleted" className="text-[16px]" />
               </button>
               <button type="button" onClick={() => insertHtml('<blockquote>', '</blockquote>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Blockquote">
-                <span className="material-symbols-outlined text-[16px]">format_quote</span>
+                <Icon name="format_quote" className="text-[16px]" />
               </button>
               <button type="button" onClick={() => insertHtml('<a href="url">', '</a>')} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Link">
-                <span className="material-symbols-outlined text-[16px]">link</span>
+                <Icon name="link" className="text-[16px]" />
               </button>
               <button type="button" onClick={() => inlineImageRef.current?.click()} className="px-2.5 py-1.5 rounded-lg bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Upload image into post">
-                <span className="material-symbols-outlined text-[16px]">image</span>
+                <Icon name="image" className="text-[16px]" />
               </button>
               <input ref={inlineImageRef} type="file" accept="image/*" onChange={handleInlineImageUpload} className="hidden" />
               {uploading && <span className="text-[0.72rem] text-outline ml-2">Uploading...</span>}

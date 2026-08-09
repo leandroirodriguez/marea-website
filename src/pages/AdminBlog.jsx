@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { fixStorageUrl } from '../lib/images'
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
 
 export default function AdminBlog() {
   const navigate = useNavigate()
@@ -85,7 +86,7 @@ export default function AdminBlog() {
               onClick={() => setShowGenerate(true)}
               className="bg-tertiary text-on-tertiary px-5 py-2.5 rounded-full text-[0.85rem] font-semibold cursor-pointer flex items-center gap-2 hover:bg-tertiary-container transition-colors"
             >
-              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+              <Icon name="auto_awesome" className="text-[18px]" />
               Generate with AI
             </button>
             <Link to="/admin/blog/new" className="bg-primary text-on-primary px-6 py-2.5 rounded-full text-[0.85rem] font-semibold">
@@ -98,7 +99,7 @@ export default function AdminBlog() {
           <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
             {posts.length === 0 ? (
               <div className="p-12 text-center text-outline">
-                <span className="material-symbols-outlined text-[48px] text-outline-variant block mb-4">edit_note</span>
+                <Icon name="edit_note" className="text-[48px] text-outline-variant block mb-4" />
                 <p>No blog posts yet. Create your first one.</p>
               </div>
             ) : (
@@ -157,7 +158,7 @@ export default function AdminBlog() {
           <div className="bg-white rounded-2xl p-8 max-w-[600px] w-full shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-tertiary">auto_awesome</span>
+                <Icon name="auto_awesome" className="text-tertiary" />
               </div>
               <div>
                 <h2 className="font-headline text-xl font-normal text-on-background">Generate Blog Post with AI</h2>
@@ -175,7 +176,7 @@ export default function AdminBlog() {
                     disabled={loadingSuggestions}
                     className="text-[0.75rem] text-primary font-semibold cursor-pointer bg-transparent border-none hover:text-primary-container transition-colors flex items-center gap-1"
                   >
-                    <span className="material-symbols-outlined text-[16px]">{loadingSuggestions ? 'progress_activity' : 'refresh'}</span>
+                    <Icon name={loadingSuggestions ? 'progress_activity' : 'refresh'} className="text-[16px]" />
                     {loadingSuggestions ? 'Loading...' : suggestions.length ? 'Refresh ideas' : 'Get ideas from Claude'}
                   </button>
                 </div>
@@ -254,12 +255,12 @@ export default function AdminBlog() {
                 >
                   {generating ? (
                     <>
-                      <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                      <Icon name="progress_activity" className="text-[18px] animate-spin" />
                       Generating...
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+                      <Icon name="auto_awesome" className="text-[18px]" />
                       Generate Draft
                     </>
                   )}

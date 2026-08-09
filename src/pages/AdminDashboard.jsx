@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
 
 function StatCard({ icon, label, value, change, color }) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm flex-1 min-w-[180px]">
       <div className="flex items-center gap-2 mb-3">
         <div className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ background: `${color || '#005258'}14` }}>
-          <span className="material-symbols-outlined text-[20px]" style={{ color: color || '#005258' }}>{icon}</span>
+          <Icon name={icon} className="text-[20px]" style={{ color: color || '#005258' }} />
         </div>
       </div>
       <p className="font-headline text-[2rem] font-normal text-on-background mb-1">{value}</p>
@@ -245,23 +246,23 @@ export default function AdminDashboard() {
                 <h2 className="font-headline text-[1.1rem] font-normal text-on-background mb-4">Quick Actions</h2>
                 <div className="flex flex-col gap-3">
                   <Link to="/admin/labs" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
-                    <span className="material-symbols-outlined text-[20px]">labs</span>
+                    <Icon name="labs" className="text-[20px]" />
                     Analyze patient labs &amp; share
                   </Link>
                   <Link to="/admin/blog/new" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
-                    <span className="material-symbols-outlined text-[20px]">edit_note</span>
+                    <Icon name="edit_note" className="text-[20px]" />
                     Write a new blog post
                   </Link>
                   <Link to="/admin/articles/new" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
-                    <span className="material-symbols-outlined text-[20px]">library_add</span>
+                    <Icon name="library_add" className="text-[20px]" />
                     Add a new article
                   </Link>
                   <Link to="/admin/blog" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
-                    <span className="material-symbols-outlined text-[20px]">dashboard</span>
+                    <Icon name="dashboard" className="text-[20px]" />
                     Manage blog posts
                   </Link>
                   <Link to="/admin/articles" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/[0.04] text-primary text-[0.85rem] font-medium">
-                    <span className="material-symbols-outlined text-[20px]">library_books</span>
+                    <Icon name="library_books" className="text-[20px]" />
                     Manage articles
                   </Link>
                 </div>

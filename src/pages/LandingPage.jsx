@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import { articleImage } from '../lib/images'
 import { APP_LIVE, APP_STORE_URL } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
+import Icon from '../components/Icon'
+import TideBand from '../components/TideBand'
 
 /* Launch state (APP_LIVE / store URL) now lives in lib/appStore so the article
    and blog pages share the same switch. See that file for the launch notes. */
@@ -175,9 +177,7 @@ function AssessmentDemo() {
                     }}
                   >
                     {selected && (
-                      <span className="material-symbols-outlined text-white" style={{ fontSize: '8px' }}>
-                        check
-                      </span>
+                      <Icon name="check" className="text-white" style={{ fontSize: '8px' }} />
                     )}
                   </div>
                   <span
@@ -288,12 +288,7 @@ function AssessmentDemo() {
             }}
           >
             <div className="flex items-start gap-2.5">
-              <span
-                className="material-symbols-outlined shrink-0 mt-0.5"
-                style={{ fontSize: '14px', color: '#8bd2da' }}
-              >
-                lightbulb
-              </span>
+              <Icon name="lightbulb" className="shrink-0 mt-0.5" style={{ fontSize: '14px', color: '#8bd2da' }} />
               <div>
                 <p
                   className="text-[8px] font-label uppercase tracking-[0.15em] mb-1"
@@ -399,12 +394,7 @@ function InsightsDemo() {
             >
               <div className="mb-3">
                 <div className="flex items-center gap-1.5 mb-2">
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: '14px', color: '#8bd2da' }}
-                  >
-                    bedtime
-                  </span>
+                  <Icon name="bedtime" style={{ fontSize: '14px', color: '#8bd2da' }} />
                   <span
                     className="text-[9px] font-label uppercase tracking-wider"
                     style={{ color: '#8bd2da' }}
@@ -419,12 +409,7 @@ function InsightsDemo() {
                   Why Sleep Falls Apart in Perimenopause
                 </h4>
                 <div className="flex items-center gap-1.5 mb-3">
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: '11px', color: '#8bd2da' }}
-                  >
-                    verified
-                  </span>
+                  <Icon name="verified" style={{ fontSize: '11px', color: '#8bd2da' }} />
                   <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
                     Dr. Rodriguez, MD, FACOG
                   </span>
@@ -482,16 +467,7 @@ function InsightsDemo() {
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  <span
-                    className="material-symbols-outlined shrink-0"
-                    style={{
-                      fontSize: '18px',
-                      color: highlighted ? '#8bd2da' : 'rgba(255,255,255,0.3)',
-                      transition: 'color 0.3s',
-                    }}
-                  >
-                    {article.icon}
-                  </span>
+                  <Icon name={article.icon} className="shrink-0" style={{ fontSize: '18px', color: highlighted ? '#8bd2da' : 'rgba(255,255,255,0.3)', transition: 'color 0.3s', }} />
                   <div className="flex-1 min-w-0">
                     <p
                       className="text-[11px] leading-snug truncate"
@@ -508,12 +484,7 @@ function InsightsDemo() {
                     </p>
                   </div>
                   {highlighted && (
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontSize: '14px', color: '#8bd2da' }}
-                    >
-                      arrow_forward
-                    </span>
+                    <Icon name="arrow_forward" style={{ fontSize: '14px', color: '#8bd2da' }} />
                   )}
                 </div>
               )
@@ -568,12 +539,7 @@ function SymptomTrackerDemo() {
             <div key={item.label}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span
-                    className="material-symbols-outlined text-primary text-lg"
-                    style={{ transition: 'opacity 0.3s', opacity: active ? 1 : 0.4 }}
-                  >
-                    {item.icon}
-                  </span>
+                  <Icon name={item.icon} className="text-primary text-lg" style={{ transition: 'opacity 0.3s', opacity: active ? 1 : 0.4 }} />
                   <span className="text-sm font-medium text-on-background">{item.label}</span>
                 </div>
                 <span
@@ -610,7 +576,7 @@ function SymptomTrackerDemo() {
       >
         {saved ? (
           <span className="flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-lg">check_circle</span>
+            <Icon name="check_circle" className="text-lg" />
             Saved!
           </span>
         ) : (
@@ -862,17 +828,17 @@ function ForecastDemo() {
         <div className="grid grid-cols-3 gap-1 text-center">
           <div className="py-2">
             <p className="text-[8px] font-label uppercase tracking-[0.1em]" style={{ color: '#888780' }}>Today</p>
-            <span className="material-symbols-outlined text-[18px] mt-1 block" style={{ color: '#6f797a' }}>partly_cloudy_day</span>
+            <Icon name="partly_cloudy_day" className="text-[18px] mt-1 block" style={{ color: '#6f797a' }} />
             <p className="text-[0.78rem] mt-0.5" style={{ fontFamily: 'Newsreader, Georgia, serif', color: '#3f484a' }}>Mixed</p>
           </div>
           <div className="py-2 rounded-lg" style={{ background: '#e8f3f4' }}>
             <p className="text-[8px] font-label uppercase tracking-[0.1em]" style={{ color: f.accent, transition: 'color 1.2s' }}>Tomorrow</p>
-            <span className="material-symbols-outlined text-[18px] mt-1 block" style={{ color: f.accent, transition: 'color 1.2s' }}>{f.icon}</span>
+            <Icon name={f.icon} className="text-[18px] mt-1 block" style={{ color: f.accent, transition: 'color 1.2s' }} />
             <p className="text-[0.78rem] mt-0.5 font-semibold" style={{ fontFamily: 'Newsreader, Georgia, serif', color: f.accent, transition: 'color 1.2s' }}>{f.tide.split(' ')[0]}</p>
           </div>
           <div className="py-2">
             <p className="text-[8px] font-label uppercase tracking-[0.1em]" style={{ color: '#888780' }}>Day after</p>
-            <span className="material-symbols-outlined text-[18px] mt-1 block" style={{ color: '#6f797a' }}>cloud</span>
+            <Icon name="cloud" className="text-[18px] mt-1 block" style={{ color: '#6f797a' }} />
             <p className="text-[0.78rem] mt-0.5" style={{ fontFamily: 'Newsreader, Georgia, serif', color: '#3f484a' }}>—</p>
           </div>
         </div>
@@ -939,7 +905,7 @@ export default function LandingPage() {
             </a>
           </div>
           <button className="md:hidden text-on-surface-variant" aria-label="Menu" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            <span className="material-symbols-outlined text-2xl">{mobileMenuOpen ? 'close' : 'menu'}</span>
+            <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="text-2xl" />
           </button>
           <a
             href="#download"
@@ -998,7 +964,7 @@ export default function LandingPage() {
                   href={APP_STORE_URL}
                   className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 hover:opacity-90 transition-opacity"
                 >
-                  <span className="material-symbols-outlined text-xl">phone_iphone</span>
+                  <Icon name="phone_iphone" className="text-xl" />
                   <div className="text-left">
                     <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">Available on</p>
                     <p className="text-sm font-semibold leading-none mt-0.5">iPhone</p>
@@ -1008,7 +974,7 @@ export default function LandingPage() {
                 <div
                   className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 opacity-90"
                 >
-                  <span className="material-symbols-outlined text-xl">phone_iphone</span>
+                  <Icon name="phone_iphone" className="text-xl" />
                   <div className="text-left">
                     <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">
                       Coming Soon
@@ -1019,7 +985,7 @@ export default function LandingPage() {
               )}
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-on-primary shrink-0">
-                  <span className="material-symbols-outlined text-lg">verified</span>
+                  <Icon name="verified" className="text-lg" />
                 </div>
                 <p className="text-sm text-on-surface-variant">
                   Built by board-certified{' '}
@@ -1067,6 +1033,10 @@ export default function LandingPage() {
 
       {/* Marea Index & Daily Forecast */}
       <section className="pt-16 pb-8 md:pt-24 md:pb-12 bg-surface">
+        {/* Full-bleed tide band — deliberately outside the max-w container so
+            the page rises around the orb (STYLE_GUIDE §7.1). */}
+        <TideBand className="mb-10 md:mb-14" />
+
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
           <div className="text-center mb-10 md:mb-14">
             <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
@@ -1083,12 +1053,12 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {/* Marea Index — soft teal tile */}
             <div
-              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 shadow-sm border border-outline-variant/10 overflow-hidden relative"
+              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 border border-outline-variant/10 overflow-hidden relative"
               style={{ background: 'linear-gradient(165deg, #e8f3f4 0%, #d8eaec 100%)' }}
             >
               <div className="flex flex-col gap-8 md:gap-10">
                 <div>
-                  <span className="material-symbols-outlined text-primary mb-4 text-3xl block">waves</span>
+                  <Icon name="waves" className="text-primary mb-4 text-3xl block" />
                   <h3 className="font-headline text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.15, color: '#0D3F44' }}>
                     Marea Index
                   </h3>
@@ -1097,15 +1067,15 @@ export default function LandingPage() {
                   </p>
                   <ul className="space-y-3">
                     <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      <Icon name="check_circle" className="text-primary text-base" />
                       Four weighted pillars
                     </li>
                     <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      <Icon name="check_circle" className="text-primary text-base" />
                       Personalized AI explanation
                     </li>
                     <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      <Icon name="check_circle" className="text-primary text-base" />
                       7-day pattern trend
                     </li>
                   </ul>
@@ -1116,12 +1086,12 @@ export default function LandingPage() {
 
             {/* Daily Forecast — warm sand tile */}
             <div
-              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 shadow-sm border border-outline-variant/10 overflow-hidden relative"
+              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 border border-outline-variant/10 overflow-hidden relative"
               style={{ background: 'linear-gradient(165deg, #faefd8 0%, #f0e4d2 100%)' }}
             >
               <div className="flex flex-col gap-8 md:gap-10">
                 <div>
-                  <span className="material-symbols-outlined mb-4 text-3xl block" style={{ color: '#842b16' }}>partly_cloudy_day</span>
+                  <Icon name="partly_cloudy_day" className="mb-4 text-3xl block" style={{ color: '#842b16' }} />
                   <h3 className="font-headline text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.15, color: '#1c1c19' }}>
                     Daily Forecast
                   </h3>
@@ -1130,15 +1100,15 @@ export default function LandingPage() {
                   </p>
                   <ul className="space-y-3">
                     <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <span className="material-symbols-outlined text-base" style={{ color: '#842b16' }}>check_circle</span>
+                      <Icon name="check_circle" className="text-base" style={{ color: '#842b16' }} />
                       Five weighted signals
                     </li>
                     <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <span className="material-symbols-outlined text-base" style={{ color: '#842b16' }}>check_circle</span>
+                      <Icon name="check_circle" className="text-base" style={{ color: '#842b16' }} />
                       Confidence shown, capped at 85%
                     </li>
                     <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <span className="material-symbols-outlined text-base" style={{ color: '#842b16' }}>check_circle</span>
+                      <Icon name="check_circle" className="text-base" style={{ color: '#842b16' }} />
                       Preparation plan, not a prescription
                     </li>
                   </ul>
@@ -1217,12 +1187,10 @@ export default function LandingPage() {
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
             {/* Personalized Profile */}
-            <div className="md:col-span-12 bg-surface-container-lowest rounded-2xl p-6 md:p-10 shadow-sm border border-outline-variant/10 overflow-hidden relative group">
+            <div className="md:col-span-12 bg-surface-container-lowest rounded-2xl p-6 md:p-10 border border-outline-variant/10 overflow-hidden relative group">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <div className="relative z-10">
-                  <span className="material-symbols-outlined text-primary mb-4 text-3xl block">
-                    query_stats
-                  </span>
+                  <Icon name="query_stats" className="text-primary mb-4 text-3xl block" />
                   <h3
                     className="font-headline text-2xl md:text-3xl text-on-background mb-3"
                     style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
@@ -1235,15 +1203,11 @@ export default function LandingPage() {
                   </p>
                   <ul className="space-y-3">
                     <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <span className="material-symbols-outlined text-primary text-base">
-                        check_circle
-                      </span>
+                      <Icon name="check_circle" className="text-primary text-base" />
                       Hormone Baseline Assessment
                     </li>
                     <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <span className="material-symbols-outlined text-primary text-base">
-                        check_circle
-                      </span>
+                      <Icon name="check_circle" className="text-primary text-base" />
                       Life-stage Adaptive UI
                     </li>
                   </ul>
@@ -1260,9 +1224,7 @@ export default function LandingPage() {
                 <SymptomTrackerDemo />
               </div>
               <div className="order-1 lg:order-2">
-                <span className="material-symbols-outlined text-secondary mb-4 text-3xl block">
-                  favorite
-                </span>
+                <Icon name="favorite" className="text-secondary mb-4 text-3xl block" />
                 <h3
                   className="font-headline text-2xl md:text-3xl lg:text-4xl mb-4"
                   style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
@@ -1297,16 +1259,14 @@ export default function LandingPage() {
       {/* Testimonial */}
       <section className="py-16 md:py-24 bg-surface-container">
         <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
-          <span className="material-symbols-outlined text-secondary text-4xl mb-6 block">
-            format_quote
-          </span>
+          <Icon name="format_quote" className="text-secondary text-4xl mb-6 block" />
           <blockquote className="font-headline text-xl sm:text-2xl md:text-3xl lg:text-4xl text-on-background italic leading-snug mb-8">
             &ldquo;Marea is the first tool that didn&apos;t make me feel like I was malfunctioning.
             It&apos;s like having a kind, extremely smart doctor in my pocket every morning.&rdquo;
           </blockquote>
           <div className="flex flex-col items-center">
             <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden mb-3 border-2 border-white bg-surface-container-high flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary text-2xl">person</span>
+              <Icon name="person" className="text-primary text-2xl" />
             </div>
             <cite className="not-italic font-label uppercase tracking-widest text-primary text-xs font-bold">
               Sarah Jenkins, 48
@@ -1361,7 +1321,7 @@ export default function LandingPage() {
             </div>
           ) : (
             <div className="bg-surface-container-lowest rounded-2xl p-8 md:p-10 shadow-sm border border-outline-variant/10 text-center">
-              <span className="material-symbols-outlined text-outline-variant text-4xl mb-3 block">article</span>
+              <Icon name="article" className="text-outline-variant text-4xl mb-3 block" />
               <p className="text-on-surface-variant font-light text-sm">Articles will appear here once published.</p>
             </div>
           )}
@@ -1408,7 +1368,7 @@ export default function LandingPage() {
                     href={APP_STORE_URL}
                     className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20 hover:opacity-90 transition-opacity"
                   >
-                    <span className="material-symbols-outlined text-xl">phone_iphone</span>
+                    <Icon name="phone_iphone" className="text-xl" />
                     Available on iPhone
                   </a>
                   <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
@@ -1418,7 +1378,7 @@ export default function LandingPage() {
               ) : (
                 <>
                   <div className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20">
-                    <span className="material-symbols-outlined text-xl">schedule</span>
+                    <Icon name="schedule" className="text-xl" />
                     Coming Soon
                   </div>
                   <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
@@ -1520,13 +1480,13 @@ export default function LandingPage() {
               className="text-on-background/40 hover:text-primary transition-colors"
               href="#"
             >
-              <span className="material-symbols-outlined text-xl">brand_awareness</span>
+              <Icon name="brand_awareness" className="text-xl" />
             </a>
             <a
               className="text-on-background/40 hover:text-primary transition-colors"
               href="#"
             >
-              <span className="material-symbols-outlined text-xl">group</span>
+              <Icon name="group" className="text-xl" />
             </a>
           </div>
         </div>
