@@ -1013,6 +1013,29 @@ export default function LandingPage() {
           actually working, not a claim about it (STYLE_GUIDE §7.1). */}
       <TideBand />
 
+      {/* The Marea Philosophy */}
+      <section id="vision" className="py-16 md:py-24 bg-surface-container-low">
+        <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
+          <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
+            The Marea Philosophy
+          </div>
+          <h2
+            className="font-headline text-3xl md:text-4xl lg:text-5xl mb-6"
+            style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
+          >
+            Intelligence meets Empathy.
+          </h2>
+          <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed mb-10">
+            We believe hormonal health shouldn&apos;t be a black box. Our proprietary
+            &ldquo;Pulse&rdquo; visualization transforms complex cycle data into a serene, intuitive
+            experience that adapts as you do.
+          </p>
+          <div className="relative h-3 w-full max-w-sm mx-auto bg-outline-variant/20 rounded-full overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary-container to-tertiary-container animate-pulse opacity-60" />
+          </div>
+        </div>
+      </section>
+
       {/* Marea Index & Daily Forecast */}
       <section className="pt-16 pb-8 md:pt-24 md:pb-12 bg-surface">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
@@ -1098,91 +1121,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* The Marea Philosophy */}
-      <section id="vision" className="py-16 md:py-24 bg-surface-container-low">
-        <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
-            The Marea Philosophy
-          </div>
-          <h2
-            className="font-headline text-3xl md:text-4xl lg:text-5xl mb-6"
-            style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
-          >
-            Intelligence meets Empathy.
-          </h2>
-          <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed mb-10">
-            We believe hormonal health shouldn&apos;t be a black box. Our proprietary
-            &ldquo;Pulse&rdquo; visualization transforms complex cycle data into a serene, intuitive
-            experience that adapts as you do.
-          </p>
-          <div className="relative h-3 w-full max-w-sm mx-auto bg-outline-variant/20 rounded-full overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary-container to-tertiary-container animate-pulse opacity-60" />
-          </div>
-        </div>
-      </section>
-
-      {/* Medical Team */}
-      <section className="pt-16 pb-8 md:pt-20 md:pb-12 bg-surface">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
-          <div className="text-center mb-10">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
-              Our Medical Team
-            </div>
-            <h2
-              className="font-headline text-3xl md:text-4xl lg:text-5xl mb-4"
-              style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
-            >
-              Built by practicing OB/GYNs.
-            </h2>
-            <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
-              Marea was born from a clinical practice — not a tech startup. Every assessment, every
-              lab range, every recommendation comes from the same evidence base we use with our own
-              patients.
-            </p>
-          </div>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-20">
-            <div className="flex flex-col items-center max-w-[260px]">
-              <div
-                className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
-                style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
-              >
-                <img
-                  src="/richmond.png"
-                  alt="Dr. Richmond, MD, FACOG"
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <p className="text-lg font-medium text-on-background text-center">Dr. Richmond</p>
-              <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
-                MD, FACOG
-              </p>
-              <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
-                Co-Founder &amp; Medical Director
-              </p>
-            </div>
-            <div className="flex flex-col items-center max-w-[260px]">
-              <div
-                className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
-                style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
-              >
-                <img
-                  src="/rodriguez.png"
-                  alt="Dr. Rodriguez, MD, FACOG"
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <p className="text-lg font-medium text-on-background text-center">Dr. Rodriguez</p>
-              <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
-                MD, FACOG
-              </p>
-              <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
-                Co-Founder &amp; Medical Director
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Features / Capabilities */}
       <section id="features" className="pt-8 pb-16 md:pt-12 md:pb-28 bg-surface">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
@@ -1256,6 +1194,73 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Medical Team — credibility, so it sits with the testimonial rather
+          than interrupting the run of product cards above. Its bottom padding
+          was tuned to butt against the features section's pt-8; now that it
+          precedes a contrasting band, it needs the full gap back. */}
+      <section className="pt-16 pb-16 md:pt-20 md:pb-20 bg-surface">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
+          <div className="text-center mb-10">
+            <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
+              Our Medical Team
+            </div>
+            <h2
+              className="font-headline text-3xl md:text-4xl lg:text-5xl mb-4"
+              style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
+            >
+              Built by practicing OB/GYNs.
+            </h2>
+            <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
+              Marea was born from a clinical practice — not a tech startup. Every assessment, every
+              lab range, every recommendation comes from the same evidence base we use with our own
+              patients.
+            </p>
+          </div>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-20">
+            <div className="flex flex-col items-center max-w-[260px]">
+              <div
+                className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
+                style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
+              >
+                <img
+                  src="/richmond.png"
+                  alt="Dr. Richmond, MD, FACOG"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+              <p className="text-lg font-medium text-on-background text-center">Dr. Richmond</p>
+              <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
+                MD, FACOG
+              </p>
+              <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
+                Co-Founder &amp; Medical Director
+              </p>
+            </div>
+            <div className="flex flex-col items-center max-w-[260px]">
+              <div
+                className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
+                style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
+              >
+                <img
+                  src="/rodriguez.png"
+                  alt="Dr. Rodriguez, MD, FACOG"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+              <p className="text-lg font-medium text-on-background text-center">Dr. Rodriguez</p>
+              <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
+                MD, FACOG
+              </p>
+              <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
+                Co-Founder &amp; Medical Director
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
 
       {/* Testimonial */}
       <section className="py-16 md:py-24 bg-surface-container">
