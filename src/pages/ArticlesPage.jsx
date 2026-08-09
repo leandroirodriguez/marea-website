@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { articleImage, fixStorageUrl } from '../lib/images'
+import { AppStorePill } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
 
 const CATEGORIES = ['All', 'Sleep', 'Mood', 'Brain fog', 'Hot flashes', 'HRT', 'Lifestyle', 'Intimacy']
@@ -11,14 +12,10 @@ export default function ArticlesPage() {
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState('All')
 
-  const reads = JSON.parse(localStorage.getItem('marea_article_reads') || '[]')
-  const readCount = reads.length
-  const hasReachedLimit = readCount >= 1
-
   useEffect(() => {
     supabase
       .from('content')
-      .select('id, title, slug, category, read_time, is_premium, author, cover_url, published_at')
+      .select('id, title, slug, category, read_time, author, cover_url, published_at')
       .eq('published', true)
       .order('published_at', { ascending: false })
       .then(({ data }) => { setArticles(data || []); setLoading(false) })
@@ -36,10 +33,7 @@ export default function ArticlesPage() {
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
           <div className="flex items-center gap-4">
             <Link to="/blog" className="hidden sm:inline font-label text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Blog</Link>
-            <span className="bg-primary/80 text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">schedule</span>
-              <span>Coming Soon</span>
-            </span>
+            <AppStorePill />
           </div>
         </div>
       </nav>
@@ -51,27 +45,9 @@ export default function ArticlesPage() {
             Education Library
           </h1>
           <p className="text-on-surface-variant font-light text-[0.95rem] leading-relaxed">
-            Clinical insights on perimenopause, written by practicing OB/GYNs. The Marea app is coming soon — full library access arrives with it.
+            Clinical insights on perimenopause, written by practicing OB/GYNs. Free to read, all of it.
           </p>
         </div>
-
-        {/* Access banner */}
-        {hasReachedLimit && (
-          <div className="bg-gradient-to-br from-tertiary to-primary rounded-2xl px-6 py-5 mb-8 flex justify-between items-center flex-wrap gap-4">
-            <div>
-              <p className="text-[0.9rem] font-semibold mb-1 text-on-primary">
-                Want to keep reading?
-              </p>
-              <p className="text-[0.82rem] text-on-primary/75">
-                The Marea app — with unlimited library access, symptom tracking, and more — is coming soon.
-              </p>
-            </div>
-            <span className="bg-white text-primary rounded-full px-6 py-2.5 font-label text-[0.82rem] font-semibold whitespace-nowrap flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px]">schedule</span>
-              Coming Soon
-            </span>
-          </div>
-        )}
 
         {/* Category filter */}
         <div className="flex gap-2 flex-wrap mb-8">
@@ -108,11 +84,6 @@ export default function ArticlesPage() {
                   className="h-[180px] bg-cover bg-center relative"
                   style={{ backgroundImage: `url(${fixStorageUrl(article.cover_url) || articleImage(article.slug, article.category)})` }}
                 >
-                  {article.is_premium && (
-                    <span className="absolute top-3 right-3 bg-tertiary/90 text-on-tertiary font-label text-[0.65rem] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                      Member
-                    </span>
-                  )}
                 </div>
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-2">

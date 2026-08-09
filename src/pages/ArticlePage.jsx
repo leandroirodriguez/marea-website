@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
 import { articleImage, fixStorageUrl } from '../lib/images'
+import { APP_STORE_URL, AppStorePill } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
 
 marked.setOptions({ breaks: true, gfm: true })
@@ -16,7 +17,6 @@ export default function ArticlePage() {
   const { slug } = useParams()
   const [article, setArticle] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [locked, setLocked] = useState(false)
 
   useEffect(() => {
     supabase
@@ -27,18 +27,9 @@ export default function ArticlePage() {
       .single()
       .then(({ data }) => {
         setArticle(data)
-        if (data) checkAccess(data)
         setLoading(false)
       })
   }, [slug])
-
-  function checkAccess(article) {
-    const reads = JSON.parse(localStorage.getItem('marea_article_reads') || '[]')
-    if (reads.includes(article.slug)) { setLocked(false); return }
-    if (reads.length >= 1) { setLocked(true); return }
-    setLocked(false)
-    localStorage.setItem('marea_article_reads', JSON.stringify([...reads, article.slug]))
-  }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-outline">Loading...</div>
   if (!article) return (
@@ -57,10 +48,7 @@ export default function ArticlePage() {
           <Link to="/"><img src={mareaLogo} alt="Marea Health" className="h-[1.4rem]" /></Link>
           <div className="flex items-center gap-3 sm:gap-4">
             <Link to="/articles" className="font-label text-[0.8rem] sm:text-[0.85rem] font-medium text-on-surface-variant hover:text-primary transition-colors">&larr; Articles</Link>
-            <span className="bg-primary/80 text-on-primary rounded-full px-4 py-2 font-label text-[0.78rem] sm:text-[0.82rem] font-semibold flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">schedule</span>
-              <span>Coming Soon</span>
-            </span>
+            <AppStorePill />
           </div>
         </div>
       </nav>
@@ -83,47 +71,25 @@ export default function ArticlePage() {
 
         <img src={coverUrl} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
 
-        {locked ? (
-          /* Paywall — download app CTA */
-          <div className="relative">
-            <div
-              className="prose font-body text-base font-light text-on-surface-variant max-h-[200px] overflow-hidden"
-              style={{ maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' }}
-              dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body?.substring(0, 500)) }}
-            />
-            <div className="bg-primary-container rounded-2xl p-10 text-center shadow-lg mt-4">
-              <span className="material-symbols-outlined text-[48px] text-primary-fixed mb-4 block">phone_iphone</span>
-              <h2 className="font-headline text-2xl font-normal text-on-primary mb-3">
-                Continue reading in the Marea app
-              </h2>
-              <p className="text-[0.9rem] text-on-primary/75 mb-6 max-w-[420px] mx-auto">
-                The Marea app is launching soon with unlimited access to our full education library, personalized symptom tracking, lab interpretation, and an AI health assistant — all designed by practicing OB/GYNs.
-              </p>
-              <div className="flex flex-col items-center gap-4">
-                <span className="bg-white text-primary rounded-full px-8 py-3.5 font-label text-[0.9rem] font-semibold inline-flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-xl">schedule</span>
-                  Coming Soon
-                </span>
-                <p className="text-[0.72rem] text-on-primary/50 font-label uppercase tracking-widest">Coming soon to iOS &amp; Android</p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Full article */
-          <div
-            className="prose font-body text-base font-light text-on-surface-variant"
-            dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body) }}
-          />
-        )}
+        {/* Full article — the library is free to read, no gate. The app is sold
+            on what it does with *her* data, not on access to this text. */}
+        <div
+          className="prose font-body text-base font-light text-on-surface-variant"
+          dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body) }}
+        />
 
-        {/* Bottom CTA — always visible */}
+        {/* Bottom CTA — converts on interest in the article's subject rather
+            than on hitting a wall. */}
         <div className="mt-12 pt-8 border-t border-outline-variant/20 text-center">
-          <p className="font-headline text-xl text-on-background mb-2">Get more from Marea</p>
-          <p className="text-[0.88rem] text-outline mb-5">Track symptoms, interpret labs, and chat with our AI health assistant.</p>
-          <span className="bg-primary/80 text-on-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold inline-flex items-center gap-2">
-            <span className="material-symbols-outlined text-lg">schedule</span>
-            Coming Soon
-          </span>
+          <p className="font-headline text-xl text-on-background mb-2">See this in your own numbers</p>
+          <p className="text-[0.88rem] text-outline mb-5">Marea tracks your symptoms, interprets your labs, and shows you your own hormonal patterns — built by practicing OB/GYNs.</p>
+          <a
+            href={APP_STORE_URL}
+            className="bg-primary/80 text-on-primary rounded-full px-8 py-3 font-label text-[0.9rem] font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
+          >
+            <span className="material-symbols-outlined text-lg">phone_iphone</span>
+            Download Marea
+          </a>
         </div>
       </article>
     </div>

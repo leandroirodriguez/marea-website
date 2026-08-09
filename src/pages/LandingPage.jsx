@@ -2,22 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { articleImage } from '../lib/images'
+import { APP_LIVE, APP_STORE_URL } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
 
-/* ─── Launch toggle ───────────────────────────────────────────────────────────
-   Flip APP_LIVE to true once Marea is approved on the App Store.
-   The Apple App Store URL itself starts working the moment Apple flips the
-   switch on their side, so this just controls whether the website surfaces
-   "Download" CTAs (post-approval) or "Coming Soon" pills (pre-approval).
-   No other code change needed at launch — change this boolean, redeploy.
-
-   Note: Marea is iPhone-only at launch. The web app exists for internal /
-   production work but is NOT offered to end users. Android is referenced
-   only in the footer as "coming soon." Don't add Android CTAs anywhere
-   else without explicit approval. */
-const APP_LIVE = true
-const APP_STORE_ID = '6763952659'
-const APP_STORE_URL = `https://apps.apple.com/app/id${APP_STORE_ID}`
+/* Launch state (APP_LIVE / store URL) now lives in lib/appStore so the article
+   and blog pages share the same switch. See that file for the launch notes. */
 
 /* Detect iOS vs everything-else on mount. iPhone gets active CTAs; other
    visitors see informational "Available on iPhone" treatment. SSR-safe
@@ -902,7 +891,7 @@ export default function LandingPage() {
   useEffect(() => {
     supabase
       .from('content')
-      .select('id, title, slug, category, read_time, is_premium, author')
+      .select('id, title, slug, category, read_time, author')
       .eq('published', true)
       .order('published_at', { ascending: false })
       .limit(3)
@@ -1358,11 +1347,6 @@ export default function LandingPage() {
                       className="h-[160px] bg-cover bg-center relative"
                       style={{ backgroundImage: `url(${articleImage(article.slug, article.category)})` }}
                     >
-                      {article.is_premium && (
-                        <span className="absolute top-3 right-3 bg-tertiary/90 text-on-tertiary font-label text-[0.65rem] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                          Member
-                        </span>
-                      )}
                     </div>
                     <div className="p-5">
                       <div className="flex items-center gap-2 mb-2">
