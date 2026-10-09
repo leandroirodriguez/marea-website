@@ -993,7 +993,16 @@ export default function LandingPage() {
 
       {/* Hero — the tide band itself. The orb is the one thing on this page
           nobody else has, so it opens the page instead of a photo. */}
-      <TideBand className="pt-28 md:pt-36" size={240}>
+      <TideBand
+        className="pt-28 md:pt-36"
+        size={240}
+        afterOrb={
+          <div className="lg:hidden flex flex-col items-center gap-3 mt-2">
+            <AppStoreButton isIOS={isIOS} />
+            <p className="text-sm text-on-surface-variant">Seven days free, then $8.99 a month.</p>
+          </div>
+        }
+      >
         <p className="font-headline italic text-on-surface-variant text-base md:text-lg mb-5">
           Marea <span className="not-italic text-outline mx-1">·</span> Spanish for <em>tide</em>
         </p>
@@ -1003,12 +1012,12 @@ export default function LandingPage() {
         >
           Perimenopause moves like a tide. Marea reads it.
         </h1>
-        <p className="font-light text-base md:text-lg text-on-surface-variant max-w-lg mb-8 leading-relaxed">
+        <p className="font-light text-base md:text-lg text-on-surface-variant max-w-lg mb-2 lg:mb-8 leading-relaxed">
           We built Marea inside our own OB/GYN practice, for the patients we see every week.
           It turns your sleep, cycle, heart-rate variability, and symptoms into one daily
           number, a forecast for tomorrow, and explanations in plain language.
         </p>
-        <div className="flex flex-col items-start sm:flex-row sm:items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4">
           <AppStoreButton isIOS={isIOS} />
           <p className="text-sm text-on-surface-variant">Seven days free, then $8.99 a month.</p>
         </div>

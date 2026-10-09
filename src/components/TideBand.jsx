@@ -193,7 +193,10 @@ function WaveCanvas({ score, turbulence, tone, size = 210 }) {
   )
 }
 
-export default function TideBand({ className = '', children = null, size = 210 }) {
+/* `afterOrb` renders beneath the caption, orb column only. The landing page
+   uses it to put the download button under the orb on phones, where the
+   orb is the last thing in the hero. */
+export default function TideBand({ className = '', children = null, afterOrb = null, size = 210 }) {
   const [step, setStep] = useState(0)
   const band = BANDS[CYCLE[step]]
 
@@ -295,6 +298,7 @@ export default function TideBand({ className = '', children = null, size = 210 }
           <div className="flex flex-col items-center">
             {orb}
             {caption}
+            {afterOrb}
           </div>
         </div>
       ) : (
