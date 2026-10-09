@@ -2,7 +2,8 @@ import { useAdminGuard } from '../hooks/useAdminGuard'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { articleImage, fixStorageUrl } from '../lib/images'
+import { fixStorageUrl } from '../lib/images'
+import ArticleArt from '../components/ArticleArt'
 import mareaLogo from '../assets/marealogo.svg'
 import Icon from '../components/Icon'
 
@@ -162,7 +163,9 @@ export default function AdminArticles() {
                     <tr key={a.id} className="border-b border-surface-container">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-9 rounded-md shrink-0" style={{ background: `url(${fixStorageUrl(a.cover_url) || articleImage(a.slug, a.category, 96, 72)}) center/cover` }} />
+                          {a.cover_url
+                            ? <div className="w-12 h-9 rounded-md shrink-0" style={{ background: `url(${fixStorageUrl(a.cover_url)}) center/cover` }} />
+                            : <ArticleArt compact category={a.category} className="w-12 h-9 rounded-md shrink-0" />}
                           <div>
                             <p className="text-on-background font-medium mb-0.5">{a.title}</p>
                             <p className="text-[0.72rem] text-outline-variant">{a.author} &middot; {a.read_time} min</p>

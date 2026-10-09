@@ -1,16 +1,40 @@
-# React + Vite
+# Marea website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Marketing site, article library, and admin tools for Marea, the perimenopause
+app built by Beaches OB/GYN. Live at the Vercel project in `.vercel/`.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Vite + React 19, React Router, Tailwind 4
+- Supabase (auth, `content` and `blog` tables, storage for article covers)
+- Vercel serverless functions in `api/` (article generation, patient lab reports)
 
-## React Compiler
+## Running it
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Needs a `.env` with the Supabase URL and anon key, plus the server-side keys
+the `api/` functions read. Ask before copying one from another machine.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Where things are
+
+- `src/pages/LandingPage.jsx` — the home page. The four product demos at the
+  top of the file are scripted recreations of app screens; the page body is
+  at the bottom.
+- `src/components/TideBand.jsx` — the hero. A port of the app's wave orb,
+  cycling through the four Index bands.
+- `src/components/ArticleArt.jsx` — typographic cover for articles without an
+  uploaded photo.
+- `src/lib/appStore.jsx` — the single `APP_LIVE` switch and App Store URL.
+- `src/index.css` — color tokens and fonts (Newsreader + Archivo), shared with
+  the app's style guide.
+
+## Conventions
+
+- No stock photography. Use the doctors' own photos, the app itself, or type.
+- No testimonials without a real person's written permission.
+- Trial is 7 days; pricing is $8.99/month or $49.99/year. Keep the site in
+  step with the App Store listing.

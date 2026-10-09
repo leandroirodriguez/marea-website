@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
-import { articleImage, fixStorageUrl } from '../lib/images'
+import { fixStorageUrl } from '../lib/images'
 import { APP_STORE_URL, AppStorePill } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
 import Icon from '../components/Icon'
@@ -40,7 +40,7 @@ export default function ArticlePage() {
     </div>
   )
 
-  const coverUrl = fixStorageUrl(article.cover_url) || articleImage(article.slug, article.category, 1200, 600)
+  const coverUrl = fixStorageUrl(article.cover_url)
 
   return (
     <div className="min-h-screen bg-surface">
@@ -70,7 +70,9 @@ export default function ArticlePage() {
           By {article.author} &middot; {new Date(article.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
 
-        <img src={coverUrl} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
+        {coverUrl && (
+          <img src={coverUrl} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
+        )}
 
         {/* Full article — the library is free to read, no gate. The app is sold
             on what it does with *her* data, not on access to this text. */}

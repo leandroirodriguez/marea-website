@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { marked } from 'marked'
 import { supabase } from '../lib/supabase'
-import { articleImage, fixStorageUrl } from '../lib/images'
+import { fixStorageUrl } from '../lib/images'
+import ArticleArt from '../components/ArticleArt'
 import { compressImage } from '../lib/compressImage'
 
 marked.setOptions({ breaks: true, gfm: true })
@@ -223,7 +224,7 @@ export default function AdminArticleEditor() {
     return marked.parse(text)
   }
 
-  const coverPreview = form.cover_url || articleImage(form.slug || 'preview', form.category)
+  const coverPreview = form.cover_url || ''
 
   return (
     <div className="min-h-screen bg-surface-container-low">
@@ -262,7 +263,9 @@ export default function AdminArticleEditor() {
               </div>
               <h1 className="font-headline text-[2rem] font-normal text-on-background leading-tight mb-3">{form.title || 'Untitled'}</h1>
               <p className="text-[0.88rem] text-outline mb-6">By {form.author}</p>
-              <img src={coverPreview} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
+              {coverPreview && (
+                <img src={coverPreview} alt="" className="w-full rounded-2xl mb-8 max-h-[400px] object-cover" />
+              )}
               <div
                 className="prose font-body text-base font-light text-on-surface-variant"
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(form.body) }}
@@ -438,7 +441,9 @@ export default function AdminArticleEditor() {
               {/* Cover image */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <h3 className="text-[0.72rem] font-semibold tracking-widest uppercase text-outline mb-4">Cover Image</h3>
-                <img src={coverPreview} alt="" className="w-full h-[120px] object-cover rounded-lg mb-3" />
+                {coverPreview
+                  ? <img src={coverPreview} alt="" className="w-full h-[120px] object-cover rounded-lg mb-3" />
+                  : <ArticleArt category={form.category} className="w-full h-[120px] rounded-lg mb-3" />}
                 <label
                   onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('ring-2', 'ring-primary') }}
                   onDragLeave={e => e.currentTarget.classList.remove('ring-2', 'ring-primary')}

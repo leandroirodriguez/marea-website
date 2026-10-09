@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { articleImage, fixStorageUrl } from '../lib/images'
+import { fixStorageUrl } from '../lib/images'
+import ArticleArt from '../components/ArticleArt'
 import { AppStorePill } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
 import Icon from '../components/Icon'
@@ -81,14 +82,17 @@ export default function ArticlesPage() {
           {filtered.map(article => (
             <Link key={article.id} to={`/articles/${article.slug}`} className="no-underline group">
               <article className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-lg">
-                <div
-                  className="h-[180px] bg-cover bg-center relative"
-                  style={{ backgroundImage: `url(${fixStorageUrl(article.cover_url) || articleImage(article.slug, article.category)})` }}
-                >
-                </div>
+                {article.cover_url ? (
+                  <div
+                    className="h-[180px] bg-cover bg-center"
+                    style={{ backgroundImage: `url(${fixStorageUrl(article.cover_url)})` }}
+                  />
+                ) : (
+                  <ArticleArt category={article.category} className="h-[180px]" />
+                )}
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-label text-[0.7rem] font-semibold text-primary bg-primary/[0.08] px-2 py-0.5 rounded-full">
+                    <span className="font-label text-[10px] uppercase tracking-[0.16em] text-primary">
                       {article.category}
                     </span>
                     <span className="font-label text-[0.72rem] text-outline">{article.read_time} min read</span>

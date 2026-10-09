@@ -23,6 +23,12 @@ import { useEffect, useRef, useState } from 'react'
 
    Nothing here runs under prefers-reduced-motion: the canvas holds a
    single calm frame and the copy stops cycling.
+
+   Given `children`, the band becomes the page hero: the copy sits in the
+   left column and the orb in the right, both inside the full-bleed tint.
+   The site used to open on a stock photo of a stranger in a white tee
+   and keep its one genuinely original element below the fold. Now the
+   first thing a visitor sees is the product doing what it does.
    ============================================================ */
 
 /* Ported verbatim from lib/tidescore.js tideLabel(). Keep in sync. */
@@ -187,7 +193,7 @@ function WaveCanvas({ score, turbulence, tone, size = 210 }) {
   )
 }
 
-export default function TideBand({ className = '' }) {
+export default function TideBand({ className = '', children = null, size = 210 }) {
   const [step, setStep] = useState(0)
   const band = BANDS[CYCLE[step]]
 
@@ -227,59 +233,76 @@ export default function TideBand({ className = '' }) {
 
   const tone = band.tone
 
+  const orb = (
+    <div
+      className="relative"
+      style={{
+        width: size, height: size, borderRadius: '50%',
+        background: ORB_BG[tone],
+        boxShadow: SHADOW[tone],
+        transition: 'background .9s, box-shadow .9s',
+      }}
+    >
+      <WaveCanvas score={band.score} turbulence={band.turbulence} tone={tone} size={size} />
+
+      {/* The two rings the app draws around the orb. */}
+      <div className="absolute rounded-full pointer-events-none"
+        style={{ inset: -5, border: `1.5px solid ${RING[tone]}0.2)`, transition: 'border-color .9s' }} />
+      <div className="absolute rounded-full pointer-events-none"
+        style={{ inset: -11, border: `1px solid ${RING[tone]}0.08)`, transition: 'border-color .9s' }} />
+
+      <div className="absolute inset-0 flex flex-col items-center justify-center rounded-full pointer-events-none">
+        <div
+          className="font-headline text-white"
+          style={{ fontSize: Math.round(size * 0.257), fontWeight: 400, lineHeight: 1, textShadow: '0 2px 14px rgba(0,0,0,0.25)' }}
+        >
+          {Math.round(shown)}
+        </div>
+        <div
+          className="font-label uppercase"
+          style={{ fontSize: Math.max(9, Math.round(size * 0.043)), letterSpacing: '.2em', color: 'rgba(255,255,255,0.85)', marginTop: 3 }}
+        >
+          Marea Index
+        </div>
+      </div>
+    </div>
+  )
+
+  /* Label and phrasing come straight from tideLabel(). Fixed height so
+     the section below doesn't shift as the copy changes length. */
+  const caption = (
+    <div className="text-center min-h-[4.5rem] mt-6" aria-live="polite">
+      <p
+        className="font-headline text-on-background mb-1"
+        style={{ fontSize: '1.35rem', fontWeight: 400, transition: 'color .9s' }}
+      >
+        {band.label}
+      </p>
+      <p className="text-on-surface-variant text-[0.88rem] font-light max-w-[22rem] mx-auto leading-relaxed">
+        {band.sub}
+      </p>
+    </div>
+  )
+
   return (
     <div
       className={`relative w-full overflow-hidden ${className}`}
       style={{ background: BAND_BG[tone], transition: 'background .9s ease' }}
     >
-      <div className="flex flex-col items-center px-6 py-14 md:py-20">
-        <div
-          className="relative mb-6"
-          style={{
-            width: 210, height: 210, borderRadius: '50%',
-            background: ORB_BG[tone],
-            boxShadow: SHADOW[tone],
-            transition: 'background .9s, box-shadow .9s',
-          }}
-        >
-          <WaveCanvas score={band.score} turbulence={band.turbulence} tone={tone} />
-
-          {/* The two rings the app draws around the orb. */}
-          <div className="absolute rounded-full pointer-events-none"
-            style={{ inset: -5, border: `1.5px solid ${RING[tone]}0.2)`, transition: 'border-color .9s' }} />
-          <div className="absolute rounded-full pointer-events-none"
-            style={{ inset: -11, border: `1px solid ${RING[tone]}0.08)`, transition: 'border-color .9s' }} />
-
-          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-full pointer-events-none">
-            <div
-              className="font-headline text-white"
-              style={{ fontSize: 54, fontWeight: 400, lineHeight: 1, textShadow: '0 2px 14px rgba(0,0,0,0.25)' }}
-            >
-              {Math.round(shown)}
-            </div>
-            <div
-              className="font-label uppercase"
-              style={{ fontSize: 9, letterSpacing: '.2em', color: 'rgba(255,255,255,0.85)', marginTop: 3 }}
-            >
-              Marea Index
-            </div>
+      {children ? (
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20 pb-14 md:pb-20 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-16 items-center">
+          <div>{children}</div>
+          <div className="flex flex-col items-center">
+            {orb}
+            {caption}
           </div>
         </div>
-
-        {/* Label and phrasing come straight from tideLabel(). Fixed height so
-            the section below doesn't shift as the copy changes length. */}
-        <div className="text-center min-h-[4.5rem]" aria-live="polite">
-          <p
-            className="font-headline text-on-background mb-1"
-            style={{ fontSize: '1.35rem', fontWeight: 400, transition: 'color .9s' }}
-          >
-            {band.label}
-          </p>
-          <p className="text-on-surface-variant text-[0.88rem] font-light max-w-[22rem] mx-auto leading-relaxed">
-            {band.sub}
-          </p>
+      ) : (
+        <div className="flex flex-col items-center px-6 py-14 md:py-20">
+          {orb}
+          {caption}
         </div>
-      </div>
+      )}
     </div>
   )
 }

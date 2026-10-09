@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { articleImage } from '../lib/images'
 import { APP_LIVE, APP_STORE_URL } from '../lib/appStore'
 import mareaLogo from '../assets/marealogo.svg'
 import Icon from '../components/Icon'
 import TideBand from '../components/TideBand'
+import ArticleArt from '../components/ArticleArt'
+import { fixStorageUrl } from '../lib/images'
 
 /* Launch state (APP_LIVE / store URL) now lives in lib/appStore so the article
    and blog pages share the same switch. See that file for the launch notes. */
@@ -847,6 +848,93 @@ function ForecastDemo() {
   )
 }
 
+/* ─── Page furniture ─── */
+
+function AppleLogo({ className = 'w-5 h-5' }) {
+  return (
+    <svg viewBox="0 0 384 512" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+    </svg>
+  )
+}
+
+/* One App Store button for the whole page. iPhone visitors get a live
+   store link; everyone else sees where it lives. Pre-launch state is one
+   boolean away in lib/appStore. */
+function AppStoreButton({ isIOS, tone = 'dark' }) {
+  const base = 'inline-flex items-center gap-3 rounded-full px-6 py-3 transition-opacity'
+  const color = tone === 'dark' ? 'bg-on-background text-surface' : 'bg-tertiary text-on-tertiary'
+  const label = (top, main) => (
+    <span className="text-left">
+      <span className="block text-[9px] font-label uppercase tracking-wider leading-none opacity-70">{top}</span>
+      <span className="block text-sm font-semibold leading-none mt-0.5">{main}</span>
+    </span>
+  )
+  if (APP_LIVE && isIOS) {
+    return (
+      <a href={APP_STORE_URL} className={`${base} ${color} hover:opacity-90`}>
+        <AppleLogo />
+        {label('Download on the', 'App Store')}
+      </a>
+    )
+  }
+  if (APP_LIVE) {
+    return (
+      <a href={APP_STORE_URL} className={`${base} ${color} hover:opacity-90`}>
+        <Icon name="phone_iphone" className="text-xl" />
+        {label('Available on', 'iPhone')}
+      </a>
+    )
+  }
+  return (
+    <div className={`${base} ${color} opacity-90`}>
+      <Icon name="phone_iphone" className="text-xl" />
+      {label('Coming soon', 'iPhone')}
+    </div>
+  )
+}
+
+/* Numbered section marker. Replaces the pill-shaped eyebrow badge that
+   every section used to open with — the same badge every generated landing
+   page opens with. A numeral, a hairline, a label. */
+function Marker({ n, label, center = false }) {
+  return (
+    <div className={`flex items-center gap-3 mb-5 ${center ? 'justify-center' : ''}`}>
+      <span className="font-headline text-sm text-primary tabular-nums">{n}</span>
+      <span className="h-px w-8 bg-primary/40" />
+      <span className="font-label text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">{label}</span>
+    </div>
+  )
+}
+
+/* Term / description rows with hairlines. Replaces the check-circle bullet
+   lists. A checkmark asserts; a labelled row explains. */
+function Spec({ rows, accent = '#005258' }) {
+  return (
+    <dl className="border-t border-on-background/10">
+      {rows.map(([term, desc]) => (
+        <div
+          key={term}
+          className="grid grid-cols-[5.5rem_1fr] sm:grid-cols-[6.5rem_1fr] gap-4 py-3 border-b border-on-background/10"
+        >
+          <dt className="font-label uppercase tracking-[0.14em] text-[10px] pt-1" style={{ color: accent }}>
+            {term}
+          </dt>
+          <dd className="text-sm text-on-surface-variant font-light leading-snug">{desc}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
+const NAV_LINKS = [
+  { href: '#index', label: 'How it works' },
+  { href: '#features', label: "What's inside" },
+  { to: '/blog', label: 'Journal' },
+  { to: '/articles', label: 'Articles' },
+  { href: '#pricing', label: 'Pricing' },
+]
+
 /* ─── Main Landing Page ─── */
 
 export default function LandingPage() {
@@ -857,207 +945,111 @@ export default function LandingPage() {
   useEffect(() => {
     supabase
       .from('content')
-      .select('id, title, slug, category, read_time, author')
+      .select('id, title, slug, category, read_time, author, cover_url')
       .eq('published', true)
       .order('published_at', { ascending: false })
       .limit(3)
       .then(({ data }) => setRecentArticles(data || []))
   }, [])
 
+  const navLinkClass = 'text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors'
+
   return (
     <div className="bg-surface text-on-background font-body selection:bg-secondary-container/30 overflow-x-hidden">
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-outline-variant/10">
+      <nav className="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl border-b border-on-background/10">
         <div className="flex justify-between items-center px-6 md:px-16 lg:px-20 py-5 max-w-[1400px] mx-auto">
           <Link to="/" className="shrink-0">
             <img src={mareaLogo} alt="Marea" style={{ height: '30px', width: 'auto' }} />
           </Link>
           <div className="hidden md:flex gap-10 items-center">
-            <a
-              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
-              href="#vision"
-            >
-              Our Vision
-            </a>
-            <a
-              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
-              href="#features"
-            >
-              The Science
-            </a>
-            <Link
-              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
-              to="/blog"
-            >
-              Journal
-            </Link>
-            <Link
-              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
-              to="/articles"
-            >
-              Articles
-            </Link>
-            <a
-              className="text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors"
-              href="#download"
-            >
-              Membership
-            </a>
+            {NAV_LINKS.map(l => l.to
+              ? <Link key={l.label} className={navLinkClass} to={l.to}>{l.label}</Link>
+              : <a key={l.label} className={navLinkClass} href={l.href}>{l.label}</a>
+            )}
           </div>
           <button className="md:hidden text-on-surface-variant" aria-label="Menu" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="text-2xl" />
           </button>
           <a
-            href="#download"
-            className="hidden md:inline-flex bg-tertiary text-on-tertiary px-6 py-2.5 rounded-full text-[11px] font-label uppercase tracking-widest hover:bg-tertiary-container transition-all shadow-lg shadow-tertiary/10"
+            href="#pricing"
+            className="hidden md:inline-flex bg-tertiary text-on-tertiary px-5 py-2.5 rounded-full text-sm font-medium hover:bg-tertiary-container transition-colors"
           >
-            Get Started
+            Get the app
           </a>
         </div>
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-outline-variant/10 bg-white/95 backdrop-blur-xl px-6 py-4 flex flex-col gap-3">
-            <a className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" href="#vision" onClick={() => setMobileMenuOpen(false)}>Our Vision</a>
-            <a className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" href="#features" onClick={() => setMobileMenuOpen(false)}>The Science</a>
-            <Link className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" to="/blog" onClick={() => setMobileMenuOpen(false)}>Journal</Link>
-            <Link className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" to="/articles" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
-            <a className="text-on-surface-variant hover:text-primary font-headline text-base py-2 transition-colors" href="#download" onClick={() => setMobileMenuOpen(false)}>Membership</a>
-            <a href="#download" className="bg-tertiary text-on-tertiary px-6 py-3 rounded-full text-[11px] font-label uppercase tracking-widest text-center mt-2" onClick={() => setMobileMenuOpen(false)}>Get Started</a>
+          <div className="md:hidden border-t border-on-background/10 bg-surface/95 backdrop-blur-xl px-6 py-4 flex flex-col gap-3">
+            {NAV_LINKS.map(l => l.to
+              ? <Link key={l.label} className={`${navLinkClass} py-2`} to={l.to} onClick={() => setMobileMenuOpen(false)}>{l.label}</Link>
+              : <a key={l.label} className={`${navLinkClass} py-2`} href={l.href} onClick={() => setMobileMenuOpen(false)}>{l.label}</a>
+            )}
+            <a href="#pricing" className="bg-tertiary text-on-tertiary px-6 py-3 rounded-full text-sm font-medium text-center mt-2" onClick={() => setMobileMenuOpen(false)}>Get the app</a>
           </div>
         )}
       </nav>
 
-      {/* Hero */}
-      <section className="pt-28 pb-16 md:pt-40 md:pb-24">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="order-2 lg:order-1">
-            <span className="font-label uppercase tracking-[0.2em] text-primary text-[11px] font-semibold mb-4 block">
-              Hormonal Intelligence
-            </span>
-            <h1
-              className="font-headline text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl text-on-background tracking-tight mb-6"
-              style={{ letterSpacing: '-0.02em' }}
-            >
-              Find your rhythm through perimenopause.
-            </h1>
-            <p className="font-body font-light text-base md:text-lg text-on-surface-variant max-w-md mb-8 leading-relaxed">
-              A personalized sanctuary designed to help you navigate hormonal shifts with clinical
-              precision and soulful intuition.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-              {APP_LIVE && isIOS ? (
-                <a
-                  href={APP_STORE_URL}
-                  className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 hover:opacity-90 transition-opacity"
-                >
-                  <svg viewBox="0 0 384 512" fill="currentColor" className="w-5 h-5" aria-hidden="true">
-                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
-                  </svg>
-                  <div className="text-left">
-                    <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">Download on the</p>
-                    <p className="text-sm font-semibold leading-none mt-0.5">App Store</p>
-                  </div>
-                </a>
-              ) : APP_LIVE ? (
-                <a
-                  href={APP_STORE_URL}
-                  className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 hover:opacity-90 transition-opacity"
-                >
-                  <Icon name="phone_iphone" className="text-xl" />
-                  <div className="text-left">
-                    <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">Available on</p>
-                    <p className="text-sm font-semibold leading-none mt-0.5">iPhone</p>
-                  </div>
-                </a>
-              ) : (
-                <div
-                  className="inline-flex items-center gap-3 bg-on-background text-surface rounded-full px-6 py-3 opacity-90"
-                >
-                  <Icon name="phone_iphone" className="text-xl" />
-                  <div className="text-left">
-                    <p className="text-[9px] font-label uppercase tracking-wider leading-none opacity-70">
-                      Coming Soon
-                    </p>
-                    <p className="text-sm font-semibold leading-none mt-0.5">iPhone</p>
-                  </div>
-                </div>
-              )}
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-on-primary shrink-0">
-                  <Icon name="verified" className="text-lg" />
-                </div>
-                <p className="text-sm text-on-surface-variant">
-                  Built by board-certified{' '}
-                  <span className="font-semibold text-primary">OB/GYNs</span>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="order-1 lg:order-2 relative">
-            <div className="absolute -top-8 -right-8 w-48 h-48 bg-secondary-container rounded-full blur-[60px] opacity-40 -z-10" />
-            <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-primary-fixed-dim rounded-full blur-[50px] opacity-30 -z-10" />
-            <div className="rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/10 border border-outline-variant/10">
-              <img
-                src="/hero.png"
-                alt="Woman navigating perimenopause with confidence"
-                className="w-full aspect-[3/4] object-cover object-top"
-              />
-            </div>
-          </div>
+      {/* Hero — the tide band itself. The orb is the one thing on this page
+          nobody else has, so it opens the page instead of a photo. */}
+      <TideBand className="pt-28 md:pt-36" size={240}>
+        <p className="font-headline italic text-on-surface-variant text-base md:text-lg mb-5">
+          Marea <span className="not-italic text-outline mx-1">·</span> Spanish for <em>tide</em>
+        </p>
+        <h1
+          className="font-headline text-[2.6rem] leading-[1.05] sm:text-5xl md:text-6xl lg:text-[4.25rem] text-on-background mb-6"
+          style={{ letterSpacing: '-0.025em' }}
+        >
+          Perimenopause moves like a tide. Marea reads it.
+        </h1>
+        <p className="font-light text-base md:text-lg text-on-surface-variant max-w-lg mb-8 leading-relaxed">
+          We built Marea inside our own OB/GYN practice, for the patients we see every week.
+          It turns your sleep, cycle, heart-rate variability, and symptoms into one daily
+          number, a forecast for tomorrow, and explanations in plain language.
+        </p>
+        <div className="flex flex-col items-start sm:flex-row sm:items-center gap-4">
+          <AppStoreButton isIOS={isIOS} />
+          <p className="text-sm text-on-surface-variant">Seven days free, then $8.99 a month.</p>
         </div>
-      </section>
-
-      {/* Full-bleed tide band — the app's signature pattern. Sits directly
-          under the hero so the first thing below the fold is the Index
-          actually working, not a claim about it (STYLE_GUIDE §7.1). */}
-      <TideBand />
-
+      </TideBand>
 
       {/* Marea Index & Daily Forecast */}
-      <section className="pt-16 pb-8 md:pt-24 md:pb-12 bg-surface">
+      <section id="index" className="pt-16 pb-8 md:pt-24 md:pb-12 bg-surface scroll-mt-24">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
-          <div className="text-center mb-10 md:mb-14">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
-              Your rhythm, in real time
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 mb-10 md:mb-14 items-end">
+            <div className="lg:col-span-7">
+              <Marker n="01" label="The daily reading" />
+              <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+                One number for today.<br />A forecast for tomorrow.
+              </h2>
             </div>
-            <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl mb-4" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
-              One number for today.<br className="hidden sm:inline" /> A forecast for tomorrow.
-            </h2>
-            <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
-              Marea reads the signals your body is already giving — cycle, sleep, HRV, symptoms — and translates them into something you can actually use.
+            <p className="lg:col-span-5 lg:pb-1 text-on-surface-variant text-base md:text-lg font-light leading-relaxed">
+              Your body is already sending signals: cycle, sleep, HRV, symptoms. Every morning
+              Marea reads them and says what they add up to, the way we would across a desk.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {/* Marea Index — soft teal tile */}
             <div
-              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 border border-outline-variant/10 overflow-hidden relative"
+              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 overflow-hidden relative"
               style={{ background: 'linear-gradient(165deg, #e8f3f4 0%, #d8eaec 100%)' }}
             >
               <div className="flex flex-col gap-8 md:gap-10">
                 <div>
-                  <Icon name="waves" className="text-primary mb-4 text-3xl block" />
                   <h3 className="font-headline text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.15, color: '#0D3F44' }}>
                     Marea Index
                   </h3>
                   <p className="font-light text-sm md:text-base leading-relaxed mb-6" style={{ color: '#3f484a' }}>
-                    A daily reading of how your body is moving — weighted across sleep, body, mind, and symptoms. Tap the orb anytime for a plain-language explanation.
+                    A daily reading of how your body is moving, weighted across sleep, body, mind,
+                    and symptoms. Tap the orb any time and it explains itself in a sentence or two.
                   </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <Icon name="check_circle" className="text-primary text-base" />
-                      Four weighted pillars
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <Icon name="check_circle" className="text-primary text-base" />
-                      Personalized AI explanation
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <Icon name="check_circle" className="text-primary text-base" />
-                      7-day pattern trend
-                    </li>
-                  </ul>
+                  <Spec rows={[
+                    ['Inputs', 'Sleep, body, mind, and symptoms, each weighted'],
+                    ['Explained', 'Tap the orb for a plain-language read of why today scored the way it did'],
+                    ['Trend', 'Seven days at a glance, so one rough morning stays in proportion'],
+                  ]} />
                 </div>
                 <div><MareaIndexDemo /></div>
               </div>
@@ -1065,32 +1057,23 @@ export default function LandingPage() {
 
             {/* Daily Forecast — warm sand tile */}
             <div
-              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 border border-outline-variant/10 overflow-hidden relative"
+              className="rounded-3xl px-4 py-8 md:p-12 lg:p-14 overflow-hidden relative"
               style={{ background: 'linear-gradient(165deg, #faefd8 0%, #f0e4d2 100%)' }}
             >
               <div className="flex flex-col gap-8 md:gap-10">
                 <div>
-                  <Icon name="partly_cloudy_day" className="mb-4 text-3xl block" style={{ color: '#842b16' }} />
                   <h3 className="font-headline text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.01em', lineHeight: 1.15, color: '#1c1c19' }}>
                     Daily Forecast
                   </h3>
                   <p className="font-light text-sm md:text-base leading-relaxed mb-6" style={{ color: '#3f484a' }}>
-                    A weather-style read of tomorrow based on your cycle phase, HRV, momentum, and recent symptoms. Clear language, explicit confidence — never false certainty.
+                    A weather-style read of tomorrow from your cycle phase, HRV, momentum, and
+                    recent symptoms. We show the confidence every time and never pretend to certainty.
                   </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <Icon name="check_circle" className="text-base" style={{ color: '#842b16' }} />
-                      Five weighted signals
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <Icon name="check_circle" className="text-base" style={{ color: '#842b16' }} />
-                      Confidence shown, capped at 85%
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label" style={{ color: '#3f484a' }}>
-                      <Icon name="check_circle" className="text-base" style={{ color: '#842b16' }} />
-                      Preparation plan, not a prescription
-                    </li>
-                  </ul>
+                  <Spec accent="#842b16" rows={[
+                    ['Signals', 'Cycle phase, HRV, momentum, recent symptoms, and sleep'],
+                    ['Confidence', 'Shown with every forecast, capped at 85%'],
+                    ['Output', 'A plan for the day, not a prescription'],
+                  ]} />
                 </div>
                 <div><ForecastDemo /></div>
               </div>
@@ -1099,90 +1082,72 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features / Capabilities */}
-      <section id="features" className="pt-8 pb-16 md:pt-12 md:pb-28 bg-surface">
+      {/* What's inside */}
+      <section id="features" className="pt-8 pb-16 md:pt-12 md:pb-28 bg-surface scroll-mt-24">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
-            {/* Personalized Profile */}
-            <div className="md:col-span-12 bg-surface-container-lowest rounded-2xl p-6 md:p-10 border border-outline-variant/10 overflow-hidden relative group">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                <div className="relative z-10">
-                  <Icon name="query_stats" className="text-primary mb-4 text-3xl block" />
+          <div className="mb-8 md:mb-10">
+            <Marker n="02" label="What's inside" />
+          </div>
+          <div className="grid grid-cols-1 gap-5 md:gap-6">
+            {/* Profile */}
+            <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-10 border border-on-background/[0.06] overflow-hidden relative">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-start">
+                <div>
                   <h3
                     className="font-headline text-2xl md:text-3xl text-on-background mb-3"
                     style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
                   >
-                    Personalized Perimenopause Profile
+                    Your perimenopause profile
                   </h3>
-                  <p className="text-on-surface-variant font-light text-sm leading-relaxed mb-5">
-                    A dynamic health identity that evolves with your symptoms, labs, and goals. No
-                    more generic advice — just yours.
+                  <p className="text-on-surface-variant font-light text-sm md:text-base leading-relaxed mb-6">
+                    Fifteen questions place you on the STRAW+10 staging system, the same one we
+                    use in clinic. Your labs and your goals refine it over time, so what Marea
+                    tells you is about you, not about the average woman on the internet.
                   </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <Icon name="check_circle" className="text-primary text-base" />
-                      Hormone Baseline Assessment
-                    </li>
-                    <li className="flex items-center gap-2 text-sm font-label text-on-surface-variant">
-                      <Icon name="check_circle" className="text-primary text-base" />
-                      Life-stage Adaptive UI
-                    </li>
-                  </ul>
+                  <Spec rows={[
+                    ['Staging', 'STRAW+10, the clinical standard for where you are in the transition'],
+                    ['Scores', 'Five symptom domains, scored at the start and tracked from there'],
+                    ['Labs', 'Interpreted against the ranges we use with our own patients'],
+                  ]} />
                 </div>
-                <div className="relative z-10">
+                <div>
                   <AssessmentDemo />
                 </div>
               </div>
             </div>
 
-            {/* Empathetic Symptom Tracking */}
-            <div className="md:col-span-12 bg-secondary-container/30 rounded-2xl p-6 md:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Daily check-in */}
+            <div className="bg-secondary-container/30 rounded-2xl p-6 md:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               <div className="order-2 lg:order-1 flex justify-center">
                 <SymptomTrackerDemo />
               </div>
               <div className="order-1 lg:order-2">
-                <Icon name="favorite" className="text-secondary mb-4 text-3xl block" />
                 <h3
                   className="font-headline text-2xl md:text-3xl lg:text-4xl mb-4"
                   style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
                 >
-                  Empathetic Symptom Tracking
+                  A check-in that takes a minute.
                 </h3>
-                <p className="text-on-surface-variant font-light text-base leading-relaxed mb-6">
-                  Track the symptoms that matter most — hot flashes, sleep, mood, energy, focus, and
-                  cycle patterns. Our system identifies trends before you do, offering proactive
-                  relief strategies.
+                <p className="text-on-surface-variant font-light text-base leading-relaxed mb-5">
+                  Six things, five levels each: hot flashes, night sweats, sleep, mood, energy,
+                  focus. Log it most days and the pattern shows up before you would have noticed
+                  it yourself.
                 </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-white/40 backdrop-blur rounded-xl">
-                    <p className="text-xl font-headline text-primary">6</p>
-                    <p className="text-[9px] font-label uppercase tracking-widest text-on-surface-variant mt-1">
-                      Daily Domains
-                    </p>
-                  </div>
-                  <div className="p-4 bg-white/40 backdrop-blur rounded-xl">
-                    <p className="text-xl font-headline text-primary">Daily</p>
-                    <p className="text-[9px] font-label uppercase tracking-widest text-on-surface-variant mt-1">
-                      Pattern Recognition
-                    </p>
-                  </div>
-                </div>
+                <p className="text-on-surface-variant font-light text-base leading-relaxed">
+                  Nothing here is a mood quiz. Each domain maps to a symptom we would ask about
+                  in the exam room, and the scores feed the Index and the Forecast directly.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Medical Team — credibility, so it sits below the run of product cards
-          rather than interrupting it. Its bottom padding was tuned to butt
-          against the features section's pt-8; now that it precedes a
-          contrasting band, it needs the full gap back. */}
+      {/* Medical team — kept to its original size. Credibility, not a bio page. */}
       <section className="pt-16 pb-16 md:pt-20 md:pb-20 bg-surface">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
           <div className="text-center mb-10">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
-              Our Medical Team
-            </div>
+            <Marker n="03" label="Who built it" center />
             <h2
               className="font-headline text-3xl md:text-4xl lg:text-5xl mb-4"
               style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
@@ -1190,312 +1155,166 @@ export default function LandingPage() {
               Built by practicing OB/GYNs.
             </h2>
             <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto">
-              Marea was born from a clinical practice — not a tech startup. Every assessment, every
-              lab range, every recommendation comes from the same evidence base we use with our own
-              patients.
+              Marea came out of a clinical practice, not a tech startup. Every assessment, lab
+              range, and recommendation is the same evidence we use with our own patients.
             </p>
           </div>
           <div className="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-20">
-            <div className="flex flex-col items-center max-w-[260px]">
-              <div
-                className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
-                style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
-              >
-                <img
-                  src="/richmond.png"
-                  alt="Dr. Richmond, MD, FACOG"
-                  className="w-full h-full object-cover object-top"
-                />
+            {[
+              { src: '/richmond.png', name: 'Dr. Richmond' },
+              { src: '/rodriguez.png', name: 'Dr. Rodriguez' },
+            ].map(d => (
+              <div key={d.name} className="flex flex-col items-center max-w-[260px]">
+                <div
+                  className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
+                  style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
+                >
+                  <img src={d.src} alt={`${d.name}, MD, FACOG`} className="w-full h-full object-cover object-top" />
+                </div>
+                <p className="text-lg font-medium text-on-background text-center">{d.name}</p>
+                <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
+                  MD, FACOG
+                </p>
+                <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
+                  Co-Founder &amp; Medical Director
+                </p>
               </div>
-              <p className="text-lg font-medium text-on-background text-center">Dr. Richmond</p>
-              <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
-                MD, FACOG
-              </p>
-              <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
-                Co-Founder &amp; Medical Director
-              </p>
-            </div>
-            <div className="flex flex-col items-center max-w-[260px]">
-              <div
-                className="w-52 h-52 md:w-60 md:h-60 rounded-full overflow-hidden mb-5"
-                style={{ boxShadow: '0 20px 40px -12px rgba(0, 82, 88, 0.18)' }}
-              >
-                <img
-                  src="/rodriguez.png"
-                  alt="Dr. Rodriguez, MD, FACOG"
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <p className="text-lg font-medium text-on-background text-center">Dr. Rodriguez</p>
-              <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">
-                MD, FACOG
-              </p>
-              <p className="text-xs text-on-surface-variant font-light mt-2 text-center">
-                Co-Founder &amp; Medical Director
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* The Marea Philosophy */}
-      <section id="vision" className="py-16 md:py-24 bg-surface-container-low">
-        <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.25em] mb-6">
-            The Marea Philosophy
-          </div>
-          <h2
-            className="font-headline text-3xl md:text-4xl lg:text-5xl mb-6"
-            style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
-          >
-            Intelligence meets Empathy.
-          </h2>
-          <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed mb-10">
-            We believe hormonal health shouldn&apos;t be a black box. Our proprietary
-            &ldquo;Pulse&rdquo; visualization transforms complex cycle data into a serene, intuitive
-            experience that adapts as you do.
-          </p>
-          <div className="relative h-3 w-full max-w-sm mx-auto bg-outline-variant/20 rounded-full overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary-container to-tertiary-container animate-pulse opacity-60" />
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* Testimonial */}
-      <section className="py-16 md:py-24 bg-surface-container">
-        <div className="max-w-3xl mx-auto px-6 md:px-16 lg:px-20 text-center">
-          <Icon name="format_quote" className="text-secondary text-4xl mb-6 block" />
-          <blockquote className="font-headline text-xl sm:text-2xl md:text-3xl lg:text-4xl text-on-background italic leading-snug mb-8">
-            &ldquo;Marea is the first tool that didn&apos;t make me feel like I was malfunctioning.
-            It&apos;s like having a kind, extremely smart doctor in my pocket every morning.&rdquo;
-          </blockquote>
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden mb-3 border-2 border-white bg-surface-container-high flex items-center justify-center">
-              <Icon name="person" className="text-primary text-2xl" />
-            </div>
-            <cite className="not-italic font-label uppercase tracking-widest text-primary text-xs font-bold">
-              Sarah Jenkins, 48
-            </cite>
-            <p className="text-[11px] text-on-surface-variant mt-1">Beta Member since 2023</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Clinical insights / Blog preview */}
-      <section className="py-16 md:py-24 bg-surface">
+      {/* From the journal */}
+      <section className="py-16 md:py-24 bg-surface-container-low">
         <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 md:mb-10 gap-4">
             <div>
-              <div className="inline-block px-3 py-1 rounded-full bg-primary/5 text-primary font-label text-[10px] uppercase tracking-[0.2em] mb-3">
-                From the Journal
-              </div>
+              <Marker n="04" label="From the journal" />
               <h2
-                className="font-headline text-2xl md:text-3xl"
-                style={{ letterSpacing: '-0.01em', lineHeight: 1.2 }}
+                className="font-headline text-2xl md:text-3xl lg:text-4xl"
+                style={{ letterSpacing: '-0.015em', lineHeight: 1.2 }}
               >
-                Clinical insights, made clear
+                What we tell our patients, written down.
               </h2>
             </div>
             <Link
               to="/articles"
-              className="text-xs font-label font-semibold text-primary hover:text-tertiary transition-colors uppercase tracking-widest whitespace-nowrap"
+              className="font-headline italic text-base text-primary hover:text-tertiary transition-colors whitespace-nowrap"
             >
-              View all articles →
+              All articles &rarr;
             </Link>
           </div>
           {recentArticles.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {recentArticles.map(article => (
-                <Link key={article.id} to={`/articles/${article.slug}`} className="no-underline group">
-                  <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-lg">
+                <Link key={article.id} to={`/articles/${article.slug}`} className="no-underline group block">
+                  {article.cover_url ? (
                     <div
-                      className="h-[160px] bg-cover bg-center relative"
-                      style={{ backgroundImage: `url(${articleImage(article.slug, article.category)})` }}
+                      className="h-[180px] rounded-xl bg-cover bg-center"
+                      style={{ backgroundImage: `url(${fixStorageUrl(article.cover_url)})` }}
+                    />
+                  ) : (
+                    <ArticleArt category={article.category} className="h-[180px] rounded-xl" />
+                  )}
+                  <div className="pt-4">
+                    <p className="font-label text-[10px] uppercase tracking-[0.16em] text-on-surface-variant">
+                      {article.category} &middot; {article.read_time} min
+                    </p>
+                    <h3
+                      className="font-headline text-[1.2rem] text-on-background mt-1.5 group-hover:text-primary transition-colors"
+                      style={{ lineHeight: 1.3 }}
                     >
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-label text-[0.7rem] font-semibold text-primary bg-primary/[0.08] px-2 py-0.5 rounded-full">{article.category}</span>
-                        <span className="font-label text-[0.72rem] text-outline">{article.read_time} min</span>
-                      </div>
-                      <h3 className="font-headline text-[1.1rem] font-normal text-on-background" style={{ lineHeight: 1.3 }}>{article.title}</h3>
-                    </div>
+                      {article.title}
+                    </h3>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="bg-surface-container-lowest rounded-2xl p-8 md:p-10 shadow-sm border border-outline-variant/10 text-center">
-              <Icon name="article" className="text-outline-variant text-4xl mb-3 block" />
-              <p className="text-on-surface-variant font-light text-sm">Articles will appear here once published.</p>
-            </div>
+            <p className="text-on-surface-variant font-light text-sm border-t border-on-background/10 pt-6">
+              Articles will appear here once published.
+            </p>
           )}
         </div>
       </section>
 
-      {/* Download CTA */}
-      <section id="download" className="py-16 md:py-24 bg-surface">
-        <div className="max-w-5xl mx-auto px-6 md:px-16 lg:px-20">
-          <div className="bg-primary-container rounded-2xl md:rounded-3xl p-8 sm:p-12 md:p-20 text-center text-on-primary relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10 pointer-events-none">
-              <div className="absolute top-0 left-0 w-72 h-72 bg-white rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
-              <div className="absolute bottom-0 right-0 w-72 h-72 bg-secondary-container rounded-full blur-[100px] translate-x-1/2 translate-y-1/2" />
-            </div>
+      {/* Pricing / download. No dark card, no blurred blobs. */}
+      <section id="pricing" className="py-16 md:py-24 bg-surface border-t border-on-background/10 scroll-mt-24">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-16 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-8">
+            <Marker n="05" label="Membership" />
             <h2
-              className="font-headline text-2xl sm:text-3xl md:text-5xl mb-5 relative z-10"
-              style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
+              className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-6"
+              style={{ letterSpacing: '-0.025em', lineHeight: 1.08 }}
             >
-              Ready to redefine your journey?
+              Seven days free.<br />
+              Then $8.99 a month, or $49.99 a year.
             </h2>
-            <p className="text-on-primary-container text-sm sm:text-base md:text-lg font-light mb-8 md:mb-10 max-w-xl mx-auto relative z-10">
-              Join thousands of women who are reclaiming their clarity and confidence. Start your
-              free 14-day trial today.
+            <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-xl mb-8">
+              The assessment, the daily check-in, and the community stay free for good.
+              Membership adds everything below.
             </p>
-            <div className="flex flex-col items-center gap-4 relative z-10">
-              {APP_LIVE && isIOS ? (
-                <>
-                  <a
-                    href={APP_STORE_URL}
-                    className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20 hover:opacity-90 transition-opacity"
-                  >
-                    <svg viewBox="0 0 384 512" fill="currentColor" className="w-5 h-5" aria-hidden="true">
-                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
-                  </svg>
-                    Download on the App Store
-                  </a>
-                  <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
-                    Available on iPhone
-                  </p>
-                </>
-              ) : APP_LIVE ? (
-                <>
-                  <a
-                    href={APP_STORE_URL}
-                    className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20 hover:opacity-90 transition-opacity"
-                  >
-                    <Icon name="phone_iphone" className="text-xl" />
-                    Available on iPhone
-                  </a>
-                  <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
-                    Tap to view on the App Store
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div className="inline-flex items-center gap-3 bg-tertiary text-on-tertiary rounded-full px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-semibold shadow-xl shadow-tertiary/20">
-                    <Icon name="schedule" className="text-xl" />
-                    Coming Soon
-                  </div>
-                  <p className="text-[10px] font-label uppercase tracking-[0.2em] opacity-60">
-                    Launching first on iPhone
-                  </p>
-                </>
-              )}
-            </div>
+            {/* Mirrors FEATURES in the app's PaywallPage.jsx. Keep in step. */}
+            <Spec rows={[
+              ['Ask Marea', 'Unlimited questions, answered in the context of your own data'],
+              ['Forecast', 'A two-day outlook for mood, sleep, and hot flashes, so you can plan around it'],
+              ["Marea's Read", 'Unlimited plain-language interpretations of your Index'],
+              ['Cycles', 'Pattern analysis: anovulation signals, length variability, phase scores'],
+              ['Labs', 'Upload AMH, FSH, estradiol, thyroid and get a perimenopause-specific read'],
+              ['Appointments', 'A one-page summary of your history and symptoms to bring to your doctor'],
+              ['Experiments', 'Test whether magnesium, cold showers, or cutting alcohol actually moves your Index'],
+              ['Letters', 'A Sunday note on what your week looked like and what to watch next'],
+            ]} />
+          </div>
+          <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-3 lg:pt-16">
+            <AppStoreButton isIOS={isIOS} tone="warm" />
+            <p className="text-[10px] font-label uppercase tracking-[0.18em] text-on-surface-variant">
+              iPhone only, for now
+            </p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-outline-variant/15 bg-white">
+      <footer className="border-t border-on-background/10 bg-surface-container-low">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-6 md:px-16 lg:px-20 py-12 max-w-[1400px] mx-auto">
           <div>
-            <img
-              src={mareaLogo}
-              alt="Marea"
-              style={{ height: '28px', width: 'auto' }}
-              className="mb-4"
-            />
-            <p className="font-light text-sm text-on-background/50 max-w-xs leading-relaxed">
-              Dedicated to closing the gender data gap in midlife health through intelligence and
-              empathy.
+            <img src={mareaLogo} alt="Marea" style={{ height: '28px', width: 'auto' }} className="mb-4" />
+            <p className="font-light text-sm text-on-background/60 max-w-xs leading-relaxed">
+              A perimenopause app built inside a working OB/GYN practice.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-4 sm:gap-6">
             <div className="flex flex-col gap-3">
-              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
-                Company
-              </p>
-              <a
-                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                href="#vision"
-              >
-                Our Vision
-              </a>
-              <a
-                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                href="#features"
-              >
-                The Science
-              </a>
-              <Link
-                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                to="/blog"
-              >
-                Journal
-              </Link>
-              <Link
-                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                to="/articles"
-              >
-                Articles
-              </Link>
+              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-semibold">Explore</p>
+              <a className="text-sm font-light text-on-background/60 hover:text-tertiary transition-colors" href="#index">How it works</a>
+              <a className="text-sm font-light text-on-background/60 hover:text-tertiary transition-colors" href="#features">What&apos;s inside</a>
+              <Link className="text-sm font-light text-on-background/60 hover:text-tertiary transition-colors" to="/blog">Journal</Link>
+              <Link className="text-sm font-light text-on-background/60 hover:text-tertiary transition-colors" to="/articles">Articles</Link>
             </div>
             <div className="flex flex-col gap-3">
-              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
-                Legal
-              </p>
-              <Link
-                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                to="/privacy"
-              >
-                Privacy
-              </Link>
-              <Link
-                className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                to="/terms"
-              >
-                Terms
-              </Link>
+              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-semibold">Legal</p>
+              <Link className="text-sm font-light text-on-background/60 hover:text-tertiary transition-colors" to="/privacy">Privacy</Link>
+              <Link className="text-sm font-light text-on-background/60 hover:text-tertiary transition-colors" to="/terms">Terms</Link>
+              <Link className="text-sm font-light text-on-background/60 hover:text-tertiary transition-colors" to="/support">Support</Link>
             </div>
             <div className="flex flex-col gap-3">
-              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-bold">
-                App
-              </p>
+              <p className="text-[10px] font-label uppercase tracking-widest text-primary font-semibold">App</p>
               {APP_LIVE ? (
-                <a
-                  href={APP_STORE_URL}
-                  className="text-sm font-light text-on-background/50 hover:text-tertiary transition-colors"
-                >
-                  iOS — App Store
+                <a href={APP_STORE_URL} className="text-sm font-light text-on-background/60 hover:text-tertiary transition-colors">
+                  iPhone, on the App Store
                 </a>
               ) : (
-                <p className="text-sm font-light text-on-background/50">iOS — coming soon</p>
+                <p className="text-sm font-light text-on-background/60">iPhone, coming soon</p>
               )}
-              <p className="text-sm font-light text-on-background/30">Android — coming soon</p>
+              <p className="text-sm font-light text-on-background/35">Android, coming later</p>
             </div>
           </div>
         </div>
-        <div className="px-6 md:px-16 lg:px-20 py-6 border-t border-outline-variant/15 flex flex-col sm:flex-row justify-between items-center gap-3 max-w-[1400px] mx-auto">
-          <p className="font-light text-xs text-on-background/40">
+        <div className="px-6 md:px-16 lg:px-20 py-6 border-t border-on-background/10 max-w-[1400px] mx-auto">
+          <p className="font-light text-xs text-on-background/45">
             &copy; {new Date().getFullYear()} Marea Health, LLC. All rights reserved.
           </p>
-          <div className="flex gap-4">
-            <a
-              className="text-on-background/40 hover:text-primary transition-colors"
-              href="#"
-            >
-              <Icon name="brand_awareness" className="text-xl" />
-            </a>
-            <a
-              className="text-on-background/40 hover:text-primary transition-colors"
-              href="#"
-            >
-              <Icon name="group" className="text-xl" />
-            </a>
-          </div>
         </div>
       </footer>
     </div>
