@@ -58,6 +58,20 @@ const SHADOW = {
   calm: '0 20px 60px rgba(0,82,88,0.22), 0 4px 12px rgba(0,82,88,0.12)',
 }
 
+/* True when the viewport is at least `px` wide. Updates on resize so the
+   orb can take a different size on desktop than on a phone. */
+function useMinWidth(px) {
+  const [wide, setWide] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia(`(min-width: ${px}px)`).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${px}px)`)
+    const onChange = e => setWide(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [px])
+  return wide
+}
+
 function prefersReducedMotion() {
   return typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
@@ -196,7 +210,10 @@ function WaveCanvas({ score, turbulence, tone, size = 210 }) {
 /* `afterOrb` renders beneath the caption, orb column only. The landing page
    uses it to put the download button under the orb on phones, where the
    orb is the last thing in the hero. */
-export default function TideBand({ className = '', children = null, afterOrb = null, size = 210 }) {
+export default function TideBand({ className = '', children = null, afterOrb = null, size: sizeProp = 210, desktopSize = null }) {
+  // `desktopSize` (if given) applies from the lg breakpoint up.
+  const wide = useMinWidth(1024)
+  const size = wide && desktopSize ? desktopSize : sizeProp
   const [step, setStep] = useState(0)
   const band = BANDS[CYCLE[step]]
 

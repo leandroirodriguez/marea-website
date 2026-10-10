@@ -996,6 +996,7 @@ export default function LandingPage() {
       <TideBand
         className="pt-28 md:pt-36"
         size={240}
+        desktopSize={340}
         afterOrb={
           <div className="lg:hidden flex flex-col items-center gap-3 mt-2">
             <AppStoreButton isIOS={isIOS} />
