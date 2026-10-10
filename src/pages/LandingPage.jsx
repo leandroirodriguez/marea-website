@@ -952,7 +952,7 @@ export default function LandingPage() {
       .then(({ data }) => setRecentArticles(data || []))
   }, [])
 
-  const navLinkClass = 'text-on-surface-variant hover:text-primary font-headline text-base tracking-tight transition-colors'
+  const navLinkClass = 'text-on-surface-variant hover:text-primary font-headline text-lg tracking-tight transition-colors'
 
   return (
     <div className="bg-surface text-on-background font-body selection:bg-secondary-container/30 overflow-x-hidden">
