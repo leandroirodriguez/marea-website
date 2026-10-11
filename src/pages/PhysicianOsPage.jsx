@@ -230,7 +230,7 @@ export default function PhysicianOsPage() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-7">
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-7 items-start">
             <div>
               <VendorWatch />
               <h3 className="font-headline text-xl text-white mt-5 mb-1.5 font-normal">A vendor quietly raised its price</h3>

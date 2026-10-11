@@ -35,10 +35,12 @@ function useSequence(steps, ms = 1100, hold = 2600) {
   return [i, ref]
 }
 
+/* All three stand the same height so the captions beneath them line up. */
 const panel = {
   background: '#06282c',
   border: '1px solid rgba(139,210,218,0.16)',
   boxShadow: '0 20px 50px -24px rgba(0,30,34,0.6)',
+  minHeight: 408,
 }
 const mono = { fontFamily: 'var(--font-mono)' }
 
@@ -62,7 +64,7 @@ export function VendorWatch() {
   const flagged = step >= 3
 
   return (
-    <div ref={ref} className="rounded-2xl overflow-hidden" style={panel}>
+    <div ref={ref} className="rounded-2xl overflow-hidden flex flex-col" style={panel}>
       <Chrome label="vendors · inbound" />
       <div className="p-4 sm:p-5">
         {/* the document */}
@@ -162,9 +164,9 @@ const CREDS = [
 export function ComplianceWatch() {
   const [step, ref] = useSequence(3, 1300)
   return (
-    <div ref={ref} className="rounded-2xl overflow-hidden" style={panel}>
+    <div ref={ref} className="rounded-2xl overflow-hidden flex flex-col" style={panel}>
       <Chrome label="compliance · watch" />
-      <div className="p-4 sm:p-5 space-y-1.5">
+      <div className="p-4 sm:p-5 space-y-1.5 flex-1 flex flex-col">
         {CREDS.map(([name, days, state], i) => {
           const lit = step >= 1 && state !== 'ok'
           const colour = state === 'urgent' ? '#e05a4a' : state === 'soon' ? '#e0922f' : '#8bd2da'
@@ -187,7 +189,7 @@ export function ComplianceWatch() {
           )
         })}
         <div
-          className="flex items-center gap-2 pt-2 transition-opacity duration-500"
+          className="flex items-center gap-2 pt-3 mt-auto transition-opacity duration-500"
           style={{ opacity: step >= 2 ? 1 : 0 }}
         >
           <span className="text-[10px]" style={{ ...mono, color: 'rgba(167,233,241,0.55)' }}>
@@ -213,9 +215,9 @@ export function CoverageWatch() {
   const [step, ref] = useSequence(3, 1250)
   const tint = (v) => (v === 2 ? '#0d7f8c' : v === 1 ? 'rgba(139,210,218,0.35)' : 'rgba(255,255,255,0.07)')
   return (
-    <div ref={ref} className="rounded-2xl overflow-hidden" style={panel}>
+    <div ref={ref} className="rounded-2xl overflow-hidden flex flex-col" style={panel}>
       <Chrome label="staffing · coverage" />
-      <div className="p-4 sm:p-5">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col">
         <div className="flex gap-3">
           <div className="flex flex-col justify-around pr-1 text-right">
             {['Prior auths', 'Colposcopy', 'Referrals', 'Sterile proc.'].map((t, r) => (
@@ -228,7 +230,7 @@ export function CoverageWatch() {
               </p>
             ))}
           </div>
-          <div className="flex-1 grid grid-rows-4 gap-1.5">
+          <div className="flex-1 grid grid-rows-4 gap-2">
             {GRID.map((row, r) => (
               <div key={r} className="grid grid-cols-5 gap-1.5">
                 {row.map((v, c) => {
@@ -237,7 +239,7 @@ export function CoverageWatch() {
                   return (
                     <span
                       key={c}
-                      className="rounded h-6 transition-all duration-500"
+                      className="rounded h-9 transition-all duration-500"
                       style={{
                         background: hidden ? 'rgba(255,255,255,0.05)' : tint(v),
                         outline: sole && v > 0 && !hidden ? '1.5px solid #e0922f' : 'none',
@@ -252,7 +254,7 @@ export function CoverageWatch() {
           </div>
         </div>
         <p
-          className="mt-3 text-[10px] leading-snug transition-opacity duration-500"
+          className="mt-auto pt-4 text-[10px] leading-snug transition-opacity duration-500"
           style={{ ...mono, color: step >= 1 ? 'rgba(167,233,241,0.6)' : 'rgba(167,233,241,0)' }}
         >
           {step >= 2
