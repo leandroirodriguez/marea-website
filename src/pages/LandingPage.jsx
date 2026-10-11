@@ -1293,6 +1293,10 @@ export default function LandingPage() {
             <p className="font-light text-sm text-on-background/60 max-w-xs leading-relaxed">
               A perimenopause app built inside a working OB/GYN practice.
             </p>
+            {/* The other thing the practice built. Quiet on purpose. */}
+            <Link className="inline-block mt-4 text-xs font-light text-on-background/40 hover:text-tertiary transition-colors" to="/physicianos">
+              For physician groups &rarr;
+            </Link>
           </div>
           <div className="grid grid-cols-3 gap-4 sm:gap-6">
             <div className="flex flex-col gap-3">
