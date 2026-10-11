@@ -30,6 +30,9 @@
      and the app it advertises were set in different faces. */
   --font-body: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-label: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Data chrome on the PhysicianOS page: field names, counts, status lines.
+     A system stack — no extra webfont for the rest of the site to carry. */
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html { scroll-behavior: smooth; }
@@ -169,3 +172,11 @@ body {
   .po-fade, .po-draw, .po-grow { animation: none; }
   .po-draw { stroke-dasharray: none; }
 }
+
+/* PhysicianOS: a packet travelling a pipeline arrow (vertical on narrow
+   screens, horizontal from lg up), and the monospace used for data chrome. */
+@keyframes po-packet-y { 0% { transform: translateY(-14px); opacity: 0; } 20%,80% { opacity: 1; } 100% { transform: translateY(14px); opacity: 0; } }
+@keyframes po-packet-x { 0% { transform: translateX(-18px); opacity: 0; } 20%,80% { opacity: 1; } 100% { transform: translateX(18px); opacity: 0; } }
+.po-packet { animation: po-packet-y 2.2s ease-in-out infinite; }
+@media (min-width: 1024px) { .po-packet { animation-name: po-packet-x; } }
+@media (prefers-reduced-motion: reduce) { .po-packet { animation: none; opacity: .8; } }

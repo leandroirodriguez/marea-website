@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import mareaLogo from '../assets/marealogo.svg'
 import Icon from '../components/Icon'
 import ConsoleMock from '../components/ConsoleMock'
+import { VendorWatch, ComplianceWatch, CoverageWatch } from '../components/po/Vignettes'
+import { Pipeline } from '../components/po/Pipeline'
 
 /* PhysicianOS — Marea Health's second product: the operations platform a
    physician group runs its back office on, built inside our own practice and
@@ -22,7 +24,7 @@ function Marker({ n, label, light = false }) {
     <div className="flex items-center gap-3 mb-5">
       <span className={`font-headline text-sm tabular-nums ${light ? 'text-primary-fixed-dim' : 'text-primary'}`}>{n}</span>
       <span className={`h-px w-8 ${light ? 'bg-primary-fixed-dim/40' : 'bg-primary/40'}`} />
-      <span className={`font-label text-[11px] uppercase tracking-[0.18em] ${light ? 'text-primary-fixed-dim' : 'text-on-surface-variant'}`}>{label}</span>
+      <span className={`text-[11px] uppercase tracking-[0.18em] ${light ? 'text-primary-fixed-dim' : 'text-on-surface-variant'}`} style={{ fontFamily: 'var(--font-mono)' }}>{label}</span>
     </div>
   )
 }
@@ -35,7 +37,7 @@ function Spec({ rows, light = false }) {
           key={term}
           className={`grid grid-cols-1 sm:grid-cols-[8rem_1fr] gap-1 sm:gap-4 py-3 border-b ${light ? 'border-white/15' : 'border-on-background/10'}`}
         >
-          <dt className={`font-label uppercase tracking-[0.14em] text-[10px] sm:pt-1 ${light ? 'text-primary-fixed-dim' : 'text-primary'}`}>{term}</dt>
+          <dt className={`uppercase tracking-[0.14em] text-[10px] sm:pt-1 ${light ? 'text-primary-fixed-dim' : 'text-primary'}`} style={{ fontFamily: 'var(--font-mono)' }}>{term}</dt>
           <dd className={`text-sm font-light leading-snug ${light ? 'text-white/70' : 'text-on-surface-variant'}`}>{desc}</dd>
         </div>
       ))}
@@ -83,8 +85,9 @@ export default function PhysicianOsPage() {
             <span className="font-label text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">PhysicianOS</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="#what" className="hidden sm:inline text-sm text-on-background/60 hover:text-tertiary transition-colors">What it does</a>
-            <a href="#groups" className="hidden sm:inline text-sm text-on-background/60 hover:text-tertiary transition-colors">For groups</a>
+            <a href="#what" className="hidden md:inline text-sm text-on-background/60 hover:text-tertiary transition-colors">What it does</a>
+            <a href="#catches" className="hidden md:inline text-sm text-on-background/60 hover:text-tertiary transition-colors">What it catches</a>
+            <a href="#groups" className="hidden md:inline text-sm text-on-background/60 hover:text-tertiary transition-colors">For groups</a>
             <a href="#contact" className="whitespace-nowrap bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-medium hover:bg-primary-container transition-colors">
               <span className="hidden sm:inline">Request a walkthrough</span>
               <span className="sm:hidden">Get in touch</span>
@@ -102,7 +105,7 @@ export default function PhysicianOsPage() {
         <div className="relative max-w-[1180px] mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-16 md:pb-24 grid lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           <div className="lg:col-span-6">
             <p className="font-headline italic text-on-surface-variant text-base md:text-lg mb-5">
-              From the practice <span className="not-italic text-outline mx-1">·</span> not from a vendor
+              Built in the practice <span className="not-italic text-outline mx-1">·</span> not bought from a vendor
             </p>
             <h1
               className="font-headline text-[2.5rem] leading-[1.06] sm:text-5xl lg:text-[3.9rem] text-on-background mb-6"
@@ -123,8 +126,8 @@ export default function PhysicianOsPage() {
                 See what it does <Icon name="arrow_forward" className="text-[16px]" />
               </a>
             </div>
-            <p className="mt-6 text-xs text-on-background/45 font-light">
-              A product of Marea Health · live in one practice · in development for multi-practice groups
+            <p className="mt-7 text-[11px] uppercase tracking-[0.14em] text-on-background/40" style={{ fontFamily: 'var(--font-mono)' }}>
+              marea health · live in one practice · building for multi-practice groups
             </p>
           </div>
           <div className="lg:col-span-6">
@@ -174,7 +177,7 @@ export default function PhysicianOsPage() {
             <div className="lg:col-span-7">
               <Marker n="02" label="What it does" />
               <h2 className="font-headline text-3xl md:text-4xl lg:text-[2.75rem] text-on-background" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
-                Eleven modules, one login,<br className="hidden sm:block" /> no patient records.
+                Ten modules, one login,<br className="hidden sm:block" /> no patient records.
               </h2>
             </div>
             <p className="lg:col-span-5 text-on-surface-variant text-base md:text-lg font-light leading-relaxed">
@@ -194,10 +197,84 @@ export default function PhysicianOsPage() {
           </div>
 
           <p className="mt-6 text-sm text-on-surface-variant font-light max-w-3xl leading-relaxed">
-            Plus a provider time-off and call calendar, a document archive, and a patient-origin map — eleven in all.
-            Provider, financial and staff data only: patient records stay in the EMR, which is both the right boundary
-            and the smallest possible exposure.
+            Plus a document archive and a patient-origin map — ten in all. Provider, financial and staff data only:
+            patient records stay in the EMR, which is both the right boundary and the smallest possible exposure.
           </p>
+        </div>
+      </section>
+
+      {/* ── What it catches: the vignettes ── */}
+      <section id="catches" className="scroll-mt-20 relative overflow-hidden" style={{ background: '#032125' }}>
+        {/* faint blueprint grid — technical, not decorative */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(139,210,218,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(139,210,218,0.055) 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+            maskImage: 'radial-gradient(900px 500px at 50% 0%, black, transparent 85%)',
+            WebkitMaskImage: 'radial-gradient(900px 500px at 50% 0%, black, transparent 85%)',
+          }}
+        />
+        <div className="relative max-w-[1180px] mx-auto px-6 md:px-10 py-16 md:py-24">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-end mb-12">
+            <div className="lg:col-span-7">
+              <Marker n="03" label="What it catches" light />
+              <h2 className="font-headline text-3xl md:text-4xl lg:text-[2.75rem] text-white" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+                The things nobody has time to notice.
+              </h2>
+            </div>
+            <p className="lg:col-span-5 text-white/60 text-base md:text-lg font-light leading-relaxed">
+              Software that only stores what you type is a filing cabinet. These run on every document
+              the practice already receives — and raise a hand when the answer matters.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-7">
+            <div>
+              <VendorWatch />
+              <h3 className="font-headline text-xl text-white mt-5 mb-1.5 font-normal">A vendor quietly raised its price</h3>
+              <p className="text-sm text-white/55 font-light leading-relaxed">
+                Every invoice is read, matched to the vendor, and set against what that vendor has charged all year.
+                An unexplained jump reaches the office manager the day it arrives, not at the annual review.
+              </p>
+            </div>
+            <div>
+              <ComplianceWatch />
+              <h3 className="font-headline text-xl text-white mt-5 mb-1.5 font-normal">A credential about to lapse</h3>
+              <p className="text-sm text-white/55 font-light leading-relaxed">
+                Licenses, DEA, malpractice, BLS and the practice&apos;s own certificates, each with its document and its
+                date. Renewals surface ninety days out, by themselves.
+              </p>
+            </div>
+            <div>
+              <CoverageWatch />
+              <h3 className="font-headline text-xl text-white mt-5 mb-1.5 font-normal">The task only one person can do</h3>
+              <p className="text-sm text-white/55 font-light leading-relaxed">
+                Take any staff member out and watch what stops. The answer is usually one task, one person,
+                and nobody had written it down.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── How it works ── */}
+      <section className="relative overflow-hidden" style={{ background: '#021a1d' }}>
+        <div className="relative max-w-[1180px] mx-auto px-6 md:px-10 py-16 md:py-20">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-end mb-10">
+            <div className="lg:col-span-7">
+              <Marker n="04" label="How it works" light />
+              <h2 className="font-headline text-3xl md:text-4xl text-white" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+                Documents in. One isolated dataset per practice. Two views out.
+              </h2>
+            </div>
+            <p className="lg:col-span-5 text-white/55 text-base font-light leading-relaxed">
+              No integration project, no data entry. The practice keeps sending the files it already gets;
+              a format we have not seen before is read by the document AI until a parser exists for it.
+            </p>
+          </div>
+          <Pipeline />
         </div>
       </section>
 
@@ -206,7 +283,7 @@ export default function PhysicianOsPage() {
         <div className="max-w-[1180px] mx-auto px-6 md:px-10 py-16 md:py-24">
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             <div className="lg:col-span-6">
-              <Marker n="03" label="For management companies" light />
+              <Marker n="05" label="For management companies" light />
               <h2 className="font-headline text-3xl md:text-4xl lg:text-[2.75rem] text-white mb-6" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
                 Give every practice the app. Watch the whole network.
               </h2>
@@ -231,11 +308,11 @@ export default function PhysicianOsPage() {
                   ['6', 'screens to onboard a practice'],
                   ['0', 'engineers needed to do it'],
                   ['1', 'login for everything a practice runs on'],
-                  ['11', 'modules inherited by every new division'],
+                  ['10', 'modules inherited by every new division'],
                 ].map(([n, label]) => (
                   <div key={label} className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}>
                     <p className="font-headline text-5xl text-white leading-none mb-2">{n}</p>
-                    <p className="text-sm text-white/60 font-light leading-snug">{label}</p>
+                    <p className="text-[11px] uppercase tracking-[0.12em] text-white/50 leading-snug" style={{ fontFamily: 'var(--font-mono)' }}>{label}</p>
                   </div>
                 ))}
               </div>
@@ -249,7 +326,7 @@ export default function PhysicianOsPage() {
         <div className="max-w-[1180px] mx-auto px-6 md:px-10 py-16 md:py-24">
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-14">
             <div className="lg:col-span-5">
-              <Marker n="04" label="Where it came from" />
+              <Marker n="06" label="Where it came from" />
               <h2 className="font-headline text-3xl md:text-4xl text-on-background mb-5" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
                 A practice’s own tool, not a vendor’s idea of one.
               </h2>
@@ -264,7 +341,7 @@ export default function PhysicianOsPage() {
                 rows={[
                   ['Built', '2026, inside a nine-physician OB/GYN practice, against that practice’s real payroll registers, EMR reports and bank statements.'],
                   ['In use', 'Every day since, by the partners, the office manager and the staff — each seeing only what their role allows.'],
-                  ['Scope', 'Eleven modules covering analytics, compensation, payables, compliance, staffing, SOPs and HR.'],
+                  ['Scope', 'Ten modules covering analytics, compensation, payables, compliance, staffing, SOPs and HR.'],
                   ['Next', 'The multi-practice platform, check printing and receipts, and a QuickBooks sync so the CPA’s books fill themselves.'],
                 ]}
               />
