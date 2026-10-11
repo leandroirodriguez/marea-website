@@ -42,7 +42,7 @@ const panel = {
 }
 /* Side by side the three stand at one height so the captions beneath them
    line up; stacked on a phone each takes the height it needs. */
-const PANEL_CLASS = 'rounded-2xl overflow-hidden flex flex-col lg:h-[39rem]'
+const PANEL_CLASS = 'rounded-2xl overflow-hidden flex flex-col lg:h-[27rem]'
 
 const mono = { fontFamily: 'var(--font-mono)' }
 
@@ -241,7 +241,7 @@ export function CoverageWatch() {
                   return (
                     <span
                       key={c}
-                      className="rounded h-9 transition-all duration-500"
+                      className="rounded h-7 transition-all duration-500"
                       style={{
                         background: hidden ? 'rgba(255,255,255,0.05)' : tint(v),
                         outline: sole && v > 0 && !hidden ? '1.5px solid #e0922f' : 'none',
