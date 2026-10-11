@@ -85,8 +85,9 @@ export default function PhysicianOsPage() {
           <div className="flex items-center gap-6">
             <a href="#what" className="hidden sm:inline text-sm text-on-background/60 hover:text-tertiary transition-colors">What it does</a>
             <a href="#groups" className="hidden sm:inline text-sm text-on-background/60 hover:text-tertiary transition-colors">For groups</a>
-            <a href="#contact" className="bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-medium hover:bg-primary-container transition-colors">
-              Request a walkthrough
+            <a href="#contact" className="whitespace-nowrap bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-medium hover:bg-primary-container transition-colors">
+              <span className="hidden sm:inline">Request a walkthrough</span>
+              <span className="sm:hidden">Get in touch</span>
             </a>
           </div>
         </div>
