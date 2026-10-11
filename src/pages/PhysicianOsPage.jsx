@@ -173,7 +173,7 @@ export default function PhysicianOsPage() {
             <div className="lg:col-span-7">
               <Marker n="02" label="What it does" />
               <h2 className="font-headline text-3xl md:text-4xl lg:text-[2.75rem] text-on-background" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
-                Eight modules, one login,<br className="hidden sm:block" /> no patient records.
+                Eleven modules, one login,<br className="hidden sm:block" /> no patient records.
               </h2>
             </div>
             <p className="lg:col-span-5 text-on-surface-variant text-base md:text-lg font-light leading-relaxed">
@@ -192,9 +192,10 @@ export default function PhysicianOsPage() {
             ))}
           </div>
 
-          <p className="mt-6 text-sm text-on-background/50 font-light max-w-2xl">
-            Provider, financial and staff data only. Patient records stay in the EMR — by design, which is
-            also what keeps the compliance surface small.
+          <p className="mt-6 text-sm text-on-surface-variant font-light max-w-3xl leading-relaxed">
+            Plus a provider time-off and call calendar, a document archive, and a patient-origin map — eleven in all.
+            Provider, financial and staff data only: patient records stay in the EMR, which is both the right boundary
+            and the smallest possible exposure.
           </p>
         </div>
       </section>
