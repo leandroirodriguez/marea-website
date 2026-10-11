@@ -35,13 +35,15 @@ function useSequence(steps, ms = 1100, hold = 2600) {
   return [i, ref]
 }
 
-/* All three stand the same height so the captions beneath them line up. */
 const panel = {
   background: '#06282c',
   border: '1px solid rgba(139,210,218,0.16)',
   boxShadow: '0 20px 50px -24px rgba(0,30,34,0.6)',
-  minHeight: 408,
 }
+/* Side by side the three stand at one height so the captions beneath them
+   line up; stacked on a phone each takes the height it needs. */
+const PANEL_CLASS = 'rounded-2xl overflow-hidden flex flex-col lg:h-[39rem]'
+
 const mono = { fontFamily: 'var(--font-mono)' }
 
 function Chrome({ label }) {
@@ -64,9 +66,9 @@ export function VendorWatch() {
   const flagged = step >= 3
 
   return (
-    <div ref={ref} className="rounded-2xl overflow-hidden flex flex-col" style={panel}>
+    <div ref={ref} className={PANEL_CLASS} style={panel}>
       <Chrome label="vendors · inbound" />
-      <div className="p-4 sm:p-5">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col">
         {/* the document */}
         <div
           className="rounded-lg p-3.5 transition-all duration-500"
@@ -129,7 +131,7 @@ export function VendorWatch() {
 
         {/* the finding */}
         <div
-          className="mt-3 flex items-center gap-3 rounded-lg px-3.5 py-3 transition-all duration-500"
+          className="mt-auto pt-3 flex items-center gap-3 rounded-lg px-3.5 py-3 transition-all duration-500"
           style={{
             background: flagged ? 'rgba(224,146,47,0.14)' : 'rgba(255,255,255,0.02)',
             border: `1px solid ${flagged ? 'rgba(224,146,47,0.4)' : 'rgba(139,210,218,0.08)'}`,
@@ -164,7 +166,7 @@ const CREDS = [
 export function ComplianceWatch() {
   const [step, ref] = useSequence(3, 1300)
   return (
-    <div ref={ref} className="rounded-2xl overflow-hidden flex flex-col" style={panel}>
+    <div ref={ref} className={PANEL_CLASS} style={panel}>
       <Chrome label="compliance · watch" />
       <div className="p-4 sm:p-5 space-y-1.5 flex-1 flex flex-col">
         {CREDS.map(([name, days, state], i) => {
@@ -215,7 +217,7 @@ export function CoverageWatch() {
   const [step, ref] = useSequence(3, 1250)
   const tint = (v) => (v === 2 ? '#0d7f8c' : v === 1 ? 'rgba(139,210,218,0.35)' : 'rgba(255,255,255,0.07)')
   return (
-    <div ref={ref} className="rounded-2xl overflow-hidden flex flex-col" style={panel}>
+    <div ref={ref} className={PANEL_CLASS} style={panel}>
       <Chrome label="staffing · coverage" />
       <div className="p-4 sm:p-5 flex-1 flex flex-col">
         <div className="flex gap-3">
