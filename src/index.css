@@ -156,3 +156,16 @@ body {
   font-size: 0.85rem;
 }
 
+
+/* PhysicianOS page: the console illustration draws itself in once. */
+@keyframes po-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes po-draw { from { stroke-dashoffset: 420; } to { stroke-dashoffset: 0; } }
+@keyframes po-grow { from { width: 0; } }
+.po-fade { animation: po-fade .6s cubic-bezier(.2,.7,.2,1) both; }
+.po-draw { stroke-dasharray: 420; animation: po-draw 1.8s cubic-bezier(.3,.8,.3,1) .2s both; }
+.po-draw-2 { animation-delay: .5s; }
+.po-grow { animation: po-grow 1.2s cubic-bezier(.2,.7,.2,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .po-fade, .po-draw, .po-grow { animation: none; }
+  .po-draw { stroke-dasharray: none; }
+}
