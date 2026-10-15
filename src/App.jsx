@@ -16,10 +16,12 @@ import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import SupportPage from './pages/SupportPage'
 import PhysicianOsPage from './pages/PhysicianOsPage'
+import ScrollToTop from './components/ScrollToTop'
 
 export default function App() {
   return (
     <AuthProvider>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/blog" element={<BlogPage />} />
